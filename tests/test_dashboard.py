@@ -46,21 +46,46 @@ def test_filters_rates_and_empty_cohort():
     assert a.cohort('train','Two year','Fiber optic',[0,0]).empty
 
 def test_pages_and_interactions_serialize():
-    for split, contract, internet, tenure in [('train','Todos','Todos',[0,72]),('train','Two year','Fiber optic',[0,0])]:
-        d=a.cohort(split,contract,internet,tenure)
+    for f in [('train','Todos','Todos',[0,72]),('train','Two year','Fiber optic',[0,0]),('test','Month-to-month','DSL',[0,12])]:
+        d=a.cohort(*f)
         for key in app.PAGES:json.dumps(app.PAGES[key](d),cls=PlotlyJSONEncoder)
-        for var in a.NUMERIC+a.CATEGORICAL:
-            json.dumps(app.uni(var,split,contract,internet,tenure),cls=PlotlyJSONEncoder)
-            json.dumps(app.bi(var,split,contract,internet,tenure),cls=PlotlyJSONEncoder)
+        for var in a.NUMERIC:
+            json.dumps(app.uni_num(var,*f),cls=PlotlyJSONEncoder); json.dumps(app.bi_num(var,*f),cls=PlotlyJSONEncoder)
+        for var in ['__all__']+a.CATEGORICAL: json.dumps(app.uni_cat(var,*f),cls=PlotlyJSONEncoder)
+        for var in a.CATEGORICAL: json.dumps(app.bi_cat(var,*f),cls=PlotlyJSONEncoder)
+        json.dumps(app.multi(*f),cls=PlotlyJSONEncoder); json.dumps(app.missing(*f),cls=PlotlyJSONEncoder)
     for model in a.MODELS:
         json.dumps(app.model_output(model,'Todos','f1_positive'),cls=PlotlyJSONEncoder)
-        json.dumps(app.cal_output(model),cls=PlotlyJSONEncoder)
         json.dumps(app.opt_output(model),cls=PlotlyJSONEncoder)
+        json.dumps(app.res_output(model),cls=PlotlyJSONEncoder)
     for model in a.FINALISTS[:2]:json.dumps(app.explain_output(model),cls=PlotlyJSONEncoder)
     for model in a.FINALISTS:json.dumps(app.threshold_output(model,.3),cls=PlotlyJSONEncoder)
-    for var in a.CATEGORICAL+a.NUMERIC:json.dumps(app.var_chip(var),cls=PlotlyJSONEncoder)
     for row in a.TEST_IDS[:5]:json.dumps(app.real_output(row),cls=PlotlyJSONEncoder)
     assert app.real_random(3) in set(a.TEST_IDS)
+
+
+def test_eda_statistics_match_the_book():
+    import eda
+    d=a.RAW.loc[a.TRAIN_IDS]
+    num,cat,fam=eda.holm_family(d)
+    assert len(fam)==19
+    assert round(num.set_index('Variable').loc['tenure','r punto-biserial'],4)==-0.3456
+    v=cat.set_index('Variable')['V de Cramér']
+    assert v.idxmax()=='Contract' and round(v.max(),4)==0.4111
+    assert not fam.set_index('Variable').loc[['gender','PhoneService'],'Rechaza H0'].any()
+    assert (eda.normality(d)['¿Normal?']=='No').all()
+    assert round(d[a.NUMERIC].corr(method='spearman').loc['tenure','TotalCharges'],2)==0.89
+
+
+def test_modeling_artifacts_match_the_book():
+    from sklearn.metrics import confusion_matrix, roc_auc_score
+    o=app.oof(); rf=o[o.experiment=='random_forest__smote__bayesian_tpe']
+    assert rf.row_id.is_unique and set(rf.row_id)==set(a.TRAIN_IDS)
+    assert confusion_matrix(rf.y_true,rf.y_pred).tolist()==[[3289,850],[396,1099]]
+    b=app.baseline()
+    assert confusion_matrix(b.y_true,(b.probability>=.5).astype(int)).tolist()==[[749,286],[81,293]]
+    assert round(roc_auc_score(b.y_true,b.probability),4)==0.8419
+    assert (b.y_true.to_numpy()==a.RAW.loc[b.row_id,'target'].to_numpy()).all()
 
 
 def test_cover_and_simulator():
@@ -146,16 +171,34 @@ def test_chatbot_answers_from_project_knowledge():
     assert chatbot.data_answer('quién hizo el proyecto','es') is None
     # Sin límite de preguntas y con guía de cada sección del dash.
     assert not hasattr(chatbot,'MAX_QUESTIONS')
-    assert 'Modelado avanzado' in chatbot.local_answer('de qué capítulo es la galaxia 3d','es')
+    assert 'Nemenyi' in chatbot.local_answer('qué es el diagrama de nemenyi','es')
+    assert not hasattr(chatbot,'_chunks')
+    assert 'libro' not in chatbot.local_answer('qué es tenure','es').lower()
 
 
-def test_every_section_cites_the_jupyter_book():
+def test_sections_follow_the_book_with_one_link_each():
     d=a.cohort('train','Todos','Todos',[0,72])
-    for key in app.NAV:
-        payload=json.dumps(app.PAGES[key[0]](d),cls=PlotlyJSONEncoder)
-        if key[0]!='autoras': assert 'Telco_Churn_Entregable/' in payload and ' src-' in payload, key[0]
+    assert [k for k,_,_ in app.NAV]==['introduccion','eda','preprocesamiento','modelado','simulador','conclusiones','autoras']
+    intro=json.dumps(app.PAGES['introduccion'](d),cls=PlotlyJSONEncoder)
+    assert 'bivariado' not in intro.lower() and 'var-chip' not in intro
+    for key,chapter in app.CHAPTER.items():
+        page=json.dumps(app.PAGES[key](d),cls=PlotlyJSONEncoder)
+        assert page.count('Telco_Churn_Entregable/'+chapter+'.html')==1, key
     authors=json.dumps(app.PAGES['autoras'](d),cls=PlotlyJSONEncoder)
     assert 'linkedin.com/in/laura-s-rivera-figueredo' in authors and 'linkedin.com/in/n%C3%A1taly' in authors
-    assert 'img/laura.jpg' in authors and 'img/nataly.jpg' in authors
     client=app.server.test_client()
     for img in ['laura.jpg','nataly.jpg']: assert client.get('/assets/img/'+img).status_code==200
+
+
+def test_charts_use_one_color_plus_highlight():
+    import re
+    allowed={app.BASE.lower(),app.HOT.lower(),app.GREY.lower()}
+    d=a.cohort('train','Todos','Todos',[0,72])
+    payload=json.dumps([app.PAGES[k](d) for k in ['eda','preprocesamiento','modelado']]+[app.bi_cat('Contract','train','Todos','Todos',[0,72]),app.res_output('random_forest'),app.opt_output('xgboost')],cls=PlotlyJSONEncoder)
+    def drop_templates(x):
+        if isinstance(x,dict): return {k:drop_templates(v) for k,v in x.items() if k!='template'}
+        if isinstance(x,list): return [drop_templates(v) for v in x]
+        return x
+    payload=json.dumps(drop_templates(json.loads(payload)))
+    used={c.lower() for c in re.findall(r'"(#[0-9A-Fa-f]{6})"',payload)}
+    assert used<=allowed|{'#0b1426','#eaf2ff','#8792a8'}, used-allowed

@@ -594,3 +594,80 @@ html[data-theme=light] .chip-link.linkedin .ic { color: #0a66c2; }
 @media (max-width: 560px) { .src { white-space: normal; } }
 .chat-new { flex: none; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px; border: 1px solid var(--line2); background: transparent; color: var(--soft); border-radius: 999px; padding: 4px 10px; font-size: 11px; }
 .chat-new:hover { color: var(--cyan); border-color: var(--cyan); }
+
+/* =====================================================================
+   PALETA REDUCIDA: un color principal (azul) y uno de resalte (naranja),
+   los mismos del Jupyter Book. Los antiguos acentos apuntan a estos dos.
+   ===================================================================== */
+:root, html[data-theme=dark] {
+  --cyan: #4FA3C7; --violet: #4FA3C7; --mint: #4FA3C7; --amber: #9AA5B1; --coral: #F06A45; --hot: #F06A45;
+  --page-glow-1: rgba(79, 163, 199, .10); --page-glow-2: rgba(79, 163, 199, .06);
+}
+html[data-theme=light] {
+  --cyan: #2E86AB; --violet: #2E86AB; --mint: #2E86AB; --amber: #7B8794; --coral: #E4572E; --hot: #E4572E;
+  --page-glow-1: rgba(46, 134, 171, .08); --page-glow-2: rgba(46, 134, 171, .05);
+}
+.txt-hot, .txt-coral { color: var(--hot); }
+.k-value.hot, .k-value.coral { color: var(--hot); }
+.k-value.amber { color: var(--text); }
+.ticker-track span:nth-child(3n) .tick-dot, .ticker-track span:nth-child(3n+1) .tick-dot { background: var(--cyan); }
+.chip-group, .chip-group.grp-0, .chip-group.grp-1, .chip-group.grp-2 { color: var(--muted); }
+.finding .drv-icon .ic, .drv-icon .ic { color: var(--cyan); }
+.pill.ok { color: var(--cyan); border-color: color-mix(in srgb, var(--cyan) 45%, transparent); }
+.pill.bad { color: var(--hot); border-color: color-mix(in srgb, var(--hot) 45%, transparent); }
+.signal.medio b.lit { background: var(--soft); box-shadow: none; }
+.w.fp { background: var(--soft); opacity: .55; }
+.pod.first .medal { color: var(--hot); } .pod.second .medal, .pod.third .medal { color: var(--muted); }
+.pod.first .bar-podium { background: linear-gradient(180deg, color-mix(in srgb, var(--hot) 55%, transparent), color-mix(in srgb, var(--hot) 8%, transparent)); }
+.pod.second .bar-podium, .pod.third .bar-podium { background: linear-gradient(180deg, color-mix(in srgb, var(--cyan) 40%, transparent), color-mix(in srgb, var(--cyan) 6%, transparent)); }
+.glitch { background: none; color: var(--hot); -webkit-background-clip: initial; background-clip: initial; }
+.glitch::before, .glitch::after { color: var(--hot); background: none; }
+.hero::after { border-color: color-mix(in srgb, var(--cyan) 20%, transparent); }
+
+/* ================= TIPOGRAFÍA MÁS GRANDE ================= */
+body { font-size: 16px; line-height: 1.65; }
+p { font-size: 15.5px; }
+h1 { font-size: clamp(34px, 4.4vw, 50px); }
+h2 { font-size: clamp(23px, 2.6vw, 30px); }
+h3, .chart-title { font-size: 17.5px; }
+h4 { font-size: 16px; }
+.lead { font-size: 18.5px; }
+.eyebrow { font-size: 12px; }
+.insight { font-size: 14px; }
+.muted, .scope { font-size: 14.5px; }
+.note p { font-size: 15px; }
+.obj p, .next p, .finding p, .station p { font-size: 14.5px; }
+.flip-back p { font-size: 14px; }
+.k-label { font-size: 12px; }
+.k-value { font-size: 31px; }
+.kpi small { font-size: 13px; }
+.nav-link { font-size: 14px; }
+.tab { font-size: 15px !important; }
+.field > label { font-size: 12.5px; }
+.chip-link { font-size: 13.5px; }
+.dash-dropdown, .dash-dropdown-content { font-size: 14.5px !important; }
+.ticker-track span { font-size: 13.5px; }
+.msg { font-size: 15px; }
+.chat-form input { font-size: 15px; }
+.prose { font-size: 15px; }
+.cover-hint { font-size: 14px; }
+
+/* ================= NUEVOS COMPONENTES ================= */
+.chart-title { margin: 0 0 6px; }
+.page-head .chip-link { display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; }
+.kpis.k5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.kpis.k6 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.kpis.k5 .k-value, .kpis.k6 .k-value { font-size: 25px; }
+.objectives.g3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.grid.g3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.page > .eyebrow, .tab-body > .eyebrow { display: block; margin-bottom: 10px; }
+.rates { display: grid; gap: 8px; margin: 8px 0 16px; }
+.rate-row { display: grid; grid-template-columns: minmax(110px, 1fr) 2fr 56px; align-items: center; gap: 10px; font-size: 14px; color: var(--soft); }
+.rate-bar { height: 10px; border-radius: 6px; background: color-mix(in srgb, var(--cyan) 12%, transparent); overflow: hidden; }
+.rate-bar i { display: block; height: 100%; border-radius: 6px; background: var(--cyan); animation: growx 1s cubic-bezier(.2, .8, .2, 1) both; transform-origin: left; }
+.rate-bar i.hot { background: var(--hot); }
+@keyframes growx { from { transform: scaleX(0); } }
+.rate-row b { text-align: right; color: var(--text); font-weight: 600; }
+.card h4 { margin: 4px 0 2px; color: var(--soft); }
+@media (max-width: 1100px) { .kpis.k5, .kpis.k6, .grid.g3, .objectives.g3 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .kpis.k5, .kpis.k6, .grid.g3, .objectives.g3 { grid-template-columns: 1fr; } }

@@ -34,45 +34,31 @@ La app no requiere claves, base de datos ni acceso a GitHub al ejecutarse. No se
 
 ## Recorrido
 
-- **Portada interactiva:** una red de clientes conectados a un celular 3D. Los puntos rojos son clientes a punto de irse y se pueden retener pasando el cursor (o el dedo). El celular muestra clientes reales del test con la probabilidad de abandono del Random Forest finalista y las señales de su perfil.
-- **El problema:** el reto, el objetivo general, los 8 objetivos específicos, el marco teórico en tarjetas que se voltean y un selector de variables con su tasa de abandono.
-- **Datos:** filtros globales y cinco pestañas: calidad, distribuciones, segmentos de riesgo (sunburst y animación por antigüedad), relaciones y explorador con descarga CSV.
-- **Preparación:** el pipeline animado, controles, modelo base y ablación.
-- **Arena de modelos:** podio, ranking de las 112 configuraciones, galaxia 3D, carrera animada de buscadores, calibración y evidencia estadística.
-- **Simulador:** perfil de riesgo con clientes similares, clientes reales del test con las probabilidades de los tres finalistas y laboratorio de umbral.
-- **¿Por qué se van?:** factores clave, SHAP global y local, y LIME.
-- **Conclusiones:** hallazgos, limitaciones, próximos pasos, enlace al paper y biblioteca con todo el texto del libro, buscable.
-- **Autoras:** fotos, LinkedIn, GitHub y correo de las autoras, enlace al Jupyter Book y recursos.
+Las secciones siguen los capítulos del Jupyter Book, con las mismas gráficas y tablas (aquí animadas e interactivas), para poder explicar el proyecto desde el dash.
 
-Las rutas usan fragmentos (`#problema`, `#modelos`, etc.), así que admiten enlaces directos y la navegación del navegador. El diseño se adapta a móvil y respeta `prefers-reduced-motion`.
+- **Portada interactiva:** una red de clientes conectados a un celular 3D. Los puntos resaltados son clientes a punto de irse y se pueden retener pasando el cursor (o el dedo).
+- **Introducción:** contexto, objetivo general, objetivos específicos, marco teórico en tarjetas y descripción de variables.
+- **Análisis exploratorio:** filtros globales y pestañas con la numeración del libro: ETL y partición, univariado, bivariado (pruebas, Cramér V y Holm), multivariado (Q-Q, Spearman, matriz de dispersión, KDE), valores faltantes, resumen y explorador con descarga CSV.
+- **Preprocesamiento:** pasos del pipeline, validación cruzada, ablación y evaluación del modelo base en test (matriz de confusión y ROC animada).
+- **Modelado avanzado:** podio; resultados por modelo (matriz de confusión, ROC y confiabilidad), calibración, optimizadores, comparación estadística (Friedman, Nemenyi, DeLong) e interpretabilidad (SHAP global, waterfall y LIME).
+- **Simulador:** herramienta creada para el dash (perfil de riesgo, clientes reales del test y laboratorio de umbral).
+- **Conclusiones:** hallazgos, limitaciones, próximos pasos y enlace al paper.
+- **Autoras:** fotos, LinkedIn, GitHub y correo.
 
-## Relación con el Jupyter Book
-
-Cada sección muestra con etiquetas de qué capítulo y sección del libro proviene, con enlace directo; las pestañas de *Datos* y *Arena de modelos* siguen la numeración de los capítulos. Colores: turquesa Introducción, violeta EDA, ámbar Preprocesamiento, coral Modelado avanzado y verde Paper. Las etiquetas grises punteadas marcan herramientas creadas solo para el dash (simulador y explorador).
+Cada capítulo tiene un único enlace a su versión en el Jupyter Book, debajo del título. El diseño se adapta a móvil y respeta `prefers-reduced-motion`.
 
 ## Idioma, tema y paleta
 
-- **Español / inglés:** botones `ES | EN` arriba a la derecha. Todos los textos están en `i18n.py` y un test verifica que ninguno quede sin traducir. El texto de la biblioteca (notebooks originales) se muestra en español.
-- **Modo claro / oscuro:** botón de sol/luna. La elección de idioma y tema se guarda en el navegador.
+- **Español / inglés:** botones `ES | EN` arriba a la derecha. Todos los textos están en `i18n.py` y un test verifica que ninguno quede sin traducir.
+- **Modo claro / oscuro:** botón de sol/luna. La elección se guarda en el navegador.
 - **Íconos:** íconos de línea propios en `icons.py` (sin emojis).
-- **Paleta de las gráficas** (`PALETTE` en `app.py`), en tonos medios para que funcione sobre fondo claro y oscuro:
-
-| Uso | Color |
-|---|---|
-| Permanece / riesgo bajo de la escala | `#1BA7C4` turquesa |
-| Abandona / riesgo alto | `#E8566C` coral |
-| Serie secundaria | `#7C5CE0` violeta |
-| Riesgo medio | `#F2A93B` ámbar |
-| Riesgo bajo (semáforo) | `#3BB57A` verde |
-| Otras familias de modelos | `#4C7BE0` azul, `#C2569A` magenta |
-
-Cada familia de modelos conserva su color en todas las gráficas (`MODEL_COLORS`).
+- **Paleta:** las gráficas usan un solo color (`#2E86AB` azul) y cambian a `#E4572E` naranja solo para resaltar el mejor resultado o la clase de interés; `#9AA5B1` gris para referencias. Los textos usan blanco/gris y el mismo azul como acento. Un test verifica que ninguna gráfica use otros colores.
 
 ## Asistente
 
-El botón flotante abre un asistente sin límite de preguntas que responde sobre el proyecto, sus datos y cada sección del dash (incluida la sección del Jupyter Book de donde viene cada parte). Para preguntas sobre perfiles concretos, como «tasa de abandono de clientes con fibra y mes a mes», calcula la cifra sobre el conjunto de entrenamiento.
+El botón flotante abre un asistente sin límite de preguntas que responde sobre el proyecto, sus datos y cada sección del dash. No responde copiando texto del Jupyter Book. Para preguntas sobre perfiles concretos, como «tasa de abandono de clientes con fibra y mes a mes», calcula la cifra sobre el conjunto de entrenamiento.
 
-- **Sin configuración**, responde con la base de conocimiento local de `chatbot.py` (preguntas frecuentes en ES/EN y el texto del libro).
+- **Sin configuración**, responde con la base de conocimiento local de `chatbot.py` (preguntas frecuentes en ES/EN sobre el dash).
 - **Con la variable de entorno `ANTHROPIC_API_KEY`**, redacta las respuestas con Claude (`claude-opus-5-5`) usando ese mismo contexto, y vuelve a la respuesta local si la API falla. Cada pregunta consume créditos de la API de Anthropic.
 
 ```bash
@@ -95,7 +81,7 @@ En Render, la variable se agrega en *Environment* (ya está declarada en `render
 - El laboratorio de umbral usa predicciones **nativas** guardadas de tres finalistas sobre el test histórico. Es didáctico: mover el umbral no valida una regla operativa.
 - El test ya había sido expuesto en la primera entrega y es evidencia suplementaria. Los contrastes por folds son exploratorios, no confirmatorios.
 - No se cargan pickles ni se entrena al iniciar. La selección de archivos está en `data/provenance.json`.
-- Los textos de la biblioteca y las figuras LIME proceden de los notebooks y artefactos originales, con atribución. La biblioteca omite código y salidas de ejecución; las gráficas y tablas del dashboard presentan los resultados numéricos originales.
+- Las gráficas y tablas presentan los resultados numéricos originales del libro (pruebas del EDA recalculadas con los mismos métodos; predicciones OOF, SHAP y LIME tomadas de los artefactos publicados).
 - En el comparador, las barras de error son **desviaciones estándar**, no IC. El mapa familia × balanceo promedia optimizadores.
 - La tabla del explorador filtra su vista localmente. El CSV exporta la selección completa de los filtros superiores y las columnas elegidas, tal como indica la interfaz.
 
@@ -105,6 +91,7 @@ En Render, la variable se agrega en *Environment* (ya está declarada en `render
 - `i18n.py`: traducciones español → inglés.
 - `icons.py`: íconos de línea.
 - `chatbot.py`: asistente (base de conocimiento, búsqueda y conexión opcional con Claude).
+- `eda.py`: pruebas estadísticas del análisis exploratorio.
 - `analytics.py`: carga local, cohortes, tasas, clientes similares y errores por umbral.
 - `assets/style.css`: diseño visual, animaciones y estilos de los controles de Dash 4.
 - `assets/cover.js`: red de clientes, celular 3D y contadores animados (Dash lo carga automáticamente).
