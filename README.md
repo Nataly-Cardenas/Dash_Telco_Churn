@@ -1,10 +1,11 @@
-# Telco Atlas · Dashboard del Jupyter Book
+# Señal perdida · Dashboard Telco Customer Churn
 
-Dashboard interactivo en español, construido con **Python Dash y Plotly** para explicar el proyecto de abandono de clientes de **Laura Rivera y Natalý Cárdenas**, Universidad del Norte.
+Dashboard interactivo en español, construido con **Python Dash y Plotly**, para explorar el proyecto de abandono de clientes de **Laura Rivera y Natalý Cárdenas**, Universidad del Norte.
 
-- Libro: https://nataly-cardenas.github.io/Telco_Churn_Entregable/
-- Fuente: https://github.com/Nataly-Cardenas/Telco_Churn_Entregable
-- Inspiración de navegación e interpretación: https://github.com/lauraformore/DASH_VIZ
+![Portada del dashboard](preview-desktop.png)
+
+- Jupyter Book: https://nataly-cardenas.github.io/Telco_Churn_Entregable/
+- Fuente de los datos y resultados: https://github.com/Nataly-Cardenas/Telco_Churn_Entregable
 - Commit de los datos: `41191edb71ebf15a1543d538a158513db8781d2f` (recuperado el 23 de octubre de 2026).
 
 ## Ejecutar
@@ -33,24 +34,17 @@ La app no requiere claves, base de datos ni acceso a GitHub al ejecutarse. No se
 
 ## Recorrido
 
-1. Panorama: KPIs, composición de clases, abandono por contrato y antigüedad.
-2. Proyecto y objetivos: problema, conceptos y alcance temporal.
-3. Datos y calidad: partición, faltantes, duplicados y diccionario.
-4. Análisis univariado: todas las variables candidatas, histograma, caja y conteos.
-5. Abandono por segmento: tasas con denominadores y distribuciones por resultado.
-6. Relaciones multivariadas: Spearman, redundancia y dispersión de dos variables.
-7. Preprocesamiento: reglas, ingeniería, pipeline, ablación y baseline.
-8. Comparador de modelos: las 112 configuraciones, filtros, métricas y desviación entre folds.
-9. Optimización: convergencia interna y tiempos por familia, con presupuesto común.
-10. Calibración y umbrales: Brier/ECE y simulación de errores sobre test histórico.
-11. Evidencia estadística: Friedman, DeLong/Holm e incertidumbre condicional.
-12. SHAP y LIME: importancia global, aciertos, errores y fidelidad del sustituto local.
-13. Conclusiones: evidencia, limitaciones y pasos para evaluación prospectiva.
-14. Explorador: columnas seleccionables, orden/filtro de tabla y exportación CSV.
-15. Libro en detalle: explicaciones de todos los apartados de EDA, preprocesamiento y modelado, buscables por texto.
-16. Autoras y fuentes: autoría y trazabilidad.
+- **Portada interactiva:** una red de clientes conectados a un celular 3D. Los puntos rojos son clientes a punto de irse y se pueden retener pasando el cursor (o el dedo). El celular muestra clientes reales del test con la probabilidad de abandono del Random Forest finalista y las señales de su perfil.
+- **El problema:** el reto, el objetivo general, los 8 objetivos específicos, el marco teórico en tarjetas que se voltean y un selector de variables con su tasa de abandono.
+- **Datos:** filtros globales y cinco pestañas: calidad, distribuciones, segmentos de riesgo (sunburst y animación por antigüedad), relaciones y explorador con descarga CSV.
+- **Preparación:** el pipeline animado, controles, modelo base y ablación.
+- **Arena de modelos:** podio, ranking de las 112 configuraciones, galaxia 3D, carrera animada de buscadores, calibración y evidencia estadística.
+- **Simulador:** perfil de riesgo con clientes similares, clientes reales del test con las probabilidades de los tres finalistas y laboratorio de umbral.
+- **¿Por qué se van?:** factores clave, SHAP global y local, y LIME.
+- **Conclusiones:** hallazgos, limitaciones, próximos pasos, enlace al paper y biblioteca con todo el texto del libro, buscable.
+- **Autoras:** autoría, enlace al Jupyter Book y recursos.
 
-Las rutas usan fragmentos (`#models`, `#explain`, etc.), admiten enlaces directos y navegación del navegador. Incluye modo presentación y diseño móvil.
+Las rutas usan fragmentos (`#problema`, `#modelos`, etc.), así que admiten enlaces directos y la navegación del navegador. El diseño se adapta a móvil y respeta `prefers-reduced-motion`.
 
 ## Contrato de datos
 
@@ -58,22 +52,24 @@ Las rutas usan fragmentos (`#models`, `#explain`, etc.), admiten enlaces directo
 - Índices históricos: 5.634 train y 1.409 test, sin solapamiento.
 - `TotalCharges` se convierte a numérico para el EDA y conserva sus 11 ausencias. La explicación del pipeline documenta su imputación determinista con cero por `tenure = 0`.
 - Los filtros superiores afectan al EDA y al explorador. **No recalculan ni reentrenan modelos publicados**.
+- El simulador de perfil muestra la tasa de abandono **observada** en clientes de entrenamiento parecidos; no es una predicción del modelo.
 - La tabla de 112 configuraciones representa media y desviación de cinco folds externos de la realización 0. `unidades.csv` contiene las 1.680 unidades (112 × 3 × 5).
 - El panel de optimización promedia el mejor F1 **interno** acumulado, sin confundirlo con el externo.
 - El laboratorio de umbral usa predicciones **nativas** guardadas de tres finalistas sobre el test histórico. Es didáctico: mover el umbral no valida una regla operativa.
 - El test ya había sido expuesto en la primera entrega y es evidencia suplementaria. Los contrastes por folds son exploratorios, no confirmatorios.
 - No se cargan pickles ni se entrena al iniciar. La selección de archivos está en `data/provenance.json`.
-- Los textos del lector y las figuras LIME proceden de los notebooks y artefactos originales, con atribución. El lector omite código y salidas de ejecución; las gráficas y tablas del dashboard presentan los resultados numéricos originales.
+- Los textos de la biblioteca y las figuras LIME proceden de los notebooks y artefactos originales, con atribución. La biblioteca omite código y salidas de ejecución; las gráficas y tablas del dashboard presentan los resultados numéricos originales.
 - En el comparador, las barras de error son **desviaciones estándar**, no IC. El mapa familia × balanceo promedia optimizadores.
 - La tabla del explorador filtra su vista localmente. El CSV exporta la selección completa de los filtros superiores y las columnas elegidas, tal como indica la interfaz.
 
 ## Archivos
 
-- `app.py`: páginas, callbacks y servidor.
-- `analytics.py`: carga local, cohortes, tasas y errores por umbral.
-- `assets/style.css`: interfaz responsive oscura y estilos de controles Dash 4.
+- `app.py`: portada, secciones, callbacks y servidor.
+- `analytics.py`: carga local, cohortes, tasas, clientes similares y errores por umbral.
+- `assets/style.css`: diseño visual, animaciones y estilos de los controles de Dash 4.
+- `assets/cover.js`: red de clientes, celular 3D y contadores animados (Dash lo carga automáticamente).
 - `data/`: CSV, interpretabilidad y textos originales necesarios, unos 8 MB.
-- `tests/test_dashboard.py`: integridad del split, métricas, filtros, serialización de páginas, exportación y endpoints.
+- `tests/test_dashboard.py`: integridad del split, métricas, filtros, simulador, serialización de páginas, exportación y endpoints.
 - `preview-desktop.png`, `preview-mobile.png`: capturas reales del dashboard.
 
 ## Verificar

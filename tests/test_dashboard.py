@@ -48,7 +48,7 @@ def test_filters_rates_and_empty_cohort():
 def test_pages_and_interactions_serialize():
     for split, contract, internet, tenure in [('train','Todos','Todos',[0,72]),('train','Two year','Fiber optic',[0,0])]:
         d=a.cohort(split,contract,internet,tenure)
-        for key,_,_ in app.NAV:json.dumps(app.PAGES[key](d),cls=PlotlyJSONEncoder)
+        for key in app.PAGES:json.dumps(app.PAGES[key](d),cls=PlotlyJSONEncoder)
         for var in a.NUMERIC+a.CATEGORICAL:
             json.dumps(app.uni(var,split,contract,internet,tenure),cls=PlotlyJSONEncoder)
             json.dumps(app.bi(var,split,contract,internet,tenure),cls=PlotlyJSONEncoder)
@@ -57,6 +57,21 @@ def test_pages_and_interactions_serialize():
         json.dumps(app.cal_output(model),cls=PlotlyJSONEncoder)
         json.dumps(app.opt_output(model),cls=PlotlyJSONEncoder)
     for model in a.FINALISTS[:2]:json.dumps(app.explain_output(model),cls=PlotlyJSONEncoder)
+    for model in a.FINALISTS:json.dumps(app.threshold_output(model,.3),cls=PlotlyJSONEncoder)
+    for var in a.CATEGORICAL+a.NUMERIC:json.dumps(app.var_chip(var),cls=PlotlyJSONEncoder)
+    for row in a.TEST_IDS[:5]:json.dumps(app.real_output(row),cls=PlotlyJSONEncoder)
+    assert app.real_random(3) in set(a.TEST_IDS)
+
+
+def test_cover_and_simulator():
+    customers=app.cover_customers()
+    assert len(customers)==30 and len({c['id'] for c in customers})==30
+    assert all(0<=c['prob']<=1 for c in customers)
+    for contract in ['Month-to-month','One year','Two year']:
+        for internet in ['Fiber optic','DSL','No']:
+            s,_=a.similar_customers(contract,internet,'Electronic check',10,70)
+            assert len(s)>0 and set(s.index)<=set(a.TRAIN_IDS)
+            json.dumps(app.sim_output(contract,internet,'Electronic check',10,70),cls=PlotlyJSONEncoder)
 
 def test_download_and_http_endpoints():
     payload=app.export(1,['customerID','Churn'],'train','Todos','Todos',[0,72])
