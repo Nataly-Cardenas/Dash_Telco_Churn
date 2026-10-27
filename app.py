@@ -117,14 +117,35 @@ def chart(title, f, insight='', height=340, legend=True):
 
 
 def page_head(key, lead, chapter=None):
-    link = html.A([T('Ver en el Jupyter Book'), icon('arrow', 'sm')], href=BOOK + chapter + '.html', target='_blank', className='chip-link') if chapter else None
-    return html.Div([html.Div([eyebrow('TELCO CUSTOMER CHURN · ' + T(TITLES[key]).upper()), link], className='between'),
-                     html.H1(T(TITLES[key])), html.P(lead, className='lead')], className='page-head')
+    chapters = [chapter] if isinstance(chapter, str) else chapter or []
+    book = html.Div([html.Span(T('Capítulos del libro en esta sección:'), className='muted'), *[src(c) for c in chapters]], className='book-map') if chapters else None
+    return html.Div([eyebrow('TELCO CUSTOMER CHURN · ' + T(TITLES[key]).upper()), html.H1(T(TITLES[key])), html.P(lead, className='lead'), book], className='page-head')
 
 
 def tabs(id, items):
     return dcc.Tabs([dcc.Tab(children=html.Div(content, className='tab-body'), label=lbl, value=str(i), className='tab', selected_className='tab on')
                      for i, (lbl, content) in enumerate(items)], value='0', id=id, className='tabs', parent_className='tabs-wrap')
+
+
+# Capítulos del Jupyter Book: cada parte del dash indica de qué capítulo y sección viene.
+BOOK_CHAPTERS = {'intro': (N('Introducción'), 'intro'), 'EDA_': (N('Análisis exploratorio (EDA)'), 'eda'), 'PREPROCESAMIENTO': (N('Preprocesamiento'), 'pre'),
+                 'MODELADO_AVANZADO': (N('Modelado avanzado'), 'mod'), 'paper': ('Paper', 'paper')}
+
+
+def src(chapter, section=None, anchor=''):
+    """Etiqueta de procedencia: capítulo y sección del Jupyter Book, con enlace directo."""
+    name, cls = BOOK_CHAPTERS[chapter]
+    return html.A([icon('book', 'sm'), html.Span('Jupyter Book · ' + T(name), className='src-ch'), html.Span(' › ' + T(section)) if section else None, icon('arrow', 'sm')],
+                  href=BOOK + chapter + '.html' + ('#' + anchor if anchor else ''), target='_blank', className=f'src src-{cls}', title=T('Abrir esta sección en el Jupyter Book'))
+
+
+def dash_only(based_on=None):
+    """Etiqueta para herramientas creadas para el dash (no existen como tal en el libro)."""
+    return html.Span([icon('sliders', 'sm'), T('Herramienta del dash'), html.Span(' · ' + T(based_on)) if based_on else None], className='src src-dash')
+
+
+def section(title, *tags, sub=None):
+    return html.Div([html.Div([html.H2(title), *[t for t in tags if t]], className='section-row'), html.P(sub, className='muted') if sub else None], className='section-head')
 
 
 def empty(): return note(T('Sin clientes en este segmento'), T('Amplía los filtros para volver a calcular las visualizaciones.'))
@@ -232,21 +253,22 @@ GROUPS = [('card', N('Cuenta'), ['Contract', 'PaymentMethod', 'PaperlessBilling'
 
 def problema(d):
     return html.Div([
-        page_head('problema', T('Perder un cliente cuesta más que conservarlo. Este proyecto busca anticipar quién está por cancelar su servicio para actuar a tiempo.'), 'intro'),
-        html.Div([html.Div([eyebrow(T('EL RETO')), html.H2([T('1 de cada 4 clientes '), html.Span(T('se desconecta'), className='txt-coral')]),
+        page_head('problema', T('Perder un cliente cuesta más que conservarlo. Este proyecto busca anticipar quién está por cancelar su servicio para actuar a tiempo.'), ['intro', 'EDA_']),
+        html.Div([html.Div([src('intro', N('Introducción y contexto del problema'), 'introduccion'), eyebrow(T('EL RETO')), html.H2([T('1 de cada 4 clientes '), html.Span(T('se desconecta'), className='txt-coral')]),
                             html.P(T('El conjunto Telco Customer Churn de IBM reúne servicios contratados, datos de cuenta y perfil demográfico de cada cliente, '
                                      'junto con si canceló en el último mes. Dos dificultades: los que se van son minoría, y los datos son una foto de un momento.')),
                             people_row()], className='hero-text'),
                   kpis(kpi(T('CLIENTES'), 7043, T('una fila por cliente')), kpi(T('ABANDONOS'), 1869, T('cancelaron en el último mes'), 'coral'),
                        kpi(T('TASA DE ABANDONO'), 26.5, T('la clase minoritaria'), 'coral', 1, ' %'), kpi(T('VARIABLES'), 19, T('predictoras candidatas')), cls='k2')], className='hero'),
-        html.H2(T('¿Qué buscamos?'), className='section-title'),
+        section(T('¿Qué buscamos?'), src('intro', N('Objetivo general y objetivos específicos'), 'objetivo-general')),
         card(eyebrow(T('OBJETIVO GENERAL')), html.P(T('Identificar a los clientes con mayor riesgo de abandonar el servicio y los factores asociados, comparando de forma reproducible '
                                                      'modelos de clasificación que detecten la mayor cantidad de clientes en riesgo sin generar un exceso de falsas alertas.'), className='big-text'), cls='glow'),
         html.Div([html.Div([html.Span(f'{i + 1:02d}', className='obj-n'), html.H4(T(t)), html.P(T(s))], className='obj') for i, (t, s) in enumerate(OBJECTIVES)], className='objectives'),
-        html.H2(T('Marco teórico en 7 tarjetas'), className='section-title'), html.P(T('Pasa el cursor (o toca) cada tarjeta para voltearla.'), className='muted'),
+        section(T('Marco teórico'), src('intro', N('Marco teórico'), 'marco-teorico'), sub=T('Pasa el cursor (o toca) cada tarjeta para voltearla.')),
         html.Div([html.Div(html.Div([html.Div([html.Span(icon(i), className='flip-icon'), html.H4(T(t))], className='flip-front'), html.Div([html.H4(T(t)), html.P(T(s))], className='flip-back')],
                                     className='flip-inner'), className='flip', tabIndex=0) for i, t, s in FLIP], className='flips'),
-        html.H2(T('Las variables del problema'), className='section-title'),
+        section(T('Análisis bivariado: abandono según cada variable'), src('EDA_', N('4. Análisis bivariado'), 'analisis-bivariado'),
+                src('intro', N('Descripción de las variables'), 'descripcion-de-las-variables-del-proyecto')),
         card(html.P(T('Elige una variable para ver cómo cambia la tasa de abandono entre sus categorías (conjunto de entrenamiento).'), className='muted'),
              html.Div([html.Span([icon(i), T(g)], className=f'chip-group grp-{k}') for k, (i, g, _) in enumerate(GROUPS)], className='chip-groups'),
              dcc.RadioItems([{'label': html.Span(label(v), className=f'grp-{k}'), 'value': v} for k, (_, _, vs) in enumerate(GROUPS) for v in vs], 'Contract', id='var-chip', className='chips', inline=True),
@@ -264,34 +286,36 @@ def datos(d):
     dictionary = pd.DataFrame([{T('Variable'): c, T('Significado'): label(c) if c in a.LABELS else T('Identificador') if c == 'customerID' else T('Abandono'),
                                 T('Tipo'): T('Numérica') if c in a.NUMERIC else T('Categórica'), T('Rol'): T('Objetivo') if c == 'Churn' else T('No predictor') if c == 'customerID' else T('Predictor')}
                                for c in a.RAW.columns[:21]])
-    calidad = [kpis(kpi(T('FILAS'), 7043, T('una por cliente')), kpi(T('ENTRENAMIENTO'), 5634, T('80 % · aquí se hace el EDA')), kpi(T('TEST'), 1409, T('20 % · reservado')),
+    calidad = [html.Div([src('EDA_', N('1. ETL'), 'etl'), src('EDA_', N('2. División train / test'), 'division-train-test'), src('EDA_', N('6. Valores faltantes'), 'valores-faltantes')], className='srcs'),
+               kpis(kpi(T('FILAS'), 7043, T('una por cliente')), kpi(T('ENTRENAMIENTO'), 5634, T('80 % · aquí se hace el EDA')), kpi(T('TEST'), 1409, T('20 % · reservado')),
                     kpi(T('VACÍOS'), 11, T('TotalCharges con tenure = 0'), 'amber')),
                grid(chart(T('Partición antes de mirar los datos'), split, T('El test se separa primero para que ninguna decisión se tome con él.'), 300, False),
                     card(html.H3(T('Auditoría de la selección')), table(audit, filter_action='none'), html.P(T('Los 11 vacíos son clientes nuevos sin facturación acumulada: '
                          'se reemplazan por 0 en el preprocesamiento, no por un promedio ficticio.'), className='insight'))),
                details([icon('book'), T('Diccionario de variables')], table(dictionary, page_size=21))]
-    distribuciones = [card(field(T('Variable'), dropdown('uni-var', a.NUMERIC + a.CATEGORICAL, 'tenure', {v: label(v) for v in a.LABELS})), cls='controls-card'), html.Div(id='uni-output')]
+    distribuciones = [html.Div([src('EDA_', N('3. Análisis univariado'), 'analisis-univariado'), src('EDA_', N('3.4 Outliers y sesgos'), 'outliers-y-sesgos')], className='srcs'), card(field(T('Variable'), dropdown('uni-var', a.NUMERIC + a.CATEGORICAL, 'tenure', {v: label(v) for v in a.LABELS})), cls='controls-card'), html.Div(id='uni-output')]
     p1, p2, p3 = T('Contrato'), T('Internet'), T('Pago')
     sun = d.assign(**{p1: d.Contract.map(cat), p2: d.InternetService.map(cat), p3: d.PaymentMethod.map(cat)}).groupby([p1, p2, p3]).target.agg(['size', 'mean']).reset_index()
     sb = px.sunburst(sun, path=[p1, p2, p3], values='size', color='mean', color_continuous_scale=RISK_SCALE, range_color=[0, .7], labels={'mean': T('Abandono'), 'size': T('Clientes')})
     sb.update_traces(hovertemplate='<b>%{label}</b><br>' + T('Clientes') + ': %{value}<br>' + T('Abandono') + ': %{color:.1%}<extra></extra>', insidetextorientation='radial')
-    segmentos = [grid(chart(T('Mapa de riesgo · haz clic para profundizar'), sb, T('Contrato → internet → método de pago. El color es la tasa de abandono: el coral marca '
+    segmentos = [html.Div([src('EDA_', N('4. Análisis bivariado'), 'analisis-bivariado'), src('EDA_', N('Categorías con mayores tasas de churn'), 'categorias-con-mayores-tasas-de-churn')], className='srcs'), grid(chart(T('Mapa de riesgo · haz clic para profundizar'), sb, T('Contrato → internet → método de pago. El color es la tasa de abandono: el coral marca '
                             'los perfiles más frágiles, como mes a mes + fibra óptica + cheque electrónico.'), 470, False), tenure_race(d)),
                  card(field(T('Comparar abandono por'), dropdown('bi-var', a.CATEGORICAL + a.NUMERIC, 'PaymentMethod', {v: label(v) for v in a.LABELS})), cls='controls-card'), html.Div(id='bi-output')]
     corr = d[a.NUMERIC + ['target']].rename(columns={**{v: label(v) for v in a.NUMERIC}, 'target': T('Abandono')}).corr(method='spearman')
-    relaciones = [grid(chart(T('Correlaciones de Spearman'), px.imshow(corr, text_auto='.2f', zmin=-1, zmax=1, color_continuous_scale=DIVERGING),
+    relaciones = [html.Div([src('EDA_', N('5. Análisis multivariado'), 'analisis-multivariado')], className='srcs'), grid(chart(T('Correlaciones de Spearman'), px.imshow(corr, text_auto='.2f', zmin=-1, zmax=1, color_continuous_scale=DIVERGING),
                              T('Antigüedad y cargo acumulado comparten mucha información (ρ ≈ 0.89): por eso se crea el cargo promedio mensual en lugar de borrar una.'), 380, False),
                        card(html.H3(T('Dos variables a la vez')), grid(field(T('Eje X'), dropdown('scatter-x', a.NUMERIC, 'tenure', {v: label(v) for v in a.NUMERIC})),
                                                                        field(T('Eje Y'), dropdown('scatter-y', a.NUMERIC, 'MonthlyCharges', {v: label(v) for v in a.NUMERIC}))),
                             html.Div(id='scatter-output'), cls='controls-card'))]
-    explorador = [card(field(T('Columnas visibles'), dropdown('explorer-cols', list(a.RAW.columns[:21]), ['customerID', 'Contract', 'InternetService', 'tenure', 'MonthlyCharges', 'Churn'], {}, multi=True)),
+    explorador = [html.Div([dash_only(N('datos originales de Kaggle'))], className='srcs'), card(field(T('Columnas visibles'), dropdown('explorer-cols', list(a.RAW.columns[:21]), ['customerID', 'Contract', 'InternetService', 'tenure', 'MonthlyCharges', 'Churn'], {}, multi=True)),
                        html.Div(id='explorer-table'),
                        html.Div([html.Button([icon('download'), T('Descargar CSV')], id='export', className='btn primary', n_clicks=0),
                                  html.P(T('Descarga un solo archivo con la selección actual de los filtros superiores y las columnas elegidas.'), className='muted')], className='export-row'), cls='controls-card')]
     return html.Div([page_head('datos', T('Del archivo original a los patrones de abandono. Los filtros superiores recalculan todo lo que ves aquí.'), 'EDA_'), scope(d),
                      kpis(kpi(T('CLIENTES'), len(d), T('en la selección')), kpi(T('ABANDONO'), round(d.target.mean() * 100, 2), T('{n} clientes').format(n=f'{int(d.target.sum()):,}'), 'coral', 2, ' %'),
                           kpi(T('ANTIGÜEDAD MEDIA'), round(d.tenure.mean(), 1), T('meses'), '', 1), kpi(T('CARGO MENSUAL'), round(d.MonthlyCharges.mean(), 2), T('promedio'), '', 2, '', '$')),
-                     tabs('datos-tabs', [(T('Calidad'), calidad), (T('Distribuciones'), distribuciones), (T('Segmentos de riesgo'), segmentos), (T('Relaciones'), relaciones), (T('Explorador'), explorador)])])
+                     tabs('datos-tabs', [(T('1–2 · Calidad y ETL'), calidad), (T('3 · Análisis univariado'), distribuciones), (T('4 · Análisis bivariado'), segmentos),
+                                         (T('5 · Análisis multivariado'), relaciones), (T('Explorador de datos'), explorador)])])
 
 
 def tenure_race(d):
@@ -327,10 +351,14 @@ def preparacion(d):
     fb = px.bar(base, x='v', y=m, orientation='h', text=base.v.map('{:.3f}'.format), color=m, color_discrete_sequence=[STAY, CHURN, PALETTE['violet'], LOW])
     fb.update_xaxes(range=[0, 1], title=''); fb.update_yaxes(title='')
     return html.Div([page_head('preparacion', T('Siete estaciones por las que pasa cada cliente antes de llegar al modelo, todas ajustadas sin espiar el test.'), 'PREPROCESAMIENTO'),
+        section(T('Pasos de preprocesamiento'), src('PREPROCESAMIENTO', N('4. Pasos de preprocesamiento definidos a partir del EDA'), 'pasos-de-preprocesamiento-definidos-a-partir-del-eda')),
         card(html.H3(T('El pipeline en movimiento')), html.Div([html.Div(className='flow-line'), *[html.Div([html.Span(icon(i), className='st-icon'), html.H4(T(t)), html.P(T(s))], className='station',
              style={'animationDelay': f'{k * .15}s'}) for k, (i, t, s) in enumerate(STEPS)]], className='pipeline')),
+        section(T('Validación cruzada en entrenamiento'), src('PREPROCESAMIENTO', N('4.6 Validación cruzada en train'), 'validacion-cruzada-en-train-protocolo-antes-de-tocar-test')),
         kpis(kpi(T('AUC IMPUTANDO CON 0'), .8459, T('CV en entrenamiento'), '', 4), kpi(T('AUC CON MEDIANA'), .8460, T('diferencia despreciable'), '', 4),
              kpi(T('ETIQUETAS PERMUTADAS'), .49, T('control: azar'), 'coral', 2), kpi(T('COLUMNAS FINALES'), 24, T('tras codificar'))),
+        section(T('Modelo base y ablación'), src('PREPROCESAMIENTO', N('7. Evaluación final en test'), 'evaluacion-final-en-test-una-sola-vez'),
+                src('PREPROCESAMIENTO', N('4.7 Ablación por CV'), 'ablacion-por-cv-aportan-gender-phoneservice-y-avgchargepermonth')),
         grid(chart(T('Modelo base: regresión logística en test'), fb, T('Detecta casi 8 de cada 10 abandonos, pero la mitad de sus alertas son falsas: hay margen de mejora.'), 300, False),
              chart(T('Ablación: ¿qué pasa si quito una variable?'), fa, T('Retirar gender o PhoneService casi no cambia el AUC; las diferencias están dentro del ruido entre folds.'), 300, False)),
         grid(note(T('¿Por qué SMOTE solo en entrenamiento?'), T('Si se balanceara antes de dividir, ejemplos sintéticos derivados de clientes de validación contaminarían el entrenamiento.')),
@@ -350,21 +378,22 @@ def modelos(d):
                        labels={'recall_positive_mean': 'Recall', 'precision_positive_mean': 'Precision', 'roc_auc_mean': 'AUC', 'f1_positive_mean': 'F1'})
     axis = {'gridcolor': 'rgba(139,147,167,.35)', 'showbackground': False, 'zerolinecolor': 'rgba(139,147,167,.35)', 'color': '#8792a8'}
     f3.update_layout(scene={'bgcolor': 'rgba(0,0,0,0)', 'xaxis': axis, 'yaxis': axis, 'zaxis': axis, 'camera': {'eye': {'x': 1.6, 'y': 1.5, 'z': .9}}})
-    ranking = [card(html.Div([field(T('Familia'), dropdown('model-family', ['Todas'] + list(a.MODELS), 'Todas', {'Todas': T('Todas'), **{k: model_name(k) for k in a.MODELS}})),
+    ranking = [html.Div([src('MODELADO_AVANZADO', N('1. Modelos implementados y resultados obtenidos'), 'modelos-implementados-y-resultados-obtenidos')], className='srcs'),
+               card(html.Div([field(T('Familia'), dropdown('model-family', ['Todas'] + list(a.MODELS), 'Todas', {'Todas': T('Todas'), **{k: model_name(k) for k in a.MODELS}})),
                               field(T('Balanceo'), dropdown('model-balance', ['Todos'] + list(a.BALANCES), 'Todos', {'Todos': T('Todos'), **{k: balance_name(k) for k in a.BALANCES}})),
                               field(T('Métrica'), dropdown('model-metric', list(METRICS), 'f1_positive', {k: T(v) for k, v in METRICS.items()}))], className='controls'), cls='controls-card'),
                html.Div(id='models-output'),
                chart(T('Galaxia de 112 configuraciones · gira con el mouse'), f3, T('Cada punto es una configuración; el tamaño es su F1. Las más grandes y altas combinan buen recall, precisión y AUC.'), 560)]
-    carrera = [card(field(T('Familia'), dropdown('opt-family', list(a.MODELS), 'random_forest', {k: model_name(k) for k in a.MODELS})), cls='controls-card'), html.Div(id='opt-output'),
+    carrera = [html.Div([src('MODELADO_AVANZADO', N('2. Comparación de métodos de optimización'), 'comparacion-de-metodos-de-optimizacion')], className='srcs'), card(field(T('Familia'), dropdown('opt-family', list(a.MODELS), 'random_forest', {k: model_name(k) for k in a.MODELS})), cls='controls-card'), html.Div(id='opt-output'),
                note(T('Sin ganador universal'), T('Con 24 evaluaciones los cuatro buscadores terminan prácticamente empatados; las diferencias solo aparecen con presupuestos bajos.'))]
-    calib = [grid(card(html.H3(T('Probabilidades que dicen la verdad')), md(T('El balanceo distorsiona las probabilidades. La **calibración sigmoide** (Platt) se ajustó dentro del '
+    calib = [html.Div([src('MODELADO_AVANZADO', N('1.8 Síntesis de los resultados de calibración'), 'sintesis-de-los-resultados-de-calibracion')], className='srcs'), grid(card(html.H3(T('Probabilidades que dicen la verdad')), md(T('El balanceo distorsiona las probabilidades. La **calibración sigmoide** (Platt) se ajustó dentro del '
                        'entrenamiento y redujo **Brier** y **ECE** a la vez en **80 de 96** configuraciones.\n\n- **Brier**: error cuadrático de la probabilidad (menor es mejor).\n'
                        '- **ECE**: distancia entre la confianza y la frecuencia real.'))),
                   card(field(T('Familia'), dropdown('cal-family', list(a.MODELS), 'random_forest', {k: model_name(k) for k in a.MODELS})), html.Div(id='cal-output'), cls='controls-card'))]
     return html.Div([page_head('modelos', T('Siete familias × cuatro balanceos × cuatro buscadores = 112 configuraciones compitiendo bajo las mismas reglas.'), 'MODELADO_AVANZADO'),
                      html.Div([podium(), kpis(kpi(T('CONFIGURACIONES'), 112, '7 × 4 × 4'), kpi(T('UNIDADES EXTERNAS'), 1680, T('112 × 3 semillas × 5 folds')),
                                               kpi('FOLDS', '5 × 3', T('externos × internos')), kpi(T('PRESUPUESTO'), 24, T('evaluaciones por búsqueda')), cls='k2')], className='hero'),
-                     tabs('model-tabs', [(T('Ranking'), ranking), (T('Carrera de buscadores'), carrera), (T('Calibración'), calib), (T('Evidencia estadística'), estadistica())])])
+                     tabs('model-tabs', [(T('1 · Ranking de modelos'), ranking), (T('1.8 · Calibración'), calib), (T('2 · Carrera de optimizadores'), carrera), (T('3 · Comparación estadística'), estadistica())])])
 
 
 def podium():
@@ -381,7 +410,8 @@ def estadistica():
     fr = px.line_polar(test.melt(id_vars=mod, var_name=T('Métrica'), value_name='v'), r='v', theta=T('Métrica'), color=mod, line_close=True, range_r=[.45, .85],
                        color_discrete_sequence=[MODEL_COLORS['random_forest'], MODEL_COLORS['xgboost'], MODEL_COLORS['logistic']])
     fr.update_traces(fill='toself', opacity=.55); fr.update_layout(polar={'bgcolor': 'rgba(0,0,0,0)', 'radialaxis': {'gridcolor': GRID}, 'angularaxis': {'gridcolor': GRID}})
-    return [kpis(kpi('FRIEDMAN χ²', round(f['statistic'], 2), f'Kendall W = {f["kendall_W"]:.2f}', '', 2), kpi(T('PARES NEMENYI < 0.05'), 31, T('de 6,216 · exploratorio')),
+    return [html.Div([src('MODELADO_AVANZADO', N('3. Resultados finales y comparación estadística'), 'resultados-finales-comparacion-estadistica-e-interpretabilidad')], className='srcs'),
+            kpis(kpi('FRIEDMAN χ²', round(f['statistic'], 2), f'Kendall W = {f["kendall_W"]:.2f}', '', 2), kpi(T('PARES NEMENYI < 0.05'), 31, T('de 6,216 · exploratorio')),
                  kpi(T('p DELONG (HOLM)'), 1.0, T('los tres pares'), '', 1), kpi('ΔAUC RF − XGB', .0017, T('IC [−0.0034, 0.0070]'), '', 4)),
             grid(chart(T('Finalistas en el test histórico'), fr, T('Los tres finalistas se superponen: la regresión logística detecta más (Recall) y los ensambles aciertan más sus alertas (Precision).'), 400),
                  card(html.H3(T('¿Hay un ganador?')), md(T('**No de forma demostrable.** Friedman detecta diferencias entre las 112 configuraciones, pero Nemenyi no separa a las mejores. '
@@ -396,21 +426,22 @@ GAUGE_M = {'l': 34, 'r': 34, 't': 50, 'b': 10}
 
 
 def simulador(d):
-    perfil = [grid(card(html.H3(T('Arma un cliente')), field(T('Contrato'), dropdown('sim-contract', ['Month-to-month', 'One year', 'Two year'], 'Month-to-month')),
+    perfil = [html.Div([dash_only(N('basada en el análisis bivariado')), src('EDA_', N('4. Análisis bivariado'), 'analisis-bivariado')], className='srcs'),
+              grid(card(html.H3(T('Arma un cliente')), field(T('Contrato'), dropdown('sim-contract', ['Month-to-month', 'One year', 'Two year'], 'Month-to-month')),
                         field(T('Internet'), dropdown('sim-internet', ['Fiber optic', 'DSL', 'No'], 'Fiber optic')), field(T('Método de pago'), dropdown('sim-payment', PAY, 'Electronic check')),
                         field(T('Antigüedad (meses)'), dcc.Slider(0, 72, 1, value=4, marks={0: '0', 24: '24', 48: '48', 72: '72'}, id='sim-tenure', tooltip={'placement': 'bottom'})),
                         field(T('Cargo mensual ($)'), dcc.Slider(18, 119, 1, value=85, marks={20: '20', 60: '60', 100: '100'}, id='sim-monthly', tooltip={'placement': 'bottom'})), cls='controls-card'),
                    html.Div(id='sim-output')),
               note(T('¿De dónde sale este riesgo?'), T('Es la tasa de abandono observada en clientes de entrenamiento con un perfil parecido, no una predicción del modelo. '
                    'Sirve para explorar patrones; para la predicción del modelo usa la pestaña de clientes reales.'))]
-    reales = [card(html.Div([field(T('Cliente del test histórico'), dcc.Dropdown([{'label': a.RAW.customerID[i], 'value': i} for i in a.TEST_IDS], int(a.TEST_IDS[0]), id='real-id', clearable=False)),
+    reales = [html.Div([dash_only(N('con las predicciones de los finalistas')), src('MODELADO_AVANZADO', N('3. Modelos finales en el test histórico'), 'modelos-finales-y-procedencia-de-las-comparaciones-dirigidas')], className='srcs'), card(html.Div([field(T('Cliente del test histórico'), dcc.Dropdown([{'label': a.RAW.customerID[i], 'value': i} for i in a.TEST_IDS], int(a.TEST_IDS[0]), id='real-id', clearable=False)),
                              html.Button([icon('shuffle'), T('Cliente al azar')], id='real-random', className='btn ghost', n_clicks=0)], className='controls'),
                     html.Div(id='real-output'), cls='controls-card')]
-    umbral = [card(html.Div([field(T('Modelo finalista'), dropdown('threshold-model', a.FINALISTS, a.FINALISTS[0], {k: T(v) for k, v in a.FINALIST_NAMES.items()})),
+    umbral = [html.Div([dash_only(N('con las predicciones de los finalistas')), src('MODELADO_AVANZADO', N('3. Resultados finales'), 'resultados-finales-comparacion-estadistica-e-interpretabilidad')], className='srcs'), card(html.Div([field(T('Modelo finalista'), dropdown('threshold-model', a.FINALISTS, a.FINALISTS[0], {k: T(v) for k, v in a.FINALIST_NAMES.items()})),
                              field(T('Umbral de alerta'), dcc.Slider(.05, .95, .01, value=.5, marks={.1: '0.10', .3: '0.30', .5: '0.50', .7: '0.70', .9: '0.90'}, id='threshold', tooltip={'always_visible': True}))],
                             className='controls'), html.Div(id='threshold-output'), cls='controls-card'),
               note(T('Decisión de negocio'), T('Bajar el umbral detecta más clientes en riesgo pero dispara más falsas alertas. Elegirlo bien requiere conocer el costo de cada contacto y de cada cliente perdido.'))]
-    return html.Div([page_head('simulador', T('Juega con perfiles, revisa clientes reales y decide dónde poner la alarma de retención.')),
+    return html.Div([page_head('simulador', T('Juega con perfiles, revisa clientes reales y decide dónde poner la alarma de retención.'), ['EDA_', 'MODELADO_AVANZADO']),
                      tabs('sim-tabs', [(T('Perfil de riesgo'), perfil), (T('Clientes reales'), reales), (T('Umbral de alerta'), umbral)])])
 
 
@@ -434,9 +465,11 @@ def porque(d):
     drivers = [('file', T('Contrato'), T('Mes a mes'), t[t.Contract == 'Month-to-month'].target.mean(), T('vs 2.9 % con dos años')),
                ('globe', 'Internet', T('Fibra óptica'), t[t.InternetService == 'Fiber optic'].target.mean(), T('vs 7.3 % sin internet')),
                ('hourglass', T('Antigüedad'), T('Primer año'), t[t.tenure <= 12].target.mean(), T('vs {p} después de 4 años').format(p=f'{t[t.tenure > 48].target.mean():.1%}'))]
-    return html.Div([page_head('porque', T('Lo que los modelos aprendieron: las variables que empujan el riesgo, y cómo explicaron aciertos y errores concretos.'), 'MODELADO_AVANZADO'),
+    return html.Div([page_head('porque', T('Lo que los modelos aprendieron: las variables que empujan el riesgo, y cómo explicaron aciertos y errores concretos.'), ['EDA_', 'MODELADO_AVANZADO']),
+        section(T('Factores asociados al abandono'), src('EDA_', N('4.2 Variable objetivo vs variables categóricas'), 'variable-objetivo-vs-variables-categoricas')),
         html.Div([html.Div([html.Span(icon(i), className='drv-icon'), eyebrow(v.upper()), html.H3(c), html.Div([counter(round(r * 100, 1), 1, ' %')], className='drv-num'), html.Small(T('abandono') + ' · ' + s)], className='driver')
                   for i, v, c, r, s in drivers], className='drivers'),
+        section(T('Interpretabilidad: SHAP y LIME'), src('MODELADO_AVANZADO', N('3.2 Interpretabilidad global y local: SHAP y LIME'), 'interpretabilidad-global-y-local-shap-y-lime')),
         card(field(T('Modelo explicado'), dropdown('explain-model', a.FINALISTS[:2], a.FINALISTS[0], {k: T(a.FINALIST_NAMES[k]) for k in a.FINALISTS[:2]})), html.Div(id='explain-output'), cls='controls-card'),
         grid(note('SHAP', T('Reparte cada predicción entre las variables usando valores de Shapley. Promediando su magnitud se obtiene la importancia global.')),
              note('LIME', T('Ajusta un modelo simple alrededor de un cliente para explicar su caso. Hay que revisar su fidelidad, no solo su estabilidad.'), 'violet')),
@@ -454,15 +487,17 @@ def conclusiones(d):
     steps = [(N('Validación temporal'), N('Evaluar en clientes futuros.')), (N('Costos explícitos'), N('Elegir el umbral con el costo de cada error.')),
              (N('Modelo propuesto'), N('Superar a las referencias en desempeño y tiempo.'))]
     library_note = html.P(T('El texto de la biblioteca está disponible en español.'), className='note violet') if get_lang() == 'en' else None
-    return html.Div([page_head('conclusiones', T('Qué aprendimos, qué sigue siendo incierto y qué falta para llevarlo a una campaña de retención.'), 'paper'),
+    return html.Div([page_head('conclusiones', T('Qué aprendimos, qué sigue siendo incierto y qué falta para llevarlo a una campaña de retención.'), ['MODELADO_AVANZADO', 'paper']),
+        section(T('Hallazgos principales'), src('MODELADO_AVANZADO', N('3.3 Conclusiones sustentadas por los resultados'), 'conclusiones-sustentadas-por-los-resultados')),
         html.Div([html.Div([html.Span(icon(i), className='drv-icon'), html.H3(T(t)), html.P(T(s))], className='finding') for i, t, s in finds], className='findings'),
+        section(T('Limitaciones y trabajo futuro'), src('paper', N('4. Conclusiones'), 'conclusiones'), src('paper', N('5. Modelo propuesto: trabajo en curso'), 'modelo-propuesto-trabajo-en-curso')),
         grid(card(eyebrow(T('LIMITACIONES')), html.Ul([html.Li(T(x)) for x in limits])),
              card(eyebrow(T('PRÓXIMOS PASOS')), html.Div([html.Div([html.Span(f'0{k + 1}', className='obj-n'), html.Div([html.H4(T(t)), html.P(T(s))])], className='next') for k, (t, s) in enumerate(steps)]))),
         card(html.Div([html.Div([eyebrow(T('PAPER DEL PROYECTO')), html.H2(T('Modelo de clasificación binaria para la predicción de abandono de clientes')),
                                  html.P(T('Metodología completa, tablas, figuras y referencias en formato Springer Nature.'))]),
                        html.Div([html.A([icon('file'), T('Leer el paper')], href=BOOK + 'paper.html', target='_blank', className='btn primary'),
                                  html.A([icon('download'), 'PDF'], href=BOOK + 'paper.pdf', target='_blank', className='btn ghost')], className='cover-cta')], className='paper-card'), cls='glow'),
-        html.H2(T('Biblioteca del proyecto'), className='section-title'),
+        section(T('Biblioteca del proyecto'), src('EDA_'), src('PREPROCESAMIENTO'), src('MODELADO_AVANZADO')),
         card(html.P(T('Todo el texto de los notebooks del libro, buscable por palabra clave.'), className='muted'), library_note,
              grid(field(T('Capítulo'), dropdown('reader-chapter', list(a.CHAPTERS), 'EDA_', {'EDA_': T('1 · Análisis exploratorio'), 'PREPROCESAMIENTO': T('2 · Preprocesamiento'), 'MODELADO_AVANZADO': T('3 · Modelado avanzado')})),
                   field(T('Buscar'), dcc.Input(id='reader-search', placeholder=T('Ej. SMOTE, calibración, contrato…'), type='search', debounce=True))), html.Div(id='reader-output'), cls='controls-card')])
@@ -470,14 +505,17 @@ def conclusiones(d):
 
 # ---------------------------------------------------------------- 8. autoras
 def autoras(d):
-    people = [('LR', 'Laura S. Rivera Figueredo', 'sriveral@uninorte.edu.co', 'https://github.com/lauraformore'),
-              ('NC', 'Natalý A. Cárdenas Izaquita', 'nizaquita@uninorte.edu.co', 'https://github.com/Nataly-Cardenas')]
+    people = [('laura.jpg', 'Laura S. Rivera Figueredo', 'sriveral@uninorte.edu.co', 'https://github.com/lauraformore', 'https://www.linkedin.com/in/laura-s-rivera-figueredo-862451315/'),
+              ('nataly.jpg', 'Natalý A. Cárdenas Izaquita', 'nizaquita@uninorte.edu.co', 'https://github.com/Nataly-Cardenas', 'https://www.linkedin.com/in/n%C3%A1taly-c%C3%A1rdenas-iz%C3%A1quita')]
     res = [('code', T('Código y notebooks'), T('Repositorio Telco_Churn_Entregable'), REPO), ('sliders', T('Este dashboard'), T('Repositorio Dash_Telco_Churn'), DASH_REPO),
            ('table', T('Conjunto de datos'), 'Kaggle · Telco Customer Churn (IBM)', 'https://www.kaggle.com/datasets/blastchar/telco-customer-churn'), ('file', 'Paper', T('Versión web y PDF'), BOOK + 'paper.html')]
     return html.Div([page_head('autoras', T('El equipo detrás del proyecto y los recursos para profundizar.')),
-        html.Div([html.Div([html.Div(html.Span(i), className='avatar'), html.H2(n), html.P(T('Ciencia de Datos · Universidad del Norte'), className='muted'),
-                            html.Div([html.A([icon('mail', 'sm'), m], href='mailto:' + m, className='chip-link'), html.A([icon('code', 'sm'), 'GitHub'], href=g, target='_blank', className='chip-link')], className='author-links')],
-                           className='author') for i, n, m, g in people], className='authors'),
+        html.Div([html.Div([html.Div(html.Img(src=app.get_asset_url('img/' + photo), alt=T('Foto de {n}').format(n=n)), className='avatar'), html.H2(n),
+                            html.P(T('Ciencia de Datos · Universidad del Norte'), className='muted'),
+                            html.Div([html.A([icon('linkedin', 'sm'), 'LinkedIn'], href=li, target='_blank', className='chip-link linkedin'),
+                                      html.A([icon('code', 'sm'), 'GitHub'], href=g, target='_blank', className='chip-link'),
+                                      html.A([icon('mail', 'sm'), m], href='mailto:' + m, className='chip-link')], className='author-links')],
+                           className='author') for photo, n, m, g, li in people], className='authors'),
         html.P(T('Departamento de Matemáticas, Física y Ciencia de Datos · Universidad del Norte · Barranquilla, Colombia'), className='center muted'),
         html.A([html.Span(icon('book'), className='book-icon'), html.Div([eyebrow('JUPYTER BOOK'), html.H2(T('Lee el proyecto completo')), html.P(T('Introducción, marco teórico, EDA, preprocesamiento, modelado y paper.'))]),
                 html.Span(icon('arrow'), className='book-arrow')], href=BOOK, target='_blank', className='book-cta'),

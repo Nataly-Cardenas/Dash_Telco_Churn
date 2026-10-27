@@ -42,9 +42,13 @@ La app no requiere claves, base de datos ni acceso a GitHub al ejecutarse. No se
 - **Simulador:** perfil de riesgo con clientes similares, clientes reales del test con las probabilidades de los tres finalistas y laboratorio de umbral.
 - **¿Por qué se van?:** factores clave, SHAP global y local, y LIME.
 - **Conclusiones:** hallazgos, limitaciones, próximos pasos, enlace al paper y biblioteca con todo el texto del libro, buscable.
-- **Autoras:** autoría, enlace al Jupyter Book y recursos.
+- **Autoras:** fotos, LinkedIn, GitHub y correo de las autoras, enlace al Jupyter Book y recursos.
 
 Las rutas usan fragmentos (`#problema`, `#modelos`, etc.), así que admiten enlaces directos y la navegación del navegador. El diseño se adapta a móvil y respeta `prefers-reduced-motion`.
+
+## Relación con el Jupyter Book
+
+Cada sección muestra con etiquetas de qué capítulo y sección del libro proviene, con enlace directo; las pestañas de *Datos* y *Arena de modelos* siguen la numeración de los capítulos. Colores: turquesa Introducción, violeta EDA, ámbar Preprocesamiento, coral Modelado avanzado y verde Paper. Las etiquetas grises punteadas marcan herramientas creadas solo para el dash (simulador y explorador).
 
 ## Idioma, tema y paleta
 
@@ -66,7 +70,7 @@ Cada familia de modelos conserva su color en todas las gráficas (`MODEL_COLORS`
 
 ## Asistente
 
-El botón flotante abre un asistente que responde preguntas sobre el proyecto y sobre cómo usar el dash, con un límite de 20 preguntas por sesión.
+El botón flotante abre un asistente sin límite de preguntas que responde sobre el proyecto, sus datos y cada sección del dash (incluida la sección del Jupyter Book de donde viene cada parte). Para preguntas sobre perfiles concretos, como «tasa de abandono de clientes con fibra y mes a mes», calcula la cifra sobre el conjunto de entrenamiento.
 
 - **Sin configuración**, responde con la base de conocimiento local de `chatbot.py` (preguntas frecuentes en ES/EN y el texto del libro).
 - **Con la variable de entorno `ANTHROPIC_API_KEY`**, redacta las respuestas con Claude (`claude-opus-5-5`) usando ese mismo contexto, y vuelve a la respuesta local si la API falla. Cada pregunta consume créditos de la API de Anthropic.

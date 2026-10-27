@@ -140,3 +140,22 @@ def test_chatbot_answers_from_project_knowledge():
     assert 'CSV' in chatbot.local_answer('cómo descargo el csv','es')
     rendered=chatbot.answer('qué es SMOTE', [], 'es') if chatbot.client() is None else ''
     assert rendered=='' or 'SMOTE' in rendered
+    # Preguntas sobre perfiles concretos se responden con cifras calculadas sobre entrenamiento.
+    t=a.RAW.loc[a.TRAIN_IDS]; expected=t[(t.Contract=='Month-to-month')&(t.InternetService=='Fiber optic')].target.mean()
+    assert f'{expected:.1%}' in chatbot.data_answer('tasa de abandono de clientes con fibra y mes a mes','es')
+    assert chatbot.data_answer('quién hizo el proyecto','es') is None
+    # Sin límite de preguntas y con guía de cada sección del dash.
+    assert not hasattr(chatbot,'MAX_QUESTIONS')
+    assert 'Modelado avanzado' in chatbot.local_answer('de qué capítulo es la galaxia 3d','es')
+
+
+def test_every_section_cites_the_jupyter_book():
+    d=a.cohort('train','Todos','Todos',[0,72])
+    for key in app.NAV:
+        payload=json.dumps(app.PAGES[key[0]](d),cls=PlotlyJSONEncoder)
+        if key[0]!='autoras': assert 'Telco_Churn_Entregable/' in payload and ' src-' in payload, key[0]
+    authors=json.dumps(app.PAGES['autoras'](d),cls=PlotlyJSONEncoder)
+    assert 'linkedin.com/in/laura-s-rivera-figueredo' in authors and 'linkedin.com/in/n%C3%A1taly' in authors
+    assert 'img/laura.jpg' in authors and 'img/nataly.jpg' in authors
+    client=app.server.test_client()
+    for img in ['laura.jpg','nataly.jpg']: assert client.get('/assets/img/'+img).status_code==200

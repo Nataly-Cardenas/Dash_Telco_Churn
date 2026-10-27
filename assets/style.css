@@ -443,7 +443,7 @@ body {
       -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; }
 .ic.sm { width: .95em; height: .95em; }
 .btn .ic, .chip-link .ic, .details summary .ic, .res h4 .ic, .chip-group .ic, .truth .ic, .pill .ic { margin-right: 6px; }
-.chip-link .ic.sm:last-child, .btn .ic.sm:last-child { margin: 0 0 0 4px; }
+.chip-link .ic.sm:last-child:not(:first-child), .btn .ic.sm:last-child:not(:first-child) { margin: 0 0 0 4px; }
 .nav-i { width: 16px; height: 16px; opacity: .85; }
 .flip-icon .ic { width: 44px; height: 44px; color: var(--cyan); }
 .st-icon .ic { width: 24px; height: 24px; color: var(--cyan); }
@@ -568,3 +568,29 @@ html[data-theme=light] .js-plotly-plot .plotly .modebar-btn path { fill: #64748b
 .nav-link { padding: 8px 10px; font-size: 12.5px; gap: 5px; }
 @media (max-width: 1480px) { .top-actions .btn.small .book-btn-t { display: none; } .top-actions .btn.small { padding: 8px 10px; } .top-actions .btn.small .ic { margin: 0; } }
 @media (max-width: 1280px) { .nav-link > span:not(.ic) { display: none; } .nav-link { padding: 9px; } .nav-link.on > span:not(.ic) { display: inline; } }
+
+/* ================= PROCEDENCIA: capítulo y sección del Jupyter Book =================
+   Un color por capítulo, el mismo en todo el dash: Introducción, EDA, Preprocesamiento, Modelado, Paper. */
+.src { --ch: var(--cyan); display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; border-radius: 999px; font-size: 11.5px; font-weight: 500;
+  color: var(--soft); border: 1px solid color-mix(in srgb, var(--ch) 45%, transparent); background: color-mix(in srgb, var(--ch) 10%, transparent); transition: .2s; white-space: nowrap; }
+.src:hover { color: var(--text); background: color-mix(in srgb, var(--ch) 20%, transparent); }
+.src .ic { color: var(--ch); }
+.src-ch { color: var(--ch); font-weight: 600; }
+.src-intro { --ch: #1BA7C4; } .src-eda { --ch: #7C5CE0; } .src-pre { --ch: #F2A93B; } .src-mod { --ch: #E8566C; } .src-paper { --ch: #3BB57A; }
+.src-dash { --ch: #8792a8; border-style: dashed; }
+.srcs { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; }
+.section-head { margin: 34px 0 14px; }
+.section-row { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 14px; }
+.section-row h2 { margin-right: 4px; }
+.section-head .muted { margin-top: 6px; }
+.book-map { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 14px; font-size: 12px; }
+.hero-text > .src { display: flex; width: fit-content; margin-bottom: 14px; }
+
+/* ================= FOTOS DE LAS AUTORAS ================= */
+.avatar { width: 140px; height: 140px; }
+.avatar img { position: relative; z-index: 1; width: calc(100% - 8px); height: calc(100% - 8px); border-radius: 50%; object-fit: cover; }
+.chip-link.linkedin .ic { color: #0a66c2; }
+html[data-theme=light] .chip-link.linkedin .ic { color: #0a66c2; }
+@media (max-width: 560px) { .src { white-space: normal; } }
+.chat-new { flex: none; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px; border: 1px solid var(--line2); background: transparent; color: var(--soft); border-radius: 999px; padding: 4px 10px; font-size: 11px; }
+.chat-new:hover { color: var(--cyan); border-color: var(--cyan); }

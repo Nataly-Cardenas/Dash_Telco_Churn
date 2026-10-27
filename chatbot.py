@@ -1,4 +1,4 @@
-"""Asistente del dashboard: responde preguntas sobre el proyecto y sobre cómo usar el dash.
+"""Asistente del dashboard: responde preguntas sobre el proyecto, sus datos y cada sección del dash, sin límite de preguntas.
 
 Funciona en dos modos:
 - Con la variable de entorno ANTHROPIC_API_KEY, redacta la respuesta con Claude a partir del contexto recuperado.
@@ -11,10 +11,9 @@ import numpy as np
 from dash import dcc, html, Input, Output, State, ALL, ctx, no_update
 from sklearn.feature_extraction.text import TfidfVectorizer
 import analytics as a
-from i18n import T, N, set_lang, get_lang
+from i18n import EN, T, N, set_lang, get_lang
 from icons import icon
 
-MAX_QUESTIONS = 20
 MODEL = 'claude-opus-5-5'
 BOOK = 'https://nataly-cardenas.github.io/Telco_Churn_Entregable/'
 
@@ -107,6 +106,56 @@ FAQ.append((['qué significa el color del mapa de riesgo', 'cómo leo el sunburs
 FAQ.append((['qué variables tiene el dataset', 'qué significa tenure', 'qué es monthlycharges', 'what variables are there', 'what does tenure mean'],
             'Hay 19 variables candidatas: de **cuenta** (contrato, método de pago, factura electrónica, `tenure` = antigüedad en meses, `MonthlyCharges` = cargo mensual, `TotalCharges` = cargo acumulado), de **servicios** (teléfono, líneas múltiples, internet, seguridad y respaldo en línea, protección de dispositivos, soporte técnico, streaming) y **demográficas** (género, adulto mayor, pareja, dependientes). Puedes explorarlas en *El problema* y en *Datos*.',
             'There are 19 candidate variables: **account** (contract, payment method, paperless billing, `tenure` = months as a customer, `MonthlyCharges`, `TotalCharges`), **services** (phone, multiple lines, internet, online security and backup, device protection, tech support, streaming) and **demographics** (gender, senior citizen, partner, dependents). Explore them in *The problem* and *Data*.'))
+# Guía del dash: qué muestra cada sección y de qué capítulo del Jupyter Book viene.
+GUIDE = [
+    (['qué hay en la portada', 'qué son los puntos rojos', 'qué muestra el celular de la portada', 'what is on the cover', 'what are the red dots', 'what does the phone show'],
+     'La **portada** muestra una red de clientes conectados a un celular. Los puntos rojos son clientes a punto de irse: si pasas el cursor encima los retienes. El celular recorre clientes reales del test con la probabilidad de abandono que les dio el Random Forest finalista, las señales de su perfil y lo que pasó en realidad.',
+     'The **cover** shows a network of customers connected to a phone. Red dots are customers about to leave: hover over them to retain them. The phone cycles through real test customers with the churn probability given by the finalist Random Forest, their profile signals and what actually happened.'),
+    (['qué muestra la sección el problema', 'de dónde sale el problema', 'what is in the problem section'],
+     '*El problema* resume la **Introducción** del Jupyter Book: el reto, el objetivo general, los 8 objetivos específicos y el **marco teórico** en tarjetas que se voltean. Al final está el **análisis bivariado** del EDA: eliges una variable y ves su tasa de abandono por categoría.',
+     '*The problem* summarizes the Jupyter Book **Introduction**: the challenge, the main goal, the 8 specific objectives and the **theoretical framework** as flip cards. At the end is the EDA **bivariate analysis**: pick a variable and see its churn rate by category.'),
+    (['de qué sección del libro es cada parte', 'cómo sé de qué capítulo viene cada gráfica', 'qué significan las etiquetas de colores', 'which book chapter is each part from', 'what do the colored tags mean'],
+     'Cada parte del dash tiene una **etiqueta de procedencia** que dice el capítulo y la sección del Jupyter Book de donde sale, con enlace directo. Los colores identifican el capítulo: turquesa = Introducción, violeta = EDA, ámbar = Preprocesamiento, coral = Modelado avanzado y verde = Paper. Las etiquetas grises punteadas marcan herramientas creadas solo para el dash.',
+     'Every part of the dash has a **source tag** with the Jupyter Book chapter and section it comes from, linking straight to it. Colors identify the chapter: teal = Introduction, violet = EDA, amber = Preprocessing, coral = Advanced modeling and green = Paper. Grey dashed tags mark tools built only for the dash.'),
+    (['qué muestra la sección de datos', 'para qué sirven los filtros', 'what is in the data section', 'what do the filters do'],
+     '*Datos* corresponde al capítulo de **Análisis exploratorio (EDA)** y tiene una pestaña por sección: 1–2 Calidad y ETL, 3 Análisis univariado, 4 Análisis bivariado, 5 Análisis multivariado y el Explorador de datos. Los filtros de arriba (universo, contrato, internet y antigüedad) recalculan todas las gráficas de esta sección.',
+     '*Data* matches the **Exploratory data analysis (EDA)** chapter, with one tab per section: 1–2 Quality and ETL, 3 Univariate analysis, 4 Bivariate analysis, 5 Multivariate analysis and the Data explorer. The top filters (population, contract, internet and tenure) recompute every chart in this section.'),
+    (['qué es el análisis univariado', 'qué muestra la pestaña de distribuciones', 'what is the univariate analysis'],
+     'El **análisis univariado** (EDA, sección 3) describe cada variable por separado: histograma con caja para las numéricas y conteos para las categóricas, coloreados por si el cliente se fue o se quedó. Muestra media, mediana, valores extremos según el IQR y vacíos.',
+     'The **univariate analysis** (EDA, section 3) describes each variable on its own: histogram with box plot for numeric ones and counts for categorical ones, colored by whether the customer left or stayed. It shows mean, median, IQR outliers and blanks.'),
+    (['qué es el análisis bivariado', 'qué muestra la animación de antigüedad', 'what is the bivariate analysis', 'what does the tenure animation show'],
+     'El **análisis bivariado** (EDA, sección 4) cruza cada variable con el abandono: el mapa de riesgo (contrato → internet → pago), la animación que muestra cómo cae la tasa de abandono con la antigüedad y las tasas por categoría con su número de clientes.',
+     'The **bivariate analysis** (EDA, section 4) crosses each variable with churn: the risk map (contract → internet → payment), the animation showing how churn falls with tenure and the rates per category with their customer counts.'),
+    (['qué es el análisis multivariado', 'qué muestra la matriz de correlación', 'what is the multivariate analysis', 'correlation matrix'],
+     'El **análisis multivariado** (EDA, sección 5) muestra las correlaciones de Spearman entre antigüedad, cargo mensual, cargo acumulado y abandono, y un gráfico de dispersión de dos variables. Antigüedad y cargo acumulado están muy correlacionadas (ρ ≈ 0.89).',
+     'The **multivariate analysis** (EDA, section 5) shows Spearman correlations among tenure, monthly charge, total charges and churn, plus a two-variable scatter plot. Tenure and total charges are highly correlated (ρ ≈ 0.89).'),
+    (['qué muestra la sección de preparación', 'qué es el pipeline', 'what is in the preparation section', 'what is the pipeline'],
+     '*Preparación* resume el capítulo de **Preprocesamiento**: los 7 pasos del pipeline (objetivo, limpieza, categorías, nueva variable, codificar y escalar, balancear y modelo), la validación cruzada en entrenamiento, el modelo base de regresión logística en test (AUC 0.842, Recall 0.786) y la ablación de variables.',
+     '*Preparation* summarizes the **Preprocessing** chapter: the 7 pipeline steps (target, cleaning, categories, new feature, encode and scale, balance and model), cross-validation on training, the logistic regression baseline on test (AUC 0.842, recall 0.786) and the variable ablation.'),
+    (['qué muestra la arena de modelos', 'qué es la galaxia 3d', 'qué es el podio', 'what is the model arena', 'what is the 3d galaxy'],
+     'La *Arena de modelos* resume el capítulo de **Modelado avanzado**: el podio de finalistas, el ranking de las 112 configuraciones (sección 1), la galaxia 3D que se gira con el mouse (Recall, Precision y AUC de cada configuración), la calibración (1.8), la carrera de optimizadores (2) y la comparación estadística (3).',
+     'The *Model arena* summarizes the **Advanced modeling** chapter: the finalists podium, the ranking of the 112 configurations (section 1), the 3D galaxy you can rotate (recall, precision and AUC of each configuration), calibration (1.8), the optimizer race (2) and the statistical comparison (3).'),
+    (['qué es el mapa familia por balanceo', 'qué muestra el heatmap de modelos', 'what is the family by balancing heatmap'],
+     'El mapa **familia × balanceo** promedia la métrica elegida sobre los cuatro optimizadores para cada combinación. Las columnas con SMOTE suelen ser las más altas, lo que muestra que el balanceo influyó más que el buscador de hiperparámetros.',
+     'The **family × balancing** heatmap averages the chosen metric over the four optimizers for each combination. SMOTE columns are usually the highest, showing balancing mattered more than the hyperparameter search.'),
+    (['qué muestra el simulador', 'el simulador sale del libro', 'what does the simulator show'],
+     'El *Simulador* es una herramienta creada para el dash con datos del libro: **Perfil de riesgo** se basa en el análisis bivariado del EDA y **Clientes reales** y **Umbral de alerta** usan las predicciones guardadas de los tres modelos finalistas en el test histórico (Modelado avanzado, sección 3).',
+     'The *Simulator* is a tool built for the dash with the book\'s data: **Risk profile** is based on the EDA bivariate analysis, and **Real customers** and **Alert threshold** use the saved predictions of the three finalist models on the historical test (Advanced modeling, section 3).'),
+    (['qué muestran los 100 cuadros del umbral', 'qué es la cuadrícula de 100 clientes', 'what is the 100 customer grid'],
+     'En *Umbral de alerta*, la cuadrícula representa 100 clientes del test: coral sólido son abandonos detectados, coral punteado los que se escapan, ámbar las falsas alertas y turquesa los clientes estables bien leídos. Al mover el umbral cambian las proporciones y el punto en la curva ROC.',
+     'In *Alert threshold*, the grid represents 100 test customers: solid coral are churners caught, dashed coral the ones missed, amber the false alarms and teal the stable customers read correctly. Moving the threshold changes the proportions and the point on the ROC curve.'),
+    (['qué muestra por qué se van', 'qué son los factores asociados', 'what is in why do they leave'],
+     '*¿Por qué se van?* combina los **factores asociados** del EDA (sección 4.2: contrato mes a mes 42.7 %, fibra óptica 42.1 %, primer año como cliente) con la **interpretabilidad** del Modelado avanzado (sección 3.2): importancia global SHAP y dos clientes explicados con SHAP y LIME.',
+     '*Why do they leave?* combines the EDA **associated factors** (section 4.2: month-to-month 42.7 %, fiber optic 42.1 %, first year as a customer) with the Advanced modeling **interpretability** (section 3.2): global SHAP importance and two customers explained with SHAP and LIME.'),
+    (['qué muestra la sección de conclusiones', 'qué es la biblioteca', 'what is in the conclusions section', 'what is the library'],
+     '*Conclusiones* reúne los hallazgos (Modelado avanzado, 3.3), las limitaciones y el trabajo futuro (Paper, 4 y 5), el enlace al paper y la **Biblioteca**: todo el texto de los notebooks del libro, buscable por palabra clave.',
+     '*Conclusions* gathers the findings (Advanced modeling, 3.3), limitations and future work (Paper, 4 and 5), the link to the paper and the **Library**: all the text of the book\'s notebooks, searchable by keyword.'),
+    (['dónde están los linkedin de las autoras', 'cómo contacto a las autoras', 'linkedin', 'how do i contact the authors'],
+     'En la sección *Autoras* están las fotos de Laura y Natalý con sus enlaces de **LinkedIn**, GitHub y correo, además del acceso al Jupyter Book, los repositorios, el dataset y el paper.',
+     'The *Authors* section has Laura\'s and Natalý\'s photos with their **LinkedIn**, GitHub and email links, plus access to the Jupyter Book, the repositories, the dataset and the paper.'),
+]
+FAQ.extend(GUIDE)
+
 FAQ.append((['hola', 'buenas', 'hello', 'hi', 'gracias', 'thanks'],
             '¡Hola! Puedo contarte sobre los datos, quiénes abandonan más, cómo se compararon los modelos, qué significan las métricas o cómo usar cada sección del dash. ¿Qué te gustaría saber?',
             'Hi! I can tell you about the data, who churns the most, how the models were compared, what the metrics mean or how to use each section of the dash. What would you like to know?'))
@@ -122,7 +171,17 @@ Hechos del proyecto:
 - Diseño: 7 familias de modelos × 4 balanceos × 4 optimizadores = 112 configuraciones, validación cruzada anidada (5 folds externos, 3 internos), F1 de la clase de abandono como métrica principal.
 - Resultados: Random Forest + SMOTE F1 0.638 ± 0.023 (AUC 0.844), XGBoost + SMOTE 0.638, regresión logística 0.634; sin diferencias estadísticamente detectables. SMOTE mejoró 6 de 7 familias. La calibración sigmoide mejoró Brier y ECE en 80 de 96 configuraciones.
 - SHAP: contrato, servicio de internet y antigüedad son las variables más importantes. Las atribuciones no son causales.
-- Dashboard: secciones El problema, Datos (con filtros y descarga de CSV en Explorador), Preparación, Arena de modelos, Simulador (perfil de riesgo, clientes reales, umbral de alerta), ¿Por qué se van?, Conclusiones y Autoras. Botones ES/EN y modo claro/oscuro arriba a la derecha.
+- Dashboard y su relación con el Jupyter Book (cada parte lleva una etiqueta de procedencia con enlace; colores: turquesa Introducción, violeta EDA, ámbar Preprocesamiento, coral Modelado avanzado, verde Paper):
+  - Portada: red de clientes que se retienen con el cursor y celular con clientes reales del test.
+  - El problema: Introducción (reto, objetivos, marco teórico) y análisis bivariado del EDA (sección 4).
+  - Datos: EDA con pestañas 1–2 Calidad y ETL, 3 Análisis univariado, 4 Análisis bivariado, 5 Análisis multivariado y Explorador (descarga de CSV con botón). Filtros de universo, contrato, internet y antigüedad.
+  - Preparación: Preprocesamiento (4 pasos del pipeline, 4.6 validación cruzada, 7 evaluación en test, 4.7 ablación).
+  - Arena de modelos: Modelado avanzado (1 ranking, 1.8 calibración, 2 carrera de optimizadores, 3 comparación estadística), podio y galaxia 3D.
+  - Simulador (herramienta del dash): perfil de riesgo con clientes similares, clientes reales con las probabilidades de los 3 finalistas y umbral de alerta con cuadrícula de 100 clientes y curva ROC.
+  - ¿Por qué se van?: factores del EDA 4.2 e interpretabilidad SHAP/LIME (Modelado 3.2).
+  - Conclusiones: hallazgos (Modelado 3.3), limitaciones y trabajo futuro (Paper), biblioteca con el texto del libro.
+  - Autoras: fotos, LinkedIn, GitHub y correo de Laura y Natalý.
+  - Botones ES/EN y modo claro/oscuro arriba a la derecha; asistente sin límite de preguntas.
 - Jupyter Book: """ + BOOK + """
 
 Reglas:
@@ -163,11 +222,58 @@ def retrieve(question):
     return [(fs[i], i) for i in np.argsort(-fs)[:3]], [(cs[i], chunks[i]) for i in np.argsort(-cs)[:3]]
 
 
+DATA_TERMS = [  # (patrón, columna, valor)
+    (r'mes a mes|month.to.month|mensual', 'Contract', 'Month-to-month'), (r'un a[nñ]o|one.year|anual', 'Contract', 'One year'), (r'dos a[nñ]os|two.year|2 a[nñ]os', 'Contract', 'Two year'),
+    (r'fibra|fiber', 'InternetService', 'Fiber optic'), (r'\bdsl\b', 'InternetService', 'DSL'), (r'sin internet|no internet', 'InternetService', 'No'),
+    (r'cheque electr|electronic check', 'PaymentMethod', 'Electronic check'), (r'cheque por correo|mailed check', 'PaymentMethod', 'Mailed check'),
+    (r'transferencia|bank transfer', 'PaymentMethod', 'Bank transfer (automatic)'), (r'tarjeta|credit card', 'PaymentMethod', 'Credit card (automatic)'),
+    (r'adultos? mayor|senior', 'SeniorCitizen', 1), (r'\bmujer|\bfemale|\bwomen\b', 'gender', 'Female'), (r'\bhombre|\bmale\b|\bmen\b', 'gender', 'Male'),
+    (r'sin pareja|without (a )?partner', 'Partner', 'No'), (r'con pareja|with (a )?partner', 'Partner', 'Yes'),
+    (r'sin dependientes|without dependents', 'Dependents', 'No'), (r'con dependientes|with dependents', 'Dependents', 'Yes'),
+    (r'sin soporte|no tech support|without tech support', 'TechSupport', 'No'), (r'con soporte|with tech support', 'TechSupport', 'Yes'),
+    (r'sin seguridad|no online security|without online security', 'OnlineSecurity', 'No'), (r'con seguridad|with online security', 'OnlineSecurity', 'Yes'),
+    (r'factura electr|paperless', 'PaperlessBilling', 'Yes'),
+]
+
+
+def _norm(text):
+    import unicodedata
+    return ''.join(c for c in unicodedata.normalize('NFD', text.lower()) if unicodedata.category(c) != 'Mn')
+
+
+def data_answer(question, lang):
+    """Calcula la tasa de abandono en entrenamiento para el perfil que menciona la pregunta; None si no aplica."""
+    q = _norm(question)
+    if not re.search(r'tasa|abandon|churn|cuant|porcentaje|rate|how many|se van|leave|riesgo|risk', q): return None
+    d = a.RAW.loc[a.TRAIN_IDS]; desc = []
+    used = set()
+    for pattern, col, value in DATA_TERMS:
+        if col not in used and re.search(_norm(pattern), q):
+            d = d[d[col] == value]; used.add(col)
+            name = a.LABELS.get(col, col)
+            desc.append(f'{EN.get(name, name)}: {({1: "Yes"}).get(value, value)}' if lang == 'en' else f'{name}: {a.ES.get(value, {1: "Sí"}.get(value, value))}')
+    m = re.search(r'(menos de|less than|under)\s+(\d+)\s*(mes|month)', q)
+    if m: d = d[d.tenure < int(m.group(2))]; desc.append(('tenure < ' if lang == 'en' else 'antigüedad < ') + m.group(2))
+    m = re.search(r'(mas de|more than|over)\s+(\d+)\s*(mes|month)', q)
+    if m: d = d[d.tenure > int(m.group(2))]; desc.append(('tenure > ' if lang == 'en' else 'antigüedad > ') + m.group(2))
+    if re.search(r'primer ano|first year', q) and 'antigüedad' not in ' '.join(desc): d = d[d.tenure <= 12]; desc.append('tenure ≤ 12' if lang == 'en' else 'antigüedad ≤ 12 meses')
+    if not desc: return None
+    if d.empty:
+        return 'No training customers match that profile.' if lang == 'en' else 'Ningún cliente de entrenamiento tiene ese perfil.'
+    n, k = len(d), int(d.target.sum())
+    profile = ' · '.join(desc)
+    if lang == 'en':
+        return f'In the training set, customers with **{profile}** are {n:,}; {k:,} of them churned (**{k / n:.1%}**), versus 26.5 % overall. It is an observed association, not a cause. You can explore it in *Simulator → Risk profile* and *Data → 4 · Bivariate analysis*.'
+    return f'En el conjunto de entrenamiento, los clientes con **{profile}** son {n:,}; de ellos abandonaron {k:,} (**{k / n:.1%}**), frente al 26.5 % general. Es una asociación observada, no una causa. Puedes explorarlo en *Simulador → Perfil de riesgo* y en *Datos → 4 · Análisis bivariado*.'
+
+
 def local_answer(question, lang):
     faqs, chunks = retrieve(question)
     score, i = faqs[0]
     if score >= .5:
         return FAQ[i][2 if lang == 'en' else 1]
+    computed = data_answer(question, lang)
+    if computed: return computed
     best, (title, text) = chunks[0]
     if best >= .12:
         intro = 'This is what the book says (in Spanish), in' if lang == 'en' else 'Esto dice el libro en'
@@ -192,6 +298,8 @@ def llm_answer(question, history, lang):
     import anthropic
     faqs, chunks = retrieve(question)
     context = '\n'.join(f'- {FAQ[i][1]}' for s, i in faqs if s > .08) + '\n' + '\n'.join(f'- [{t}] {x}' for s, (t, x) in chunks if s > .08)
+    computed = data_answer(question, 'es')
+    if computed: context += '\n- Cálculo sobre los datos de entrenamiento: ' + computed
     language = 'inglés' if lang == 'en' else 'español'
     messages = [{'role': m['role'], 'content': m['text']} for m in history[-6:]]
     messages.append({'role': 'user', 'content': f'<contexto>\n{context}\n</contexto>\n\nResponde en {language}.\n\nPregunta: {question}'})
@@ -206,7 +314,10 @@ def llm_answer(question, history, lang):
 
 
 def answer(question, history, lang):
-    return llm_answer(question, history, lang) or local_answer(question, lang)
+    faqs, _ = retrieve(question)
+    # Preguntas sobre perfiles concretos: la cifra calculada es más precisa que una respuesta general.
+    computed = data_answer(question, lang) if faqs[0][0] < .8 else None
+    return llm_answer(question, history, lang) or computed or local_answer(question, lang)
 
 
 # ---------------------------------------------------------------- interfaz
@@ -216,7 +327,7 @@ def layout():
         html.Div([
             html.Div([html.Span(icon('signal'), className='chat-avatar'), html.Div([html.Strong(id='chat-title'), html.Small(id='chat-sub')]),
                       html.Button(icon('close'), id='chat-close', className='icon-btn', n_clicks=0)], className='chat-head'),
-            html.Div(id='chat-quota', className='chat-quota'),
+            html.Div([html.Span(id='chat-quota'), html.Button([icon('reset', 'sm'), html.Span(id='chat-new-t')], id='chat-new', className='chat-new', n_clicks=0)], className='chat-quota'),
             dcc.Loading(html.Div(id='chat-messages', className='chat-messages'), type='dot', color='#1BA7C4', parent_className='chat-loading'),
             html.Div([dcc.Input(id='chat-input', type='text', debounce=False, autoComplete='off', maxLength=400, n_submit=0),
                       html.Button(icon('send'), id='chat-send', className='chat-send', n_clicks=0)], className='chat-form')], id='chat-panel', className='chat-panel'),
@@ -245,22 +356,24 @@ def register(app):
             text = T(SUGGESTIONS[trig['index']])
         text = (text or '').strip()
         log = log or []
-        if not text or sum(m['role'] == 'user' for m in log) >= MAX_QUESTIONS: return no_update, ''
+        if not text: return no_update, ''
         reply = answer(text, log, lang)
         return log + [{'role': 'user', 'text': text}, {'role': 'assistant', 'text': reply}], ''
 
+    @app.callback(Output('chat-log', 'data', allow_duplicate=True), Input('chat-new', 'n_clicks'), prevent_initial_call=True)
+    def new_chat(n): return [] if n else no_update
+
     @app.callback(Output('chat-messages', 'children'), Output('chat-quota', 'children'), Output('chat-title', 'children'), Output('chat-sub', 'children'),
-                  Output('chat-input', 'placeholder'), Input('chat-log', 'data'), Input('lang', 'data'))
+                  Output('chat-input', 'placeholder'), Output('chat-new-t', 'children'), Input('chat-log', 'data'), Input('lang', 'data'))
     def render(log, lang):
         set_lang(lang)
         log = log or []
-        left = MAX_QUESTIONS - sum(m['role'] == 'user' for m in log)
-        hello = T('¡Hola! Soy el asistente de Señal perdida. Pregúntame lo que quieras sobre el proyecto o sobre cómo usar el dash. Tienes {n} preguntas disponibles.').format(n=MAX_QUESTIONS)
+        asked = sum(m['role'] == 'user' for m in log)
+        hello = T('¡Hola! Soy el asistente de Señal perdida. Pregúntame lo que quieras sobre el proyecto, sus datos o cualquier sección del dash: no hay límite de preguntas.')
         msgs = [bubble('assistant', hello)]
         if not log:
             msgs.append(html.Div([html.Button(T(s), id={'type': 'chat-sug', 'index': i}, className='chat-chip', n_clicks=0) for i, s in enumerate(SUGGESTIONS)], className='chat-chips'))
         msgs += [bubble(m['role'], m['text']) for m in log]
-        if left <= 0: msgs.append(bubble('assistant', T('Llegaste al límite de preguntas de esta sesión. Abre el dash en una pestaña nueva para empezar otra conversación.')))
-        quota = [html.Span(T('{n} preguntas disponibles').format(n=left)), html.Span([html.I(className='qdot' + (' used' if i >= left else '')) for i in range(MAX_QUESTIONS)], className='qdots')]
+        quota = T('Preguntas ilimitadas · {n} en esta conversación').format(n=asked)
         mode = T('Respuestas con Claude') if client() else T('Respuestas del proyecto')
-        return msgs, quota, T('Asistente Señal'), T('Datos: proyecto Telco Churn') + ' · ' + mode, T('Pregunta sobre el abandono de clientes…')
+        return msgs, quota, T('Asistente Señal'), T('Datos: proyecto Telco Churn') + ' · ' + mode, T('Pregunta lo que quieras sobre el dash…'), T('Nueva conversación')
