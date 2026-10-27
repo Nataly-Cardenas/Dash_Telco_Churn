@@ -1,0 +1,241 @@
+"""Traducción ES → EN de los textos del dashboard.
+
+Los textos se escriben en español dentro de T('...'); T devuelve la versión en inglés cuando el idioma activo es 'en'.
+N('...') solo marca textos guardados en constantes para que el test de traducciones los encuentre.
+El idioma es por petición (cada callback lo fija con set_lang), así que es seguro con varios usuarios a la vez.
+"""
+from contextvars import ContextVar
+
+_LANG = ContextVar('lang', default='es')
+
+
+def set_lang(lang): _LANG.set('en' if lang == 'en' else 'es')
+def get_lang(): return _LANG.get()
+def N(s): return s
+def T(s): return EN.get(s, s) if _LANG.get() == 'en' else s
+
+
+EN = {
+    # navegación e interfaz
+    'Inicio': 'Home', 'El problema': 'The problem', 'Datos': 'Data', 'Preparación': 'Preparation', 'Arena de modelos': 'Model arena', 'Simulador': 'Simulator',
+    '¿Por qué se van?': 'Why do they leave?', 'Conclusiones': 'Conclusions', 'Autoras': 'Authors', 'Señal': 'Lost', 'perdida': 'signal',
+    'Señal perdida · Telco Customer Churn': 'Lost signal · Telco Customer Churn', 'Universo': 'Population', 'Restablecer': 'Reset',
+    'Cambiar tema claro / oscuro': 'Toggle light / dark theme', 'Entrenamiento · 5,634': 'Training · 5,634', 'Test · 1,409': 'Test · 1,409', 'Todo · 7,043': 'All · 7,043',
+    'Todos': 'All', 'Todas': 'All', 'en vivo': 'live', 'Ver en el Jupyter Book': 'View in the Jupyter Book', 'Jupyter Book': 'Jupyter Book',
+    'Sin clientes en este segmento': 'No customers in this segment', 'Amplía los filtros para volver a calcular las visualizaciones.': 'Widen the filters to recompute the charts.',
+    '{n} clientes en la selección · análisis descriptivo': '{n} customers selected · descriptive analysis',
+    # cinta de hallazgos
+    'Contrato mes a mes: 42.7 % de abandono': 'Month-to-month contract: 42.7 % churn', 'Fibra óptica: 42.1 %': 'Fiber optic: 42.1 %',
+    'Cheque electrónico: 45.7 %': 'Electronic check: 45.7 %', 'Primer año: el periodo más frágil': 'First year: the most fragile period',
+    'Sin seguridad en línea: 41.9 %': 'No online security: 41.9 %', 'Mejor F1: 0.638 · Random Forest + SMOTE': 'Best F1: 0.638 · Random Forest + SMOTE',
+    'SMOTE mejoró 6 de 7 familias': 'SMOTE improved 6 of 7 families', 'Contrato, internet y antigüedad lideran SHAP': 'Contract, internet and tenure lead SHAP',
+    # portada
+    'Uno de cada cuatro clientes ': 'One in four customers ', 'cuelga para siempre': 'hangs up for good',
+    '. Descubre quiénes son, por qué se van y cómo anticiparlo con datos.': '. Find out who they are, why they leave and how to anticipate it with data.',
+    'clientes analizados': 'customers analyzed', 'abandonan el servicio': 'cancel the service', 'modelos en competencia': 'competing models', 'F1 del mejor modelo': 'F1 of the best model',
+    'Entrar al dashboard': 'Enter the dashboard', 'Los puntos rojos son clientes a punto de irse: ': 'The red dots are customers about to leave: ',
+    'pasa el cursor (o el dedo) sobre ellos para retenerlos.': 'hover (or tap) over them to retain them.', 'Perdidos: ': 'Lost: ', 'Retenidos por ti: ': 'Retained by you: ',
+    'TELCO · RADAR DE CLIENTES': 'TELCO · CUSTOMER RADAR', 'EN VIVO': 'LIVE', 'Cliente': 'Customer', 'Antigüedad': 'Tenure', 'Cargo mensual': 'Monthly charge',
+    'Señales del perfil': 'Profile signals', 'prob. de abandono': 'churn probability', 'Random Forest + SMOTE · test histórico': 'Random Forest + SMOTE · historical test',
+    'meses': 'months', 'Riesgo alto': 'High risk', 'Riesgo medio': 'Medium risk', 'Riesgo bajo': 'Low risk',
+    'En la realidad: abandonó': 'In reality: churned', 'En la realidad: permaneció': 'In reality: stayed',
+    'Alerta de retención enviada': 'Retention alert sent', 'Cliente en observación': 'Customer under watch', 'Cliente estable': 'Stable customer',
+    'Contrato mes a mes': 'Month-to-month contract', 'Contrato a dos años': 'Two-year contract', 'Fibra óptica': 'Fiber optic', 'Paga con cheque electrónico': 'Pays by electronic check',
+    'Menos de un año como cliente': 'Customer for less than a year', 'Más de 4 años como cliente': 'Customer for over 4 years', 'Sin soporte técnico': 'No tech support',
+    'Con seguridad en línea': 'Has online security',
+    # el problema
+    'Perder un cliente cuesta más que conservarlo. Este proyecto busca anticipar quién está por cancelar su servicio para actuar a tiempo.':
+        'Losing a customer costs more than keeping one. This project aims to anticipate who is about to cancel so the company can act in time.',
+    'EL RETO': 'THE CHALLENGE', '1 de cada 4 clientes ': '1 in 4 customers ', 'se desconecta': 'disconnects',
+    'El conjunto Telco Customer Churn de IBM reúne servicios contratados, datos de cuenta y perfil demográfico de cada cliente, junto con si canceló en el último mes. Dos dificultades: los que se van son minoría, y los datos son una foto de un momento.':
+        'IBM\'s Telco Customer Churn dataset gathers each customer\'s services, account data and demographics, plus whether they cancelled in the last month. Two difficulties: churners are a minority, and the data are a snapshot in time.',
+    'CLIENTES': 'CUSTOMERS', 'una fila por cliente': 'one row per customer', 'ABANDONOS': 'CHURNERS', 'cancelaron en el último mes': 'cancelled in the last month',
+    'TASA DE ABANDONO': 'CHURN RATE', 'la clase minoritaria': 'the minority class', 'VARIABLES': 'VARIABLES', 'predictoras candidatas': 'candidate predictors',
+    '¿Qué buscamos?': 'What are we after?', 'OBJETIVO GENERAL': 'MAIN GOAL',
+    'Identificar a los clientes con mayor riesgo de abandonar el servicio y los factores asociados, comparando de forma reproducible modelos de clasificación que detecten la mayor cantidad de clientes en riesgo sin generar un exceso de falsas alertas.':
+        'Identify the customers most likely to cancel and the associated factors, reproducibly comparing classification models that catch as many at-risk customers as possible without an excess of false alarms.',
+    'Describir': 'Describe', 'Caracterizar los datos, su calidad y el desbalance del abandono.': 'Characterize the data, its quality and the churn imbalance.',
+    'Reservar': 'Hold out', 'Separar 20 % del test antes de mirar los datos.': 'Set aside a 20 % test set before looking at the data.',
+    'Perfilar': 'Profile', 'Encontrar los segmentos con más cancelaciones.': 'Find the segments with the most cancellations.',
+    'Preparar': 'Prepare', 'Transformar sin fuga de información.': 'Transform the data without leakage.',
+    'Referenciar': 'Baseline', 'Entrenar una regresión logística como modelo base.': 'Train a logistic regression as the baseline model.',
+    'Comparar': 'Compare', '112 configuraciones con validación cruzada anidada.': '112 configurations with nested cross-validation.',
+    'Explicar': 'Explain', 'Identificar con SHAP y LIME qué variables influyen.': 'Use SHAP and LIME to find which variables matter.',
+    'Compartir': 'Share', 'Publicar libro, paper y este dashboard.': 'Publish the book, the paper and this dashboard.',
+    'Marco teórico en 7 tarjetas': 'Theory in 7 cards', 'Pasa el cursor (o toca) cada tarjeta para voltearla.': 'Hover over (or tap) each card to flip it.',
+    'Clasificación binaria': 'Binary classification',
+    'Estimar para cada cliente la probabilidad P(abandono | x) y separar a quienes se van (1) de quienes permanecen (0).':
+        'Estimate each customer\'s probability P(churn | x) and separate those who leave (1) from those who stay (0).',
+    'Desbalance de clases': 'Class imbalance',
+    'Solo el 26.5 % abandona. SMOTE y ADASYN crean ejemplos sintéticos de la minoría para que el modelo no la ignore.':
+        'Only 26.5 % churn. SMOTE and ADASYN create synthetic minority examples so the model doesn\'t ignore them.',
+    'Fuga de información': 'Data leakage',
+    'Imputar, codificar, escalar y balancear solo con datos de entrenamiento; si no, las métricas mienten.': 'Impute, encode, scale and balance on training data only; otherwise the metrics lie.',
+    'Siete modelos': 'Seven models',
+    'Regresión logística (base), KNN, Naive Bayes, árbol, Random Forest, XGBoost y SVM compiten bajo las mismas reglas.':
+        'Logistic regression (baseline), KNN, Naive Bayes, decision tree, Random Forest, XGBoost and SVM compete under the same rules.',
+    'Validación anidada': 'Nested validation',
+    'Un bucle interno elige hiperparámetros y uno externo mide el desempeño con datos que no participaron en la elección.':
+        'An inner loop picks hyperparameters and an outer loop measures performance on data that played no part in that choice.',
+    'F1 y AUC': 'F1 and AUC',
+    'F1 = 2TP / (2TP + FP + FN) equilibra detectar abandonos y evitar falsas alertas; AUC mide qué tan bien ordena el riesgo.':
+        'F1 = 2TP / (2TP + FP + FN) balances catching churners and avoiding false alarms; AUC measures how well risk is ranked.',
+    'SHAP y LIME': 'SHAP and LIME', 'Explican qué variables empujan cada predicción. Describen al modelo, no causas del abandono.':
+        'They explain which variables push each prediction. They describe the model, not causes of churn.',
+    'Las variables del problema': 'The variables of the problem',
+    'Elige una variable para ver cómo cambia la tasa de abandono entre sus categorías (conjunto de entrenamiento).': 'Pick a variable to see how the churn rate changes across its categories (training set).',
+    'Cuenta': 'Account', 'Servicios': 'Services', 'Demografía': 'Demographics',
+    # datos
+    'Explora el conjunto de datos con los filtros superiores.': 'Explore the dataset with the top filters.',
+    'Del archivo original a los patrones de abandono. Los filtros superiores recalculan todo lo que ves aquí.': 'From the raw file to churn patterns. The top filters recompute everything you see here.',
+    'Control': 'Check', 'Resultado': 'Result', 'Clientes': 'Customers', 'Identificadores repetidos': 'Duplicate IDs', 'Filas repetidas': 'Duplicate rows',
+    'TotalCharges vacío': 'Empty TotalCharges', 'Vacío con tenure ≠ 0': 'Empty with tenure ≠ 0', 'Entrenamiento': 'Training', 'Test histórico': 'Historical test',
+    'estratificado': 'stratified', 'Variable': 'Variable', 'Significado': 'Meaning', 'Tipo': 'Type', 'Rol': 'Role', 'Identificador': 'Identifier', 'Abandono': 'Churn',
+    'Numérica': 'Numeric', 'Categórica': 'Categorical', 'Objetivo': 'Target', 'No predictor': 'Not a predictor', 'Predictor': 'Predictor',
+    'FILAS': 'ROWS', 'una por cliente': 'one per customer', 'ENTRENAMIENTO': 'TRAINING', '80 % · aquí se hace el EDA': '80 % · EDA happens here', 'TEST': 'TEST',
+    '20 % · reservado': '20 % · held out', 'VACÍOS': 'BLANKS', 'TotalCharges con tenure = 0': 'TotalCharges with tenure = 0',
+    'Partición antes de mirar los datos': 'Split before looking at the data', 'El test se separa primero para que ninguna decisión se tome con él.': 'The test set is split off first so no decision is made with it.',
+    'Auditoría de la selección': 'Selection audit',
+    'Los 11 vacíos son clientes nuevos sin facturación acumulada: se reemplazan por 0 en el preprocesamiento, no por un promedio ficticio.':
+        'The 11 blanks are new customers with no accumulated billing: preprocessing replaces them with 0, not with a made-up average.',
+    'Diccionario de variables': 'Data dictionary', 'Contrato': 'Contract', 'Internet': 'Internet', 'Pago': 'Payment',
+    'Mapa de riesgo · haz clic para profundizar': 'Risk map · click to drill down',
+    'Contrato → internet → método de pago. El color es la tasa de abandono: el coral marca los perfiles más frágiles, como mes a mes + fibra óptica + cheque electrónico.':
+        'Contract → internet → payment method. Color is the churn rate: coral marks the most fragile profiles, such as month-to-month + fiber optic + electronic check.',
+    'Comparar abandono por': 'Compare churn by', 'Correlaciones de Spearman': 'Spearman correlations',
+    'Antigüedad y cargo acumulado comparten mucha información (ρ ≈ 0.89): por eso se crea el cargo promedio mensual en lugar de borrar una.':
+        'Tenure and total charges share a lot of information (ρ ≈ 0.89): that is why an average monthly charge is created instead of dropping one.',
+    'Dos variables a la vez': 'Two variables at once', 'Eje X': 'X axis', 'Eje Y': 'Y axis', 'Columnas visibles': 'Visible columns', 'Descargar CSV': 'Download CSV',
+    'Descarga un solo archivo con la selección actual de los filtros superiores y las columnas elegidas.': 'Downloads a single file with the current top-filter selection and the chosen columns.',
+    'ABANDONO': 'CHURN', '{n} clientes': '{n} customers', 'ANTIGÜEDAD MEDIA': 'MEAN TENURE', 'CARGO MENSUAL': 'MONTHLY CHARGE', 'promedio': 'average', 'en la selección': 'selected',
+    'Calidad': 'Quality', 'Distribuciones': 'Distributions', 'Segmentos de riesgo': 'Risk segments', 'Relaciones': 'Relationships', 'Explorador': 'Explorer',
+    'Antigüedad (meses)': 'Tenure (months)', 'Dale play: el riesgo cae con la antigüedad': 'Press play: risk falls with tenure',
+    'Cada fotograma es un tramo de antigüedad. Los clientes nuevos con contrato mes a mes son los más propensos a irse; con los años la tasa se desploma.':
+        'Each frame is a tenure band. New month-to-month customers are the most likely to leave; over the years the rate collapses.',
+    'Tasa de abandono': 'Churn rate', 'MEDIA': 'MEAN', 'MEDIANA': 'MEDIAN', 'EXTREMOS IQR': 'IQR OUTLIERS', 'Distribución · ': 'Distribution · ', 'Frecuencias · ': 'Frequencies · ',
+    '{n} valores válidos · asimetría {s}. El color separa a quienes se van de quienes se quedan.': '{n} valid values · skewness {s}. Color separates those who leave from those who stay.',
+    '{n} categorías en esta selección.': '{n} categories in this selection.', '¿Quién se va según ': 'Who leaves by ', 'Medianas · ': 'Medians · ',
+    'Tasa de abandono · ': 'Churn rate · ', 'abandonos': 'churners', 'Más frágil: {c} ({p}, n={n}). Asociación descriptiva, no causal.': 'Most fragile: {c} ({p}, n={n}). Descriptive association, not causal.',
+    'Muestra de {n} clientes · Spearman = {r}': 'Sample of {n} customers · Spearman = {r}', 'Elige dos variables distintas.': 'Pick two different variables.',
+    'Permanece': 'Stays', 'Abandona': 'Churns',
+    # preparación
+    'Siete estaciones por las que pasa cada cliente antes de llegar al modelo, todas ajustadas sin espiar el test.': 'Seven stations every customer goes through before reaching the model, all fitted without peeking at the test set.',
+    'El pipeline en movimiento': 'The pipeline in motion', 'Churn Yes/No → 1/0. customerID solo para control.': 'Churn Yes/No → 1/0. customerID only for checks.',
+    'Limpieza': 'Cleaning', 'TotalCharges a número; vacíos con tenure 0 → 0.': 'TotalCharges to numeric; blanks with tenure 0 → 0.', 'Categorías': 'Categories',
+    '“Sin internet / sin teléfono” → “No”.': '“No internet / no phone service” → “No”.', 'Nueva variable': 'New feature', 'AvgChargePerMonth = TotalCharges / tenure.': 'AvgChargePerMonth = TotalCharges / tenure.',
+    'Codificar y escalar': 'Encode and scale', 'One-Hot + StandardScaler ajustados en cada fold.': 'One-Hot + StandardScaler fitted in each fold.', 'Balancear': 'Balance',
+    'Ninguno, pesos, SMOTE o ADASYN; solo en train.': 'None, weights, SMOTE or ADASYN; training only.', 'Modelo': 'Model', 'Se entrena y se evalúa en el fold reservado.': 'Trained, then evaluated on the held-out fold.',
+    'AUC IMPUTANDO CON 0': 'AUC IMPUTING 0', 'CV en entrenamiento': 'CV on training', 'AUC CON MEDIANA': 'AUC WITH MEDIAN', 'diferencia despreciable': 'negligible difference',
+    'ETIQUETAS PERMUTADAS': 'SHUFFLED LABELS', 'control: azar': 'check: chance', 'COLUMNAS FINALES': 'FINAL COLUMNS', 'tras codificar': 'after encoding',
+    'Modelo base: regresión logística en test': 'Baseline: logistic regression on test',
+    'Detecta casi 8 de cada 10 abandonos, pero la mitad de sus alertas son falsas: hay margen de mejora.': 'It catches almost 8 in 10 churners, but half of its alerts are false: there is room for improvement.',
+    'Ablación: ¿qué pasa si quito una variable?': 'Ablation: what if I drop a variable?', 'Variable retirada': 'Dropped variable', 'Ambas': 'Both', 'Cambio en AUC al retirar': 'AUC change when dropped',
+    'Retirar gender o PhoneService casi no cambia el AUC; las diferencias están dentro del ruido entre folds.': 'Dropping gender or PhoneService barely changes AUC; the differences are within fold-to-fold noise.',
+    '¿Por qué SMOTE solo en entrenamiento?': 'Why SMOTE on training data only?',
+    'Si se balanceara antes de dividir, ejemplos sintéticos derivados de clientes de validación contaminarían el entrenamiento.': 'Balancing before splitting would let synthetic examples derived from validation customers contaminate training.',
+    'Limitación honesta': 'Honest limitation', 'SMOTE y ADASYN se aplicaron después del One-Hot y pueden producir indicadores fraccionarios; se reporta tal cual.':
+        'SMOTE and ADASYN were applied after one-hot encoding and can produce fractional indicators; this is reported as is.',
+    'Leer el detalle del libro': 'Read the book\'s details', 'Métrica': 'Metric',
+    # modelos
+    'Siete familias × cuatro balanceos × cuatro buscadores = 112 configuraciones compitiendo bajo las mismas reglas.': 'Seven families × four balancing strategies × four searches = 112 configurations competing under the same rules.',
+    'PODIO · F1 MEDIO EXTERNO': 'PODIUM · MEAN OUTER F1', 'Reg. logística': 'Logistic reg.',
+    'Empate técnico: la diferencia entre RF y XGBoost es 0.0004, menor que la variación entre folds.': 'Statistical tie: the gap between RF and XGBoost is 0.0004, smaller than the fold-to-fold variation.',
+    'CONFIGURACIONES': 'CONFIGURATIONS', 'UNIDADES EXTERNAS': 'OUTER UNITS', '112 × 3 semillas × 5 folds': '112 × 3 seeds × 5 folds', 'externos × internos': 'outer × inner',
+    'PRESUPUESTO': 'BUDGET', 'evaluaciones por búsqueda': 'evaluations per search', 'Ranking': 'Ranking', 'Carrera de buscadores': 'Search race', 'Calibración': 'Calibration',
+    'Evidencia estadística': 'Statistical evidence', 'Familia': 'Family', 'Balanceo': 'Balancing', 'Optimizador': 'Optimizer', 'F1 positivo': 'Positive F1',
+    'Galaxia de 112 configuraciones · gira con el mouse': 'Galaxy of 112 configurations · rotate it with the mouse',
+    'Cada punto es una configuración; el tamaño es su F1. Las más grandes y altas combinan buen recall, precisión y AUC.': 'Each dot is a configuration; size is its F1. The biggest, highest ones combine good recall, precision and AUC.',
+    'Sin ganador universal': 'No universal winner', 'Con 24 evaluaciones los cuatro buscadores terminan prácticamente empatados; las diferencias solo aparecen con presupuestos bajos.':
+        'With 24 evaluations the four searches end up practically tied; differences only appear with small budgets.',
+    'Probabilidades que dicen la verdad': 'Probabilities that tell the truth',
+    'El balanceo distorsiona las probabilidades. La **calibración sigmoide** (Platt) se ajustó dentro del entrenamiento y redujo **Brier** y **ECE** a la vez en **80 de 96** configuraciones.\n\n- **Brier**: error cuadrático de la probabilidad (menor es mejor).\n- **ECE**: distancia entre la confianza y la frecuencia real.':
+        'Balancing distorts probabilities. **Sigmoid calibration** (Platt) was fitted within training and reduced both **Brier** and **ECE** in **80 of 96** configurations.\n\n- **Brier**: squared error of the probability (lower is better).\n- **ECE**: gap between confidence and observed frequency.',
+    'Configuración': 'Configuration', 'media externa': 'outer mean', 'Top {k} de {n} configuraciones': 'Top {k} of {n} configurations',
+    'Barras: media de 5 folds externos; bigotes: desviación estándar entre folds. El color identifica la familia.': 'Bars: mean of 5 outer folds; whiskers: standard deviation across folds. Color identifies the family.',
+    'Familia × balanceo': 'Family × balancing', 'Promedio sobre optimizadores. Las columnas con SMOTE brillan más en casi todas las familias.': 'Averaged over optimizers. The SMOTE columns shine brightest in almost every family.',
+    'Tabla completa · {n} configuraciones': 'Full table · {n} configurations', 'Buscador': 'Search', 'Paso': 'Step', 'Evaluación': 'Evaluation', 'Mejor F1 interno': 'Best inner F1',
+    'La carrera: mejor F1 acumulado': 'The race: best cumulative F1', 'Dale play para ver cómo cada buscador mejora evaluación tras evaluación.': 'Press play to watch each search improve evaluation after evaluation.',
+    'Tiempo de búsqueda': 'Search time', 'Segundos de búsqueda': 'Search seconds', 'Segundos por unidad externa en el equipo del experimento.': 'Seconds per outer unit on the experiment\'s machine.',
+    'Sin probabilidad nativa': 'No native probability', 'SVM se configuró sin probabilidades nativas; solo la rama calibrada tiene Brier y ECE.': 'SVM was configured without native probabilities; only the calibrated branch has Brier and ECE.',
+    'Rama': 'Branch', 'Sin calibrar': 'Uncalibrated', 'Calibrado': 'Calibrated', 'Menor es mejor. Promedio sobre folds externos y optimizadores.': 'Lower is better. Averaged over outer folds and optimizers.',
+    'PARES NEMENYI < 0.05': 'NEMENYI PAIRS < 0.05', 'de 6,216 · exploratorio': 'of 6,216 · exploratory', 'p DELONG (HOLM)': 'DELONG p (HOLM)', 'los tres pares': 'all three pairs',
+    'IC [−0.0034, 0.0070]': 'CI [−0.0034, 0.0070]', 'Finalistas en el test histórico': 'Finalists on the historical test',
+    'Los tres finalistas se superponen: la regresión logística detecta más (Recall) y los ensambles aciertan más sus alertas (Precision).': 'The three finalists overlap: logistic regression catches more (recall) and the ensembles raise more accurate alerts (precision).',
+    '¿Hay un ganador?': 'Is there a winner?',
+    '**No de forma demostrable.** Friedman detecta diferencias entre las 112 configuraciones, pero Nemenyi no separa a las mejores. DeLong con corrección de Holm da *p* = 1.0 en los tres pares y todos los intervalos bootstrap del AUC incluyen el cero.\n\nNo detectar diferencias **no** prueba que sean equivalentes, y el test ya había sido expuesto: es evidencia suplementaria.':
+        '**Not demonstrably.** Friedman detects differences among the 112 configurations, but Nemenyi does not separate the best ones. DeLong with Holm correction gives *p* = 1.0 for all three pairs and every bootstrap AUC interval includes zero.\n\nNot detecting differences does **not** prove equivalence, and the test set had already been seen: it is supplementary evidence.',
+    'Comparaciones DeLong': 'DeLong comparisons',
+    # simulador
+    'Juega con perfiles, revisa clientes reales y decide dónde poner la alarma de retención.': 'Play with profiles, review real customers and decide where to set the retention alarm.',
+    'Perfil de riesgo': 'Risk profile', 'Clientes reales': 'Real customers', 'Umbral de alerta': 'Alert threshold', 'Arma un cliente': 'Build a customer',
+    'Método de pago': 'Payment method', 'Cargo mensual ($)': 'Monthly charge ($)', '¿De dónde sale este riesgo?': 'Where does this risk come from?',
+    'Es la tasa de abandono observada en clientes de entrenamiento con un perfil parecido, no una predicción del modelo. Sirve para explorar patrones; para la predicción del modelo usa la pestaña de clientes reales.':
+        'It is the churn rate observed among training customers with a similar profile, not a model prediction. Use it to explore patterns; for the model\'s prediction use the real customers tab.',
+    'Abandono observado en clientes similares': 'Observed churn among similar customers', '{n} clientes parecidos': '{n} similar customers',
+    'antigüedad ±{t} meses · cargo ±${m}': 'tenure ±{t} months · charge ±${m}', ' · mismo método de pago': ' · same payment method',
+    'Criterio de similitud: mismo contrato e internet, ': 'Similarity criterion: same contract and internet, ', '{n} se fueron': '{n} left', '{n} se quedaron': '{n} stayed',
+    'Sin clientes parecidos': 'No similar customers', 'Prueba con otra combinación de contrato e internet.': 'Try another contract and internet combination.',
+    'Cliente del test histórico': 'Historical test customer', 'Cliente al azar': 'Random customer', 'Soporte técnico': 'Tech support', 'Seguridad en línea': 'Online security',
+    'Adulto mayor': 'Senior citizen', 'En la realidad este cliente ': 'In reality this customer ', 'abandonó': 'churned', 'permaneció': 'stayed',
+    'Probabilidades nativas guardadas de los modelos finalistas, sin recalibrar. El umbral por defecto es 0.5.': 'Saved native probabilities from the finalist models, not recalibrated. The default threshold is 0.5.',
+    'Modelo finalista': 'Finalist model', 'Decisión de negocio': 'Business decision',
+    'Bajar el umbral detecta más clientes en riesgo pero dispara más falsas alertas. Elegirlo bien requiere conocer el costo de cada contacto y de cada cliente perdido.':
+        'Lowering the threshold catches more at-risk customers but triggers more false alarms. Choosing it well requires knowing the cost of each contact and of each lost customer.',
+    'Abandonos detectados': 'Churners caught', 'Abandonos que se escapan': 'Churners missed', 'Falsas alertas': 'False alarms', 'Clientes estables bien leídos': 'Stable customers read correctly',
+    'Azar': 'Chance', 'Umbral actual': 'Current threshold', 'Tasa de falsas alertas': 'False alarm rate', 'Tasa de detección': 'Detection rate', 'ALERTAS': 'ALERTS',
+    'test histórico': 'historical test', '100 clientes del test': '100 test customers', 'Curva ROC y punto de operación': 'ROC curve and operating point',
+    'AUC = {a}. El punto coral se mueve con el umbral.': 'AUC = {a}. The coral dot moves with the threshold.',
+    # por qué se van
+    'Lo que los modelos aprendieron: las variables que empujan el riesgo, y cómo explicaron aciertos y errores concretos.': 'What the models learned: the variables that push risk, and how they explained specific hits and misses.',
+    'Mes a mes': 'Month-to-month', 'vs 2.9 % con dos años': 'vs 2.9 % on two-year contracts', 'vs 7.3 % sin internet': 'vs 7.3 % with no internet', 'Primer año': 'First year',
+    'vs {p} después de 4 años': 'vs {p} after 4 years', 'abandono': 'churn', 'Modelo explicado': 'Explained model',
+    'Reparte cada predicción entre las variables usando valores de Shapley. Promediando su magnitud se obtiene la importancia global.': 'Splits each prediction among the variables using Shapley values. Averaging their magnitude gives global importance.',
+    'Ajusta un modelo simple alrededor de un cliente para explicar su caso. Hay que revisar su fidelidad, no solo su estabilidad.': 'Fits a simple model around one customer to explain their case. Its fidelity must be checked, not just its stability.',
+    'Explicar no es causar': 'Explaining is not causing',
+    'Que el contrato mes a mes pese en el modelo no prueba que cambiar el contrato evite el abandono. Las atribuciones describen al modelo.': 'That month-to-month contracts weigh in the model does not prove that changing the contract prevents churn. Attributions describe the model.',
+    'Importancia global · ¿qué mira el modelo?': 'Global importance · what does the model look at?', 'Media |SHAP|': 'Mean |SHAP|',
+    'Promedio de |SHAP| en los 5,634 clientes de desarrollo. Mide cuánto pesa cada variable, no en qué dirección causal.': 'Average |SHAP| over the 5,634 development customers. It measures how much each variable weighs, not a causal direction.',
+    'Efecto': 'Effect', 'Empuja a irse': 'Pushes to leave', 'Empuja a quedarse': 'Pushes to stay', 'acierto': 'correct', 'error': 'wrong',
+    'Realidad: {r} · probabilidad del modelo: {p}': 'Reality: {r} · model probability: {p}', 'Ver explicación LIME': 'See LIME explanation', 'Dos clientes bajo la lupa': 'Two customers under the magnifying glass',
+    # conclusiones
+    'Qué aprendimos, qué sigue siendo incierto y qué falta para llevarlo a una campaña de retención.': 'What we learned, what remains uncertain and what is missing to turn it into a retention campaign.',
+    'El perfil de cuenta delata el riesgo': 'The account profile reveals the risk', 'Contrato, antigüedad y servicio de internet concentran la señal, en el EDA y en SHAP.': 'Contract, tenure and internet service carry the signal, both in the EDA and in SHAP.',
+    'Empate en la cima': 'A tie at the top', 'Random Forest y XGBoost con SMOTE (F1 0.638) y la regresión logística (0.634) no se separan estadísticamente.': 'Random Forest and XGBoost with SMOTE (F1 0.638) and logistic regression (0.634) are not statistically separable.',
+    'Balancear importa más que buscar': 'Balancing matters more than searching', 'SMOTE mejoró el F1 en 6 de 7 familias; cambiar de optimizador casi no movió el resultado.': 'SMOTE improved F1 in 6 of 7 families; switching optimizer barely moved the result.',
+    'Probabilidades más honestas': 'More honest probabilities', 'La calibración sigmoide mejoró Brier y ECE en 80 de 96 configuraciones.': 'Sigmoid calibration improved Brier and ECE in 80 of 96 configurations.',
+    'LIMITACIONES': 'LIMITATIONS', 'Un único conjunto de datos: los folds no son bloques independientes.': 'A single dataset: the folds are not independent blocks.',
+    'El test ya se había usado: es evidencia suplementaria.': 'The test set had already been used: it is supplementary evidence.', 'Los datos son una foto: no garantizan anticipar el abandono futuro.': 'The data are a snapshot: they do not guarantee anticipating future churn.',
+    'Sin costos de intervención, el F1 no se traduce en dinero.': 'Without intervention costs, F1 does not translate into money.', 'PRÓXIMOS PASOS': 'NEXT STEPS',
+    'Validación temporal': 'Temporal validation', 'Evaluar en clientes futuros.': 'Evaluate on future customers.', 'Costos explícitos': 'Explicit costs',
+    'Elegir el umbral con el costo de cada error.': 'Choose the threshold using the cost of each error.', 'Modelo propuesto': 'Proposed model', 'Superar a las referencias en desempeño y tiempo.': 'Beat the baselines in performance and time.',
+    'PAPER DEL PROYECTO': 'PROJECT PAPER', 'Modelo de clasificación binaria para la predicción de abandono de clientes': 'A binary classification model for predicting customer churn',
+    'Metodología completa, tablas, figuras y referencias en formato Springer Nature.': 'Full methodology, tables, figures and references in Springer Nature format.', 'Leer el paper': 'Read the paper',
+    'Biblioteca del proyecto': 'Project library', 'Todo el texto de los notebooks del libro, buscable por palabra clave.': 'All the text from the book\'s notebooks, searchable by keyword.',
+    'El texto de la biblioteca está disponible en español.': 'The library text is available in Spanish.', 'Capítulo': 'Chapter', 'Buscar': 'Search',
+    '1 · Análisis exploratorio': '1 · Exploratory analysis', '2 · Preprocesamiento': '2 · Preprocessing', '3 · Modelado avanzado': '3 · Advanced modeling',
+    'Ej. SMOTE, calibración, contrato…': 'E.g. SMOTE, calibración, contrato…', '{n} secciones encontradas': '{n} sections found',
+    # autoras
+    'El equipo detrás del proyecto y los recursos para profundizar.': 'The team behind the project and resources to dig deeper.', 'Ciencia de Datos · Universidad del Norte': 'Data Science · Universidad del Norte',
+    'Departamento de Matemáticas, Física y Ciencia de Datos · Universidad del Norte · Barranquilla, Colombia': 'Department of Mathematics, Physics and Data Science · Universidad del Norte · Barranquilla, Colombia',
+    'Lee el proyecto completo': 'Read the full project', 'Introducción, marco teórico, EDA, preprocesamiento, modelado y paper.': 'Introduction, theory, EDA, preprocessing, modeling and paper.',
+    'Código y notebooks': 'Code and notebooks', 'Repositorio Telco_Churn_Entregable': 'Telco_Churn_Entregable repository', 'Este dashboard': 'This dashboard',
+    'Repositorio Dash_Telco_Churn': 'Dash_Telco_Churn repository', 'Conjunto de datos': 'Dataset', 'Versión web y PDF': 'Web and PDF versions',
+    # variables, modelos y técnicas (valores de analytics)
+    'Cargo acumulado': 'Total charges', 'Género': 'Gender', 'Pareja': 'Partner', 'Dependientes': 'Dependents', 'Servicio telefónico': 'Phone service',
+    'Líneas múltiples': 'Multiple lines', 'Respaldo en línea': 'Online backup', 'Protección de dispositivos': 'Device protection', 'Streaming TV': 'Streaming TV',
+    'Streaming películas': 'Streaming movies', 'Factura electrónica': 'Paperless billing', 'Cargo promedio mensual': 'Average monthly charge',
+    'KNN': 'KNN', 'Naive Bayes': 'Naive Bayes', 'Regresión logística': 'Logistic regression', 'Árbol de decisión': 'Decision tree', 'Random Forest': 'Random Forest',
+    'XGBoost': 'XGBoost', 'SVM RBF': 'SVM RBF', 'Sin balanceo': 'No balancing', 'Pesos de clase': 'Class weights', 'SMOTE': 'SMOTE', 'ADASYN': 'ADASYN',
+    'Grid': 'Grid', 'Random': 'Random', 'TPE': 'TPE', 'Genético': 'Genetic',
+    # asistente
+    '¿Qué clientes abandonan más?': 'Which customers churn the most?', '¿Cuál fue el mejor modelo?': 'Which was the best model?',
+    '¿Qué es SMOTE y por qué se usó?': 'What is SMOTE and why was it used?', '¿Cómo uso el simulador?': 'How do I use the simulator?', '¿Cómo descargo los datos?': 'How do I download the data?',
+    'No encontré una respuesta a eso en el proyecto. Puedes preguntarme por los datos, los factores de abandono, los modelos, las métricas o cómo usar cada sección del dash.':
+        'I couldn\'t find an answer to that in the project. You can ask me about the data, churn factors, models, metrics or how to use each section of the dash.',
+    'Respuestas con Claude': 'Answers by Claude', 'Respuestas del proyecto': 'Answers from the project', 'Asistente Señal': 'Signal assistant',
+    'Pregunta sobre el abandono de clientes…': 'Ask about customer churn…',
+    '¡Hola! Soy el asistente de Señal perdida. Pregúntame lo que quieras sobre el proyecto o sobre cómo usar el dash. Tienes {n} preguntas disponibles.':
+        'Hi! I\'m the Lost signal assistant. Ask me anything about the project or how to use the dash. You have {n} questions available.',
+    'Llegaste al límite de preguntas de esta sesión. Abre el dash en una pestaña nueva para empezar otra conversación.': 'You reached this session\'s question limit. Open the dash in a new tab to start another conversation.',
+    'Datos: proyecto Telco Churn': 'Data: Telco Churn project', '{n} preguntas disponibles': '{n} questions left',
+}

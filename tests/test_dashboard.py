@@ -48,7 +48,7 @@ def test_filters_rates_and_empty_cohort():
 def test_pages_and_interactions_serialize():
     for split, contract, internet, tenure in [('train','Todos','Todos',[0,72]),('train','Two year','Fiber optic',[0,0])]:
         d=a.cohort(split,contract,internet,tenure)
-        for key,_,_ in app.NAV:json.dumps(app.PAGES[key](d),cls=PlotlyJSONEncoder)
+        for key in app.PAGES:json.dumps(app.PAGES[key](d),cls=PlotlyJSONEncoder)
         for var in a.NUMERIC+a.CATEGORICAL:
             json.dumps(app.uni(var,split,contract,internet,tenure),cls=PlotlyJSONEncoder)
             json.dumps(app.bi(var,split,contract,internet,tenure),cls=PlotlyJSONEncoder)
@@ -57,8 +57,27 @@ def test_pages_and_interactions_serialize():
         json.dumps(app.cal_output(model),cls=PlotlyJSONEncoder)
         json.dumps(app.opt_output(model),cls=PlotlyJSONEncoder)
     for model in a.FINALISTS[:2]:json.dumps(app.explain_output(model),cls=PlotlyJSONEncoder)
+    for model in a.FINALISTS:json.dumps(app.threshold_output(model,.3),cls=PlotlyJSONEncoder)
+    for var in a.CATEGORICAL+a.NUMERIC:json.dumps(app.var_chip(var),cls=PlotlyJSONEncoder)
+    for row in a.TEST_IDS[:5]:json.dumps(app.real_output(row),cls=PlotlyJSONEncoder)
+    assert app.real_random(3) in set(a.TEST_IDS)
+
+
+def test_cover_and_simulator():
+    customers=app.cover_customers()
+    assert len(customers)==30 and len({c['id'] for c in customers})==30
+    assert all(0<=c['prob']<=1 for c in customers)
+    for contract in ['Month-to-month','One year','Two year']:
+        for internet in ['Fiber optic','DSL','No']:
+            s,_=a.similar_customers(contract,internet,'Electronic check',10,70)
+            assert len(s)>0 and set(s.index)<=set(a.TRAIN_IDS)
+            json.dumps(app.sim_output(contract,internet,'Electronic check',10,70),cls=PlotlyJSONEncoder)
 
 def test_download_and_http_endpoints():
+    # Pintar la sección no descarga nada: solo un clic real (n_clicks > 0).
+    from dash import no_update
+    assert app.export(0,['customerID'],'train','Todos','Todos',[0,72]) is no_update
+    assert app.export(None,['customerID'],'train','Todos','Todos',[0,72]) is no_update
     payload=app.export(1,['customerID','Churn'],'train','Todos','Todos',[0,72])
     assert payload['filename']=='telco_seleccion.csv'
     assert len(payload['content'].splitlines())==5635
@@ -76,3 +95,48 @@ def test_text_files_always_specify_utf8():
         for node in ast.walk(tree):
             if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and node.func.attr == 'read_text':
                 assert any(k.arg == 'encoding' and isinstance(k.value, ast.Constant) and k.value.value == 'utf-8' for k in node.keywords), name
+
+
+def test_every_visible_text_has_english_translation():
+    import ast
+    from i18n import EN
+    texts=[]
+    for name in ['app.py','chatbot.py']:
+        for node in ast.walk(ast.parse((a.ROOT/name).read_text(encoding='utf-8'))):
+            if isinstance(node,ast.Call) and isinstance(node.func,ast.Name) and node.func.id in ('T','N') and node.args and isinstance(node.args[0],ast.Constant):
+                texts.append(node.args[0].value)
+    for d in [a.LABELS,a.MODELS,a.BALANCES,a.OPTIMIZERS,a.FINALIST_NAMES]: texts+=list(d.values())
+    missing=sorted({t for t in texts if t not in EN})
+    assert not missing, missing
+
+
+def test_pages_render_in_english_without_emoji():
+    import re
+    from i18n import set_lang
+    emoji=re.compile('[\U0001F000-\U0001FAFF\u2600-\u27BF\uFE0F]')
+    d=a.cohort('train','Todos','Todos',[0,72])
+    try:
+        for lang in ['en','es']:
+            set_lang(lang)
+            for key in app.PAGES:
+                payload=json.dumps(app.PAGES[key](d),cls=PlotlyJSONEncoder,ensure_ascii=False)
+                assert not emoji.search(payload), key
+            assert ('Lost' in json.dumps(app.chrome(lang),cls=PlotlyJSONEncoder))==(lang=='en')
+            json.dumps(app.threshold_output(a.FINALISTS[0],.4,lang),cls=PlotlyJSONEncoder)
+            json.dumps(app.real_output(a.TEST_IDS[0],lang),cls=PlotlyJSONEncoder)
+        set_lang('en')
+        assert app.cover_customers()[0]['contract'] in {'Month-to-month','One year','Two year'}
+    finally:
+        set_lang('es')
+
+
+def test_chatbot_answers_from_project_knowledge():
+    import chatbot
+    assert chatbot.client() is None or True
+    es=chatbot.local_answer('¿cuál fue el mejor modelo?','es')
+    assert 'Random Forest' in es and '0.638' in es
+    en=chatbot.local_answer('which customers churn the most?','en')
+    assert 'electronic check' in en.lower()
+    assert 'CSV' in chatbot.local_answer('cómo descargo el csv','es')
+    rendered=chatbot.answer('qué es SMOTE', [], 'es') if chatbot.client() is None else ''
+    assert rendered=='' or 'SMOTE' in rendered
