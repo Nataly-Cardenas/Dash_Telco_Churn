@@ -62,6 +62,7 @@
       var dt = Math.min(50, ts - last || 16); last = ts;
       if (ts % 4 < 1) hubPos();
       ctx.clearRect(0, 0, W, H);
+      var light = document.documentElement.dataset.theme === 'light';
 
       // ondas de señal que salen del celular
       if (!pulses.length || pulses[pulses.length - 1].r > 70) pulses.push({ r: 20 });
@@ -70,7 +71,7 @@
       pulses.forEach(function (p) {
         var a = Math.max(0, 0.28 - p.r / (Math.max(W, H) * 2.4));
         ctx.beginPath(); ctx.arc(hub.x, hub.y, p.r, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(34,211,238,' + a + ')'; ctx.lineWidth = 1.2; ctx.stroke();
+        ctx.strokeStyle = (light ? 'rgba(11,143,174,' : 'rgba(34,211,238,') + a + ')'; ctx.lineWidth = 1.2; ctx.stroke();
       });
 
       // ~1 de cada 4 clientes termina abandonando: se dispara una fuga periódica
@@ -101,7 +102,7 @@
           }
         }
 
-        var color = n.state === 'risk' || n.state === 'gone' ? '251,113,133' : n.state === 'saved' ? '52,211,153' : '125,211,252';
+        var color = n.state === 'risk' || n.state === 'gone' ? '232,86,108' : n.state === 'saved' ? '59,181,122' : (light ? '11,143,174' : '125,211,252');
         var a = Math.max(0, n.alpha);
         // enlace al celular: se corta cuando el cliente se va
         if (n.state !== 'gone') {
@@ -125,6 +126,8 @@
     var customers = [];
     try { customers = JSON.parse(phone.getAttribute('data-customers') || '[]'); } catch (e) { customers = []; }
     if (!customers.length) return;
+    var text = {};
+    try { text = JSON.parse(phone.getAttribute('data-text') || '{}'); } catch (e) { text = {}; }
     var i = 0;
     var ring = phone.querySelector('.ring');
     function q(sel) { return phone.querySelector(sel); }
@@ -136,7 +139,7 @@
       q('.pc-contract').textContent = c.contract;
       q('.pc-internet').textContent = c.internet;
       q('.pc-payment').textContent = c.payment;
-      q('.pc-tenure').textContent = c.tenure + ' meses';
+      q('.pc-tenure').textContent = c.tenure + ' ' + (text.months || 'meses');
       q('.pc-monthly').textContent = '$' + c.monthly.toFixed(2);
       var ul = q('.pc-flags'); ul.innerHTML = '';
       (c.flags || []).forEach(function (f) { var li = document.createElement('li'); li.textContent = f; li.className = f.charAt(0) === '▲' ? 'up' : 'down'; ul.appendChild(li); });
@@ -144,13 +147,14 @@
       q('.ring-pct').textContent = pct + '%';
       var level = c.prob >= 0.6 ? 'alto' : c.prob >= 0.35 ? 'medio' : 'bajo';
       phone.dataset.level = level;
-      q('.pc-level').textContent = 'Riesgo ' + level;
-      q('.pc-truth').textContent = c.churn ? '📵 En la realidad: abandonó' : '📶 En la realidad: permaneció';
+      q('.pc-level').textContent = (text.risk || {})[level] || level;
+      q('.pc-truth').textContent = c.churn ? text.churned : text.stayed;
+      phone.dataset.truth = c.churn ? 'churn' : 'stay';
       ring.style.setProperty('--p', pct);
       var bars = phone.querySelectorAll('.sig b'), lit = Math.max(1, Math.round((1 - c.prob) * 4));
       bars.forEach(function (b, k) { b.classList.toggle('lit', k < lit); });
       var toast = q('.toast');
-      toast.textContent = c.prob >= 0.6 ? '⚠️ Alerta de retención enviada' : c.prob >= 0.35 ? '👀 Cliente en observación' : '✅ Cliente estable';
+      q('.toast-text').textContent = (text.toast || {})[level] || '';
       toast.classList.remove('show'); void toast.offsetWidth; toast.classList.add('show');
       setTimeout(show, 3600);
     }

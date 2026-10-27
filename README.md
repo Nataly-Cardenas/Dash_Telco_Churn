@@ -46,6 +46,39 @@ La app no requiere claves, base de datos ni acceso a GitHub al ejecutarse. No se
 
 Las rutas usan fragmentos (`#problema`, `#modelos`, etc.), así que admiten enlaces directos y la navegación del navegador. El diseño se adapta a móvil y respeta `prefers-reduced-motion`.
 
+## Idioma, tema y paleta
+
+- **Español / inglés:** botones `ES | EN` arriba a la derecha. Todos los textos están en `i18n.py` y un test verifica que ninguno quede sin traducir. El texto de la biblioteca (notebooks originales) se muestra en español.
+- **Modo claro / oscuro:** botón de sol/luna. La elección de idioma y tema se guarda en el navegador.
+- **Íconos:** íconos de línea propios en `icons.py` (sin emojis).
+- **Paleta de las gráficas** (`PALETTE` en `app.py`), en tonos medios para que funcione sobre fondo claro y oscuro:
+
+| Uso | Color |
+|---|---|
+| Permanece / riesgo bajo de la escala | `#1BA7C4` turquesa |
+| Abandona / riesgo alto | `#E8566C` coral |
+| Serie secundaria | `#7C5CE0` violeta |
+| Riesgo medio | `#F2A93B` ámbar |
+| Riesgo bajo (semáforo) | `#3BB57A` verde |
+| Otras familias de modelos | `#4C7BE0` azul, `#C2569A` magenta |
+
+Cada familia de modelos conserva su color en todas las gráficas (`MODEL_COLORS`).
+
+## Asistente
+
+El botón flotante abre un asistente que responde preguntas sobre el proyecto y sobre cómo usar el dash, con un límite de 20 preguntas por sesión.
+
+- **Sin configuración**, responde con la base de conocimiento local de `chatbot.py` (preguntas frecuentes en ES/EN y el texto del libro).
+- **Con la variable de entorno `ANTHROPIC_API_KEY`**, redacta las respuestas con Claude (`claude-opus-5-5`) usando ese mismo contexto, y vuelve a la respuesta local si la API falla. Cada pregunta consume créditos de la API de Anthropic.
+
+```bash
+# Windows PowerShell
+$env:ANTHROPIC_API_KEY="tu-clave"
+python app.py
+```
+
+En Render, la variable se agrega en *Environment* (ya está declarada en `render.yaml` sin valor).
+
 ## Contrato de datos
 
 - Dataset real de 7.043 clientes, 1.869 abandonos.
@@ -64,12 +97,15 @@ Las rutas usan fragmentos (`#problema`, `#modelos`, etc.), así que admiten enla
 
 ## Archivos
 
-- `app.py`: portada, secciones, callbacks y servidor.
+- `app.py`: portada, secciones, callbacks, paleta y servidor.
+- `i18n.py`: traducciones español → inglés.
+- `icons.py`: íconos de línea.
+- `chatbot.py`: asistente (base de conocimiento, búsqueda y conexión opcional con Claude).
 - `analytics.py`: carga local, cohortes, tasas, clientes similares y errores por umbral.
 - `assets/style.css`: diseño visual, animaciones y estilos de los controles de Dash 4.
 - `assets/cover.js`: red de clientes, celular 3D y contadores animados (Dash lo carga automáticamente).
 - `data/`: CSV, interpretabilidad y textos originales necesarios, unos 8 MB.
-- `tests/test_dashboard.py`: integridad del split, métricas, filtros, simulador, serialización de páginas, exportación y endpoints.
+- `tests/test_dashboard.py`: integridad del split, métricas, filtros, simulador, páginas en ES/EN sin emojis, traducciones completas, descarga única del CSV, asistente y endpoints.
 - `preview-desktop.png`, `preview-mobile.png`: capturas reales del dashboard.
 
 ## Verificar
