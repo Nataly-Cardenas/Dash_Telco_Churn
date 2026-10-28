@@ -71,7 +71,7 @@
       pulses.forEach(function (p) {
         var a = Math.max(0, 0.28 - p.r / (Math.max(W, H) * 2.4));
         ctx.beginPath(); ctx.arc(hub.x, hub.y, p.r, 0, Math.PI * 2);
-        ctx.strokeStyle = (light ? 'rgba(11,143,174,' : 'rgba(34,211,238,') + a + ')'; ctx.lineWidth = 1.2; ctx.stroke();
+        ctx.strokeStyle = (light ? 'rgba(46,134,171,' : 'rgba(79,163,199,') + a + ')'; ctx.lineWidth = 1.2; ctx.stroke();
       });
 
       // ~1 de cada 4 clientes termina abandonando: se dispara una fuga periódica
@@ -102,7 +102,7 @@
           }
         }
 
-        var color = n.state === 'risk' || n.state === 'gone' ? '232,86,108' : n.state === 'saved' ? '59,181,122' : (light ? '11,143,174' : '125,211,252');
+        var color = n.state === 'risk' || n.state === 'gone' ? (light ? '228,87,46' : '240,106,69') : n.state === 'saved' ? (light ? '46,134,171' : '79,163,199') : (light ? '120,140,160' : '150,172,196');
         var a = Math.max(0, n.alpha);
         // enlace al celular: se corta cuando el cliente se va
         if (n.state !== 'gone') {
