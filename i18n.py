@@ -218,7 +218,7 @@ EN = {
     'El equipo detrás del proyecto y los recursos para profundizar.': 'The team behind the project and resources to dig deeper.', 'Ciencia de Datos · Universidad del Norte': 'Data Science · Universidad del Norte',
     'Departamento de Matemáticas, Física y Ciencia de Datos · Universidad del Norte · Barranquilla, Colombia': 'Department of Mathematics, Physics and Data Science · Universidad del Norte · Barranquilla, Colombia',
     'Lee el proyecto completo': 'Read the full project', 'Introducción, marco teórico, EDA, preprocesamiento, modelado y paper.': 'Introduction, theory, EDA, preprocessing, modeling and paper.',
-    'Código y notebooks': 'Code and notebooks', 'Repositorio Telco_Churn_Entregable': 'Telco_Churn_Entregable repository', 'Este dashboard': 'This dashboard',
+    'Código y notebooks': 'Code and notebooks', 'Repositorio Telco_Churn_JBook': 'Telco_Churn_JBook repository', 'Este dashboard': 'This dashboard',
     'Repositorio Dash_Telco_Churn': 'Dash_Telco_Churn repository', 'Conjunto de datos': 'Dataset', 'Versión web y PDF': 'Web and PDF versions',
     # variables, modelos y técnicas (valores de analytics)
     'Cargo acumulado': 'Total charges', 'Género': 'Gender', 'Pareja': 'Partner', 'Dependientes': 'Dependents', 'Servicio telefónico': 'Phone service',

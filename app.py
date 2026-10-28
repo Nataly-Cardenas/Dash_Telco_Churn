@@ -20,8 +20,8 @@ import eda
 from i18n import EN, T, N, set_lang, get_lang
 from icons import icon
 
-BOOK = 'https://nataly-cardenas.github.io/Telco_Churn_Entregable/'
-REPO = 'https://github.com/Nataly-Cardenas/Telco_Churn_Entregable'
+BOOK = 'https://nataly-cardenas.github.io/Telco_Churn_JBook/'
+REPO = 'https://github.com/Nataly-Cardenas/Telco_Churn_JBook'
 DASH_REPO = 'https://github.com/Nataly-Cardenas/Dash_Telco_Churn'
 
 # ---------------------------------------------------------------- paleta
@@ -631,7 +631,7 @@ def signal(p):
 def autoras(d):
     people = [('laura.jpg', 'Laura S. Rivera Figueredo', 'sriveral@uninorte.edu.co', 'https://github.com/lauraformore', 'https://www.linkedin.com/in/laura-s-rivera-figueredo-862451315/'),
               ('nataly.jpg', 'Natalý A. Cárdenas Izaquita', 'nizaquita@uninorte.edu.co', 'https://github.com/Nataly-Cardenas', 'https://www.linkedin.com/in/n%C3%A1taly-c%C3%A1rdenas-iz%C3%A1quita')]
-    res = [('code', T('Código y notebooks'), T('Repositorio Telco_Churn_Entregable'), REPO), ('sliders', T('Este dashboard'), T('Repositorio Dash_Telco_Churn'), DASH_REPO),
+    res = [('code', T('Código y notebooks'), T('Repositorio Telco_Churn_JBook'), REPO), ('sliders', T('Este dashboard'), T('Repositorio Dash_Telco_Churn'), DASH_REPO),
            ('table', T('Conjunto de datos'), 'Kaggle · Telco Customer Churn (IBM)', 'https://www.kaggle.com/datasets/blastchar/telco-customer-churn'), ('file', 'Paper', T('Versión web y PDF'), BOOK + 'paper.html')]
     return html.Div([page_head('autoras', T('El equipo detrás del proyecto y los recursos para profundizar.')),
         html.Div([html.Div([html.Div(html.Img(src=app.get_asset_url('img/' + photo), alt=T('Foto de {n}').format(n=n)), className='avatar'), html.H2(n),

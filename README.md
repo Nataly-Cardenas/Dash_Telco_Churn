@@ -4,8 +4,8 @@ Dashboard interactivo en español, construido con **Python Dash y Plotly**, para
 
 ![Portada del dashboard](preview-desktop.png)
 
-- Jupyter Book: https://nataly-cardenas.github.io/Telco_Churn_Entregable/
-- Fuente de los datos y resultados: https://github.com/Nataly-Cardenas/Telco_Churn_Entregable
+- Jupyter Book: https://nataly-cardenas.github.io/Telco_Churn_JBook/
+- Fuente de los datos y resultados: https://github.com/Nataly-Cardenas/Telco_Churn_JBook
 - Commit de los datos: `41191edb71ebf15a1543d538a158513db8781d2f` (recuperado el 23 de octubre de 2026).
 
 ## Ejecutar

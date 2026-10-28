@@ -15,7 +15,7 @@ from i18n import EN, T, N, set_lang, get_lang
 from icons import icon
 
 MODEL = 'claude-opus-5-5'
-BOOK = 'https://nataly-cardenas.github.io/Telco_Churn_Entregable/'
+BOOK = 'https://nataly-cardenas.github.io/Telco_Churn_JBook/'
 
 # ---------------------------------------------------------------- base de conocimiento
 # Cada entrada: (preguntas de ejemplo, respuesta en español, respuesta en inglés).

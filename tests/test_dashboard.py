@@ -183,7 +183,7 @@ def test_sections_follow_the_book_with_one_link_each():
     assert 'bivariado' not in intro.lower() and 'var-chip' not in intro
     for key,chapter in app.CHAPTER.items():
         page=json.dumps(app.PAGES[key](d),cls=PlotlyJSONEncoder)
-        assert page.count('Telco_Churn_Entregable/'+chapter+'.html')==1, key
+        assert page.count('Telco_Churn_JBook/'+chapter+'.html')==1, key
     authors=json.dumps(app.PAGES['autoras'](d),cls=PlotlyJSONEncoder)
     assert 'linkedin.com/in/laura-s-rivera-figueredo' in authors and 'linkedin.com/in/n%C3%A1taly' in authors
     client=app.server.test_client()
