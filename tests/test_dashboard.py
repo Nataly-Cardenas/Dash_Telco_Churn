@@ -201,4 +201,4 @@ def test_charts_use_one_color_plus_highlight():
         return x
     payload=json.dumps(drop_templates(json.loads(payload)))
     used={c.lower() for c in re.findall(r'"(#[0-9A-Fa-f]{6})"',payload)}
-    assert used<=allowed|{'#0b1426','#eaf2ff','#8792a8'}, used-allowed
+    assert used<=allowed|{'#0b1426','#eaf2ff','#8792a8','#ffffff'}, used-allowed

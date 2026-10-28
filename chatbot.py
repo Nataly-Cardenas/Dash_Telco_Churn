@@ -57,8 +57,8 @@ FAQ = [
      'Se compararon **112 configuraciones**: 7 familias (regresión logística, KNN, Naive Bayes, árbol de decisión, Random Forest, XGBoost y SVM) × 4 balanceos (ninguno, pesos, SMOTE, ADASYN) × 4 buscadores de hiperparámetros (Grid, Random, TPE y genético).',
      '**112 configurations** were compared: 7 families (logistic regression, KNN, Naive Bayes, decision tree, Random Forest, XGBoost and SVM) × 4 balancing strategies (none, weights, SMOTE, ADASYN) × 4 hyperparameter searches (Grid, Random, TPE and genetic).'),
     (['qué optimizador es mejor', 'grid random tpe genético', 'which optimizer'],
-     'Con el mismo presupuesto de 24 evaluaciones, TPE, Random y el algoritmo genético solo mejoraron a Grid con presupuestos bajos; al final quedaron prácticamente empatados. El balanceo influyó mucho más que el buscador. Míralo en *Modelado avanzado → 2 · Optimizadores*.',
-     'With the same budget of 24 evaluations, TPE, Random and the genetic algorithm only beat Grid at low budgets; in the end they were practically tied. Balancing mattered far more than the search method. See *Advanced modeling → 2 · Optimizers*.'),
+     'Con el mismo presupuesto de 24 evaluaciones, TPE, Random y el algoritmo genético solo mejoraron a Grid con presupuestos bajos; al final quedaron prácticamente empatados. El balanceo influyó mucho más que el buscador. Míralo en *Modelado avanzado → 3 · Optimizadores*.',
+     'With the same budget of 24 evaluations, TPE, Random and the genetic algorithm only beat Grid at low budgets; in the end they were practically tied. Balancing mattered far more than the search method. See *Advanced modeling → 3 · Optimizers*.'),
     (['qué es la calibración', 'brier ece', 'what is calibration'],
      'La **calibración sigmoide** (Platt) ajusta las probabilidades para que reflejen la frecuencia real. Redujo a la vez el puntaje de Brier y el ECE en 80 de 96 configuraciones.',
      '**Sigmoid calibration** (Platt) adjusts probabilities so they match observed frequencies. It reduced both the Brier score and ECE in 80 of 96 configurations.'),
@@ -66,8 +66,8 @@ FAQ = [
      'Friedman detecta diferencias entre las 112 configuraciones, pero Nemenyi no separa a las mejores. DeLong con corrección de Holm da p = 1.0 entre los tres finalistas y los intervalos bootstrap del AUC incluyen el cero.',
      'Friedman detects differences among the 112 configurations, but Nemenyi does not separate the best ones. DeLong with Holm correction gives p = 1.0 among the three finalists and the bootstrap AUC intervals include zero.'),
     (['qué es shap', 'qué es lime', 'interpretabilidad', 'what is shap'],
-     '**SHAP** reparte cada predicción entre las variables (valores de Shapley) y su promedio da la importancia global. **LIME** explica un cliente concreto con un modelo simple local. Describen al modelo, no causas del abandono. Míralo en *Modelado avanzado → 3.2 · Interpretabilidad*.',
-     '**SHAP** splits each prediction among the variables (Shapley values) and its average gives global importance. **LIME** explains one customer with a simple local model. They describe the model, not causes of churn. See *Advanced modeling → 3.2 · Interpretability*.'),
+     '**SHAP** reparte cada predicción entre las variables (valores de Shapley) y su promedio da la importancia global. **LIME** explica un cliente concreto con un modelo simple local. Describen al modelo, no causas del abandono. Míralo en *Modelado avanzado → 5 · Interpretabilidad*.',
+     '**SHAP** splits each prediction among the variables (Shapley values) and its average gives global importance. **LIME** explains one customer with a simple local model. They describe the model, not causes of churn. See *Advanced modeling → 5 · Interpretability*.'),
     (['cómo uso el simulador', 'perfil de riesgo', 'how do i use the simulator'],
      'En *Simulador → Perfil de riesgo* eliges contrato, internet, método de pago, antigüedad y cargo mensual; el dash busca clientes de entrenamiento parecidos y muestra su tasa de abandono observada. En *Clientes reales* ves las probabilidades de los 3 finalistas para un cliente del test, y en *Umbral de alerta* mueves la alarma de retención.',
      'In *Simulator → Risk profile* you choose contract, internet, payment method, tenure and monthly charge; the dash finds similar training customers and shows their observed churn rate. *Real customers* shows the 3 finalists\' probabilities for a test customer, and *Alert threshold* lets you move the retention alarm.'),
@@ -112,8 +112,8 @@ GUIDE = [
      'La sección *Introducción* presenta el contexto del problema, el objetivo general, los 8 objetivos específicos, el **marco teórico** en tarjetas que se voltean y la descripción de las 21 variables.',
      'The *Introduction* section presents the problem context, the main goal, the 8 specific objectives, the **theoretical framework** as flip cards and the description of the 21 variables.'),
     (['qué muestra el análisis exploratorio', 'para qué sirven los filtros', 'what is in the exploratory analysis', 'what do the filters do'],
-     '*Análisis exploratorio* tiene una pestaña por parte del EDA: 1–2 ETL y partición, 3 Univariado, 4 Bivariado, 5 Multivariado, 6 Valores faltantes, 7–8 Resumen y el Explorador de datos. Los filtros de arriba (universo, contrato, internet y antigüedad) recalculan todas sus gráficas y tablas.',
-     '*Exploratory analysis* has one tab per part of the EDA: 1–2 ETL and split, 3 Univariate, 4 Bivariate, 5 Multivariate, 6 Missing values, 7–8 Summary and the Data explorer. The top filters (population, contract, internet and tenure) recompute all its charts and tables.'),
+     '*Análisis exploratorio* tiene una pestaña por parte del EDA: 1 ETL y partición, 2 Univariado, 3 Bivariado, 4 Multivariado, 5 Valores faltantes, 6 Resumen y 7 Explorador de datos. Los filtros de arriba (universo, contrato, internet y antigüedad) recalculan todas sus gráficas y tablas.',
+     '*Exploratory analysis* has one tab per part of the EDA: 1 ETL and split, 2 Univariate, 3 Bivariate, 4 Multivariate, 5 Missing values, 6 Summary and 7 Data explorer. The top filters (population, contract, internet and tenure) recompute all its charts and tables.'),
     (['qué es el análisis univariado', 'qué muestra la pestaña univariado', 'what is the univariate analysis'],
      'El **análisis univariado** describe cada variable por separado: la variable objetivo, histogramas con boxplot para las numéricas (con la media marcada), barras de frecuencia para las categóricas y la tabla de outliers según el IQR.',
      'The **univariate analysis** describes each variable on its own: the target, histograms with box plots for numeric variables (mean marked), frequency bars for categorical ones and the IQR outlier table.'),
@@ -236,8 +236,8 @@ def data_answer(question, lang):
     n, k = len(d), int(d.target.sum())
     profile = ' · '.join(desc)
     if lang == 'en':
-        return f'In the training set, customers with **{profile}** are {n:,}; {k:,} of them churned (**{k / n:.1%}**), versus 26.5 % overall. It is an observed association, not a cause. You can explore it in *Simulator → Risk profile* and *Exploratory analysis → 4 · Bivariate*.'
-    return f'En el conjunto de entrenamiento, los clientes con **{profile}** son {n:,}; de ellos abandonaron {k:,} (**{k / n:.1%}**), frente al 26.5 % general. Es una asociación observada, no una causa. Puedes explorarlo en *Simulador → Perfil de riesgo* y en *Análisis exploratorio → 4 · Bivariado*.'
+        return f'In the training set, customers with **{profile}** are {n:,}; {k:,} of them churned (**{k / n:.1%}**), versus 26.5 % overall. It is an observed association, not a cause. You can explore it in *Simulator → Risk profile* and *Exploratory analysis → 3 · Bivariate*.'
+    return f'En el conjunto de entrenamiento, los clientes con **{profile}** son {n:,}; de ellos abandonaron {k:,} (**{k / n:.1%}**), frente al 26.5 % general. Es una asociación observada, no una causa. Puedes explorarlo en *Simulador → Perfil de riesgo* y en *Análisis exploratorio → 3 · Bivariado*.'
 
 
 def local_answer(question, lang):

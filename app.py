@@ -42,6 +42,13 @@ def highlight(values, best=None):
     return [HOT if i in best else BASE for i in range(len(values))]
 
 
+def bar_labels(f, values, cats, at, fmt='{:.3f}', horizontal=True):
+    """Valores escritos al inicio visible de cada barra, lejos de los bigotes de error (el eje no empieza en cero)."""
+    kw = dict(x=[at] * len(values), y=list(cats), textposition='middle right') if horizontal else dict(x=list(cats), y=[at] * len(values), textposition='top center')
+    f.add_trace(go.Scatter(mode='text', text=[fmt.format(v) for v in values], textfont={'color': '#ffffff', 'size': 13}, hoverinfo='skip', showlegend=False, **kw))
+    return f
+
+
 NAV = [('introduccion', N('Introducción'), 'signal'), ('eda', N('Análisis exploratorio'), 'chart'), ('preprocesamiento', N('Preprocesamiento'), 'flask'),
        ('modelado', N('Modelado avanzado'), 'trophy'), ('simulador', N('Simulador'), 'sliders'), ('conclusiones', N('Conclusiones'), 'flag'), ('autoras', N('Autoras'), 'users')]
 TITLES = {'inicio': N('Inicio'), **{k: t for k, t, _ in NAV}}
@@ -141,12 +148,14 @@ def table(d, id=None, **kw):
 def style(f, height=360, legend=True, margin=None):
     # Los colores de texto y rejilla se ajustan al tema desde CSS (assets/style.css, sección "gráficas").
     f.update_layout(template='plotly_white', paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
-                    font={'family': 'Inter, sans-serif', 'color': '#8792a8', 'size': 13.5}, colorway=[BASE, GREY, HOT],
+                    font={'family': 'Inter, sans-serif', 'color': '#8792a8', 'size': 13.5}, colorway=[BASE, HOT, GREY],
                     margin=margin or {'l': 20, 'r': 20, 't': 36, 'b': 30}, height=height, showlegend=legend,
                     legend={'orientation': 'h', 'y': 1.14, 'title_text': '', 'bgcolor': 'rgba(0,0,0,0)'},
                     transition={'duration': 600, 'easing': 'cubic-in-out'},
                     hoverlabel={'bgcolor': '#0b1426', 'bordercolor': BASE, 'font': {'family': 'Inter', 'color': '#eaf2ff', 'size': 13}})
     f.update_xaxes(gridcolor=GRID, zerolinecolor=GRID, linecolor=GRID); f.update_yaxes(gridcolor=GRID, zerolinecolor=GRID, linecolor=GRID)
+    # Ejes que Plotly crea al dibujar (matriz de dispersión) heredan la rejilla de la plantilla: se ajusta también ahí.
+    for ax in (f.layout.template.layout.xaxis, f.layout.template.layout.yaxis): ax.update(gridcolor=GRID, zerolinecolor=GRID, linecolor=GRID)
     return f
 
 
@@ -309,18 +318,18 @@ def eda_page(d):
            grid(chart(T('División train / test estratificada'), split_figure(), T('El test se separa primero y conserva la proporción de abandono (26.5 %) en ambas particiones.'), 320),
                 card(html.H3(T('Estructura original'), className='chart-title'), table(tt(structure_table()), page_size=8),
                      html.P(T('TotalCharges llega como texto: los espacios en blanco se convierten en valores faltantes y la columna pasa a numérica.'), className='insight')))]
-    univariado = [grid(chart(T('3.1 Variable objetivo'), target_figure(d), T('Clientes que permanecen y que abandonan: el desbalance obliga a usar métricas de la clase positiva.'), 340, False),
-                       card(html.H3(T('3.2.1 Estadísticas descriptivas'), className='chart-title'), table(tt(eda.numeric_summary(d))))),
-                  subhead(T('3.2 Variables numéricas')),
+    univariado = [grid(chart(T('Variable objetivo'), target_figure(d), T('Clientes que permanecen y que abandonan: el desbalance obliga a usar métricas de la clase positiva.'), 340, False),
+                       card(html.H3(T('Estadísticas descriptivas'), className='chart-title'), table(tt(eda.numeric_summary(d))))),
+                  subhead(T('Variables numéricas')),
                   card(field(T('Variable'), dropdown('uni-num', a.NUMERIC, 'tenure', num_opts)), html.Div(id='uni-num-output'), cls='controls-card'),
-                  subhead(T('3.3 Variables categóricas')),
+                  subhead(T('Variables categóricas')),
                   card(field(T('Variable'), dropdown('uni-cat', ['__all__'] + a.CATEGORICAL, '__all__', {'__all__': T('Todas las variables'), **cat_opts})), html.Div(id='uni-cat-output'), cls='controls-card'),
-                  subhead(T('3.4 Outliers y sesgos')),
+                  subhead(T('Outliers y sesgos')),
                   card(table(tt(eda.outliers(d))), html.P(T('Con el criterio IQR ninguna variable numérica presenta valores atípicos; TotalCharges tiene asimetría positiva. No se eliminan observaciones.'), className='insight'))]
-    bivariado = [subhead(T('4.1 Variable objetivo vs variables numéricas')),
+    bivariado = [subhead(T('Variable objetivo vs variables numéricas')),
                  card(field(T('Variable'), dropdown('bi-num', a.NUMERIC, 'tenure', num_opts)), html.Div(id='bi-num-output'), cls='controls-card'),
                  html.Div(id='bi-pb-output'),
-                 subhead(T('4.2 Variable objetivo vs variables categóricas')),
+                 subhead(T('Variable objetivo vs variables categóricas')),
                  card(field(T('Variable'), dropdown('bi-cat', a.CATEGORICAL, 'Contract', cat_opts)), html.Div(id='bi-cat-output'), cls='controls-card'),
                  html.Div(id='bi-holm-output')]
     multivariado = [html.Div(id='multi-output')]
@@ -334,8 +343,8 @@ def eda_page(d):
                      scope(d),
                      kpis(kpi(T('CLIENTES'), len(d), T('en la selección')), kpi(T('ABANDONO'), round(d.target.mean() * 100, 2), T('{n} clientes').format(n=f'{int(d.target.sum()):,}'), 'hot', 2, ' %'),
                           kpi(T('ANTIGÜEDAD MEDIA'), round(d.tenure.mean(), 1), T('meses'), '', 1), kpi(T('CARGO MENSUAL MEDIO'), round(d.MonthlyCharges.mean(), 2), T('dólares'), '', 2, '', '$')),
-                     tabs('eda-tabs', [(T('1–2 · ETL y partición'), etl), (T('3 · Univariado'), univariado), (T('4 · Bivariado'), bivariado), (T('5 · Multivariado'), multivariado),
-                                       (T('6 · Valores faltantes'), faltantes), (T('7–8 · Resumen'), resumen), (T('Explorador de datos'), explorador)])])
+                     tabs('eda-tabs', [(T('1 · ETL y partición'), etl), (T('2 · Univariado'), univariado), (T('3 · Bivariado'), bivariado), (T('4 · Multivariado'), multivariado),
+                                       (T('5 · Valores faltantes'), faltantes), (T('6 · Resumen'), resumen), (T('7 · Explorador de datos'), explorador)])])
 
 
 def split_figure():
@@ -381,8 +390,8 @@ def eda_summary():
 
 
 # ================================================================ 3. PREPROCESAMIENTO
-STEPS = [('target', N('4.1 Objetivo'), N('Churn Yes/No → 1/0. customerID solo para control.')), ('shield', N('4.2 TotalCharges'), N('Texto a número; los 8 vacíos de train (3 de test) tienen tenure 0 → 0.')),
-         ('layers', N('4.3 Ingeniería'), N('“Sin internet / sin teléfono” → “No” y AvgChargePerMonth = TotalCharges / tenure.')), ('table', N('4.4–4.5 Codificar y escalar'), N('4 numéricas con StandardScaler y 16 categóricas con One-Hot: 24 columnas.')),
+STEPS = [('target', N('Objetivo'), N('Churn Yes/No → 1/0. customerID solo para control.')), ('shield', N('TotalCharges'), N('Texto a número; los 8 vacíos de train (3 de test) tienen tenure 0 → 0.')),
+         ('layers', N('Ingeniería'), N('“Sin internet / sin teléfono” → “No” y AvgChargePerMonth = TotalCharges / tenure.')), ('table', N('Codificar y escalar'), N('4 numéricas con StandardScaler y 16 categóricas con One-Hot: 24 columnas.')),
          ('scale', N('Balancear'), N('Ninguno, pesos, SMOTE o ADASYN; solo dentro del entrenamiento.')), ('network', N('Modelo'), N('Se ajusta en entrenamiento y se evalúa en el fold reservado.'))]
 COEFS = [('cat__Contract_Two year', -1.422598), ('num__tenure', -1.153496), ('cat__InternetService_No', -1.079819), ('cat__InternetService_Fiber optic', 1.036427), ('cat__Contract_One year', -0.725538),
          ('num__TotalCharges', 0.486039), ('cat__PaymentMethod_Electronic check', 0.398853), ('cat__OnlineSecurity_Yes', -0.371758), ('cat__StreamingMovies_Yes', 0.348344), ('cat__PaperlessBilling_Yes', 0.334539),
@@ -393,24 +402,25 @@ COEFS = [('cat__Contract_Two year', -1.422598), ('num__tenure', -1.153496), ('ca
 
 def preprocesamiento(d):
     imput = pd.DataFrame({'m': [T('Imputar con 0'), T('Mediana + indicador')], 'auc': [.8459, .8460], 'sd': [.0124, .0125]})
-    fi = go.Figure(go.Bar(x=imput.m, y=imput.auc, error_y={'type': 'data', 'array': imput.sd, 'color': GREY}, marker_color=[BASE, GREY], text=imput.auc.map('{:.4f}'.format), textposition='inside'))
+    fi = go.Figure(go.Bar(x=imput.m, y=imput.auc, error_y={'type': 'data', 'array': imput.sd, 'color': GREY}, marker_color=[HOT, BASE]))
+    bar_labels(fi, imput.auc, imput.m, .802, '{:.4f}', horizontal=False)
     fi.update_yaxes(range=[.8, .87], title='AUC-ROC CV')
     pasos = [card(html.H3(T('El pipeline paso a paso'), className='chart-title'), html.Div([html.Div(className='flow-line'), *[html.Div([html.Span(icon(i), className='st-icon'), html.H4(T(t)), html.P(T(s))], className='station',
                   style={'animationDelay': f'{k * .15}s'}) for k, (i, t, s) in enumerate(STEPS)]], className='pipeline')),
-             grid(chart(T('4.2 ¿Cero o mediana para TotalCharges?'), fi, T('Diferencia pareada por fold: +0.0001 ± 0.0001. Imputar con 0 es coherente con clientes sin facturación y no pierde desempeño.'), 320, False),
-                  card(html.H3(T('4.3 Ingeniería de características'), className='chart-title'),
+             grid(chart(T('¿Cero o mediana para TotalCharges?'), fi, T('Diferencia pareada por fold: +0.0001 ± 0.0001. Imputar con 0 es coherente con clientes sin facturación y no pierde desempeño.'), 320, False),
+                  card(html.H3(T('Ingeniería de características'), className='chart-title'),
                        kpis(kpi(T('CORRELACIÓN CON MONTHLYCHARGES'), .9963, 'AvgChargePerMonth', '', 4), kpi(T('COLUMNAS TRAS CODIFICAR'), 24, T('4 numéricas + 20 indicadores')), cls='k2'),
                        html.P(T('El cargo promedio mensual comparte casi toda la información con el cargo mensual; su aporte se evalúa en la ablación.'), className='insight')))]
     cv = pd.DataFrame({'m': [T('Regresión logística'), T('Etiquetas permutadas'), T('Dummy estratificado'), T('Dummy mayoritaria')], 'auc': [.8454, .4868, .5065, .5], 'sd': [.0123, .0220, .0171, 0]})
-    fc = go.Figure(go.Bar(x=cv.auc, y=cv.m, orientation='h', error_x={'type': 'data', 'array': cv.sd, 'color': GREY}, marker_color=highlight(cv.auc), text=cv.auc.map('{:.4f}'.format), textposition='inside'))
+    fc = go.Figure(go.Bar(x=cv.auc, y=cv.m, orientation='h', error_x={'type': 'data', 'array': cv.sd, 'color': GREY}, marker_color=highlight(cv.auc), text=cv.auc.map('{:.4f}'.format), textposition='inside', insidetextanchor='start'))
     fc.update_xaxes(range=[0, 1], title='AUC-ROC CV (5 folds)'); fc.add_vline(x=.5, line_dash='dot', line_color=GREY)
     validacion = [kpis(kpi('AUC-ROC CV', .8454, '± 0.0123', '', 4), kpi('PR-AUC CV', .6581, '± 0.0191', '', 4), kpi('RECALL CV', .8020, '± 0.0341', '', 4), kpi(T('CONTROL PERMUTADO'), .4868, T('AUC del azar'), '', 4)),
-                  chart(T('4.6 Validación cruzada en entrenamiento'), fc, T('El modelo supera con claridad a los controles: con etiquetas permutadas o un clasificador trivial el AUC ronda 0.5.'), 340, False)]
+                  chart(T('Validación cruzada en entrenamiento'), fc, T('El modelo supera con claridad a los controles: con etiquetas permutadas o un clasificador trivial el AUC ronda 0.5.'), 340, False)]
     abl = pd.DataFrame({'c': [T('Sin gender'), T('Sin PhoneService'), T('Sin PhoneService ni MultipleLines'), T('Sin gender ni PhoneService'), T('Sin AvgChargePerMonth')],
                         'd': [.0001, .0002, -.0007, .0004, .0005], 'sd': [.0005, .0003, .0018, .0004, .0003], 'dpr': [-.0003, -.0003, -.0106, -.0000, .0019]})
     fa = go.Figure(go.Bar(x=abl.d, y=abl.c, orientation='h', error_x={'type': 'data', 'array': abl.sd, 'color': GREY}, marker_color=BASE))
     fa.add_vline(x=0, line_color=GREY); fa.update_xaxes(title=T('Δ AUC-ROC frente al modelo completo'), tickformat='.4f')
-    ablacion = [chart(T('4.7 Ablación por validación cruzada'), fa, T('Retirar gender, PhoneService o AvgChargePerMonth cambia el AUC menos que la variación entre folds; las variables se conservan.'), 340, False),
+    ablacion = [chart(T('Ablación por validación cruzada'), fa, T('Retirar gender, PhoneService o AvgChargePerMonth cambia el AUC menos que la variación entre folds; las variables se conservan.'), 340, False),
                 card(table(tt(abl.rename(columns={'c': 'Configuración', 'd': 'Δ AUC', 'sd': 'DE', 'dpr': 'Δ PR-AUC'}))))]
     b = baseline(); cm = confusion_matrix(b.y_true, (b.probability >= .5).astype(int))
     fcm = px.imshow(cm, x=[T('Predice permanencia'), T('Predice abandono')], y=[T('Permanece'), T('Abandona')], text_auto=True, color_continuous_scale=SEQ, aspect='auto')
@@ -422,11 +432,11 @@ def preprocesamiento(d):
     fco.update_xaxes(title=T('Coeficiente (escala estandarizada)')); fco.add_vline(x=0, line_color=GREY)
     test = [kpis(kpi('ACCURACY', .7395, T('frente a 0.7346 de predecir siempre “permanece”'), '', 4), kpi('PRECISION', .5060, '', '', 4), kpi('RECALL', .7834, '', 'hot', 4), kpi('F1', .6149, '', '', 4),
                  kpi('AUC-ROC', .8419, T('IC 95 % [0.8214, 0.8631]'), '', 4), kpi('PR-AUC', .6340, '', '', 4), cls='k6'),
-            grid(chart(T('7.2 Matriz de confusión'), fcm, T('Detecta 293 de 374 abandonos, pero 286 de sus 579 alertas son falsas: hay margen de mejora.'), 360, False),
-                 chart(T('7.3 Curva ROC'), froc, T('Pulsa play para trazar la curva. AUC = 0.8419 en el test.'), 360)),
-            chart(T('7.5 Coeficientes de la regresión logística'), fco, T('Contrato a dos años, antigüedad y no tener internet reducen el riesgo; la fibra óptica lo aumenta. gender y PhoneService (resaltadas) pesan poco.'), 640, False)]
+            grid(chart(T('Matriz de confusión'), fcm, T('Detecta 293 de 374 abandonos, pero 286 de sus 579 alertas son falsas: hay margen de mejora.'), 360, False),
+                 chart(T('Curva ROC'), froc, T('Pulsa play para trazar la curva. AUC = 0.8419 en el test.'), 360)),
+            chart(T('Coeficientes de la regresión logística'), fco, T('Contrato a dos años, antigüedad y no tener internet reducen el riesgo; la fibra óptica lo aumenta. gender y PhoneService (resaltadas) pesan poco.'), 640, False)]
     return html.Div([page_head('preprocesamiento', T('Cómo se transforman los datos antes de modelar, sin espiar el test, y cuánto logra el modelo base.')),
-                     tabs('prep-tabs', [(T('4.1–4.5 · Pasos'), pasos), (T('4.6 · Validación cruzada'), validacion), (T('4.7 · Ablación'), ablacion), (T('7 · Evaluación en test'), test)])])
+                     tabs('prep-tabs', [(T('1 · Pasos'), pasos), (T('2 · Validación cruzada'), validacion), (T('3 · Ablación'), ablacion), (T('4 · Evaluación en test'), test)])])
 
 
 def roc_animation(curves):
@@ -469,15 +479,16 @@ def modelado(d):
     return html.Div([page_head('modelado', T('Siete familias × cuatro balanceos × cuatro optimizadores = 112 configuraciones evaluadas con validación cruzada anidada.')),
                      html.Div([podium(), kpis(kpi(T('CONFIGURACIONES'), 112, '7 × 4 × 4'), kpi(T('UNIDADES EXTERNAS'), 1680, T('112 × 3 semillas × 5 folds')),
                                               kpi('FOLDS', '5 × 3', T('externos × internos')), kpi(T('PRESUPUESTO'), 24, T('evaluaciones por búsqueda')), cls='k2')], className='hero'),
-                     tabs('model-tabs', [(T('1 · Resultados por modelo'), resultados), (T('1.8 · Calibración'), calibracion), (T('2 · Optimizadores'), optimizadores),
-                                         (T('3 · Comparación estadística'), estadistica()), (T('3.2 · Interpretabilidad'), interpretabilidad())])])
+                     tabs('model-tabs', [(T('1 · Resultados por modelo'), resultados), (T('2 · Calibración'), calibracion), (T('3 · Optimizadores'), optimizadores),
+                                         (T('4 · Comparación estadística'), estadistica()), (T('5 · Interpretabilidad'), interpretabilidad())])])
 
 
 def ranking_families():
     s = a.SUMMARY.set_index('experiment_id').loc[list(BEST_BY_FAMILY.values())].reset_index().sort_values('f1_positive_mean')
     s['n'] = s.experiment_id.map(config_name)
     f = go.Figure(go.Bar(x=s.f1_positive_mean, y=s.n, orientation='h', error_x={'type': 'data', 'array': s.f1_positive_std, 'color': GREY},
-                         marker_color=highlight(s.f1_positive_mean), text=s.f1_positive_mean.map('{:.3f}'.format), textposition='inside'))
+                         marker_color=highlight(s.f1_positive_mean, len(s) - 1)))
+    bar_labels(f, s.f1_positive_mean, s.n, .551)
     f.update_xaxes(range=[.55, .68], title=T('F1 positivo · media de 5 folds externos'))
     return chart(T('Mejor configuración de cada familia'), f, T('Barras: media de los folds externos; bigotes: desviación estándar. Random Forest y XGBoost empatan arriba (0.638).'), 380, False)
 
@@ -485,16 +496,16 @@ def ranking_families():
 def calibration_summary():
     u = a.UNITS[a.UNITS.replicate == 0]
     g = u.groupby('model')[['brier', 'cal_brier', 'ece', 'cal_ece']].mean().reset_index(); g['n'] = g.model.map(model_name)
-    fb = go.Figure([go.Bar(x=g.n, y=g.brier, name=T('Nativa'), marker_color=GREY), go.Bar(x=g.n, y=g.cal_brier, name=T('Sigmoide'), marker_color=BASE)])
+    fb = go.Figure([go.Bar(x=g.n, y=g.brier, name=T('Nativa'), marker_color=BASE), go.Bar(x=g.n, y=g.cal_brier, name=T('Sigmoide'), marker_color=HOT)])
     fb.update_layout(barmode='group'); fb.update_yaxes(title='Brier')
-    fe = go.Figure([go.Bar(x=g.n, y=g.ece, name=T('Nativa'), marker_color=GREY), go.Bar(x=g.n, y=g.cal_ece, name=T('Sigmoide'), marker_color=BASE)])
+    fe = go.Figure([go.Bar(x=g.n, y=g.ece, name=T('Nativa'), marker_color=BASE), go.Bar(x=g.n, y=g.cal_ece, name=T('Sigmoide'), marker_color=HOT)])
     fe.update_layout(barmode='group'); fe.update_yaxes(title='ECE')
     improved = int(((u.groupby('experiment_id').cal_brier.mean() < u.groupby('experiment_id').brier.mean()) & (u.groupby('experiment_id').cal_ece.mean() < u.groupby('experiment_id').ece.mean())).sum())
     return html.Div([kpis(kpi(T('CONFIGURACIONES MEJORADAS'), 80, T('de 96 con probabilidad nativa')), kpi(T('MÉTODO'), 'Platt', T('sigmoide dentro del entrenamiento')),
                           kpi(T('INTERVALOS ECE'), 10, T('uniformes')), kpi('SVM', T('solo sigmoide'), T('sin probabilidad nativa'))),
                      grid(chart(T('Puntaje de Brier por familia'), fb, T('Menor es mejor. Promedio sobre balanceos, optimizadores y folds externos.'), 360),
                           chart(T('ECE por familia'), fe, T('Distancia entre la probabilidad predicha y la frecuencia observada; la rama sigmoide la reduce en casi todas las familias.'), 360)),
-                     note(T('1.8 Síntesis de la calibración'), T('La calibración sigmoide redujo a la vez Brier y ECE en 80 de 96 configuraciones con probabilidad nativa. No mejora todas, y no se usó para elegir el ranking principal.'))])
+                     note(T('Síntesis de la calibración'), T('La calibración sigmoide redujo a la vez Brier y ECE en 80 de 96 configuraciones con probabilidad nativa. No mejora todas, y no se usó para elegir el ranking principal.'))])
 
 
 def estadistica():
@@ -811,7 +822,7 @@ def multi(split, contract, internet, tenure, lang='es'):
     fh = px.imshow(corr, zmin=-1, zmax=1, color_continuous_scale=DIVERGING, text_auto='.3f', aspect='auto')
     sp = d.sample(min(1500, len(d)), random_state=42).assign(Estado=lambda x: x.Churn.map(churn_label))
     fs = px.scatter_matrix(sp, dimensions=a.NUMERIC, color='Estado', color_discrete_map=outcome_colors(), opacity=.35, category_orders={'Estado': [T('Permanece'), T('Abandona')]})
-    fs.update_traces(diagonal_visible=False, showupperhalf=False, marker_size=3)
+    fs.update_traces(diagonal_visible=False, showupperhalf=False, marker_size=4)
     fk = make_subplots(rows=1, cols=2, subplot_titles=['MonthlyCharges', 'TotalCharges'])
     for j, c in enumerate(['MonthlyCharges', 'TotalCharges'], 1):
         g, dens = eda.kde(d, c)
@@ -862,7 +873,7 @@ def res_output(family, lang='es'):
                       go.Scatter(x=[0, 1], y=[0, 1], mode='lines', line={'dash': 'dash', 'color': GREY}, name=T('Azar'))])
     froc.update_xaxes(title=T('Tasa de falsos positivos')); froc.update_yaxes(title='Recall')
     fr = go.Figure(go.Scatter(x=[0, 1], y=[0, 1], mode='lines', line={'dash': 'dash', 'color': GREY}, name=T('Calibración perfecta')))
-    for col, name, color in [('probability_native', T('Nativa'), GREY), ('probability_sigmoid', T('Sigmoide'), BASE)]:
+    for col, name, color in [('probability_native', T('Nativa'), BASE), ('probability_sigmoid', T('Sigmoide'), HOT)]:
         if o[col].notna().any():
             b = pd.cut(o[col], np.linspace(0, 1, 11), include_lowest=True); g = o.groupby(b, observed=True).agg(x=(col, 'mean'), y=('y_true', 'mean')).dropna()
             fr.add_trace(go.Scatter(x=g.x, y=g.y, mode='lines+markers', name=name, line={'color': color, 'width': 2.4}))
@@ -881,9 +892,9 @@ def model_output(family, balance, metric, lang='es'):
     if balance != 'Todos': d = d[d.balance == balance]
     d = d.sort_values(metric + '_mean', ascending=False); top = d.head(12).iloc[::-1].copy()
     top['n'] = top.experiment_id.map(config_name)
-    f = go.Figure(go.Bar(x=top[metric + '_mean'], y=top.n, orientation='h', error_x={'type': 'data', 'array': top[metric + '_std'], 'color': GREY}, marker_color=highlight(top[metric + '_mean']),
-                         text=top[metric + '_mean'].map('{:.3f}'.format), textposition='inside'))
+    f = go.Figure(go.Bar(x=top[metric + '_mean'], y=top.n, orientation='h', error_x={'type': 'data', 'array': top[metric + '_std'], 'color': GREY}, marker_color=highlight(top[metric + '_mean'], len(top) - 1)))
     lo = max(0, top[metric + '_mean'].min() - .06)
+    bar_labels(f, top[metric + '_mean'], top.n, lo + .001)
     f.update_xaxes(title=T(METRICS[metric]) + ' · ' + T('media externa'), range=[lo, min(1, top[metric + '_mean'].max() + .04)])
     heat = px.imshow(d.pivot_table(index='model', columns='balance', values=metric + '_mean', aggfunc='mean').rename(index=model_name, columns=balance_name), text_auto='.3f',
                      color_continuous_scale=SEQ, aspect='auto', labels={'x': '', 'y': '', 'color': T(METRICS[metric])})
@@ -915,8 +926,8 @@ def opt_output(family, lang='es'):
     fb = px.box(u, x='b', y='search_seconds', labels={'search_seconds': T('Segundos de búsqueda'), 'b': ''}); fb.update_traces(marker_color=BASE)
     return html.Div([grid(chart(T('Mejor F1 interno por evaluaciones únicas'), lines('evaluation', T('Evaluaciones únicas')), T('A igual presupuesto (24 evaluaciones) los buscadores convergen; el mejor al final está resaltado.'), 380),
                           chart(T('Mejor F1 interno por tiempo acumulado'), lines('sec', T('Tiempo acumulado (s)')), T('La misma búsqueda medida en segundos.'), 380)),
-                     grid(chart(T('2.1 Diversidad del algoritmo genético'), fd, T('La población pierde diversidad con las generaciones: converge hacia pocas configuraciones.'), 340),
-                          chart(T('2.2 Presupuesto y coste empírico'), fb, T('Segundos por unidad externa en el equipo del experimento.'), 340, False))])
+                     grid(chart(T('Diversidad del algoritmo genético'), fd, T('La población pierde diversidad con las generaciones: converge hacia pocas configuraciones.'), 340),
+                          chart(T('Presupuesto y coste empírico'), fb, T('Segundos por unidad externa en el equipo del experimento.'), 340, False))])
 
 
 @app.callback(Output('explain-output', 'children'), Input('explain-model', 'value'), State('lang', 'data'))

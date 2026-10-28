@@ -38,7 +38,7 @@ Las secciones siguen los capítulos del Jupyter Book, con las mismas gráficas y
 
 - **Portada interactiva:** una red de clientes conectados a un celular 3D. Los puntos resaltados son clientes a punto de irse y se pueden retener pasando el cursor (o el dedo).
 - **Introducción:** contexto, objetivo general, objetivos específicos, marco teórico en tarjetas y descripción de variables.
-- **Análisis exploratorio:** filtros globales y pestañas con la numeración del libro: ETL y partición, univariado, bivariado (pruebas, Cramér V y Holm), multivariado (Q-Q, Spearman, matriz de dispersión, KDE), valores faltantes, resumen y explorador con descarga CSV.
+- **Análisis exploratorio:** filtros globales y pestañas numeradas en el orden del dash: ETL y partición, univariado, bivariado (pruebas, Cramér V y Holm), multivariado (Q-Q, Spearman, matriz de dispersión, KDE), valores faltantes, resumen y explorador con descarga CSV.
 - **Preprocesamiento:** pasos del pipeline, validación cruzada, ablación y evaluación del modelo base en test (matriz de confusión y ROC animada).
 - **Modelado avanzado:** podio; resultados por modelo (matriz de confusión, ROC y confiabilidad), calibración, optimizadores, comparación estadística (Friedman, Nemenyi, DeLong) e interpretabilidad (SHAP global, waterfall y LIME).
 - **Simulador:** herramienta creada para el dash (perfil de riesgo, clientes reales del test y laboratorio de umbral).
@@ -52,7 +52,7 @@ Cada capítulo tiene un único enlace a su versión en el Jupyter Book, debajo d
 - **Español / inglés:** botones `ES | EN` arriba a la derecha. Todos los textos están en `i18n.py` y un test verifica que ninguno quede sin traducir.
 - **Modo claro / oscuro:** botón de sol/luna. La elección se guarda en el navegador.
 - **Íconos:** íconos de línea propios en `icons.py` (sin emojis).
-- **Paleta:** las gráficas usan un solo color (`#2E86AB` azul) y cambian a `#E4572E` naranja solo para resaltar el mejor resultado o la clase de interés; `#9AA5B1` gris para referencias. Los textos usan blanco/gris y el mismo azul como acento. Un test verifica que ninguna gráfica use otros colores.
+- **Paleta:** las gráficas usan un solo color (`#2E86AB` azul) y cambian a `#E4572E` naranja solo para resaltar el mejor resultado o la clase de interés; `#9AA5B1` gris para referencias. Los textos usan blanco/gris y el mismo azul como acento. El título de la portada y los botones llevan un degradado azul → naranja. Un test verifica que ninguna gráfica use otros colores.
 
 ## Asistente
 
