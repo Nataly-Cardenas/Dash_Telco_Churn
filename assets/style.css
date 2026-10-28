@@ -567,7 +567,6 @@ html[data-theme=light] .js-plotly-plot .plotly .modebar-btn path { fill: #64748b
 .topbar { gap: 12px; }
 .nav-link { padding: 8px 10px; font-size: 12.5px; gap: 5px; }
 @media (max-width: 1480px) { .top-actions .btn.small .book-btn-t { display: none; } .top-actions .btn.small { padding: 8px 10px; } .top-actions .btn.small .ic { margin: 0; } }
-@media (max-width: 1280px) { .nav-link > span:not(.ic) { display: none; } .nav-link { padding: 9px; } .nav-link.on > span:not(.ic) { display: inline; } }
 
 /* ================= PROCEDENCIA: capítulo y sección del Jupyter Book =================
    Un color por capítulo, el mismo en todo el dash: Introducción, EDA, Preprocesamiento, Modelado, Paper. */
@@ -690,3 +689,21 @@ h4 { font-size: 16px; }
 .flip-back h4 { margin: 0; font-size: 15px; }
 .flip-back p { font-size: 14px; line-height: 1.5; margin-top: 6px; }
 @media (max-width: 560px) { .flip { height: 250px; } }
+
+/* ================= AJUSTES DE NAVEGACIÓN Y MODO CLARO ================= */
+/* Texto blanco sobre el degradado también en modo claro. */
+html[data-theme=light] .tab.on, html[data-theme=light] .nav-link.on, html[data-theme=light] .seg.on, html[data-theme=light] .btn.primary,
+html[data-theme=light] .chat-fab, html[data-theme=light] .chat-send, html[data-theme=light] .msg.user { color: #ffffff !important; }
+html[data-theme=light] .tab.on *, html[data-theme=light] .nav-link.on *, html[data-theme=light] .btn.primary * { color: #ffffff !important; }
+/* Los nombres de las secciones siempre visibles: si no caben en una fila, el menú pasa a una segunda fila. */
+.nav-link > span:not(.ic) { display: inline !important; }
+.nav-link { white-space: nowrap; }
+@media (max-width: 1360px) {
+  .topbar { flex-wrap: wrap; row-gap: 8px; }
+  .topbar .nav { order: 3; flex: 1 1 100%; justify-content: center; }
+  .topbar .nav { flex-wrap: wrap; overflow: visible; row-gap: 4px; }
+  .top-actions { margin-left: auto; }
+}
+@media (max-width: 700px) { .topbar .nav { justify-content: flex-start; flex-wrap: nowrap; overflow-x: auto; } }
+/* La barra de filtros del análisis exploratorio se queda en su lugar (no se fija al desplazarse). */
+.filters { position: static !important; top: auto; }
