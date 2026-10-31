@@ -1,0 +1,10 @@
+model,exponente_n,exponente_p,teórico_n
+knn brute (predicción),0.395116,0.961643,1 (por consulta)
+knn kd_tree (predicción),-0.783404,1.005313,≈log n en baja dimensión
+logistic liblinear,1.005063,1.124015,≈1 por iteración
+naive_bayes,0.506673,0.979811,1
+random_forest (100 árboles),0.175006,1.269145,≈1 (n log n)
+svm LinearSVC,1.177636,1.27935,≈1
+svm rbf,2.001003,0.750658,2 a 3
+xgboost exact,0.990295,1.50892,"≈1 (n log n, ordenamiento)"
+xgboost hist,0.192502,1.269741,≈1

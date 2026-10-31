@@ -1,0 +1,7 @@
+evaluaciones,optimizer,comparaciones,delta_f1_interno,cliff_no_pareado,d_z_pareado,rank_biserial_pareado,magnitud_cliff
+8,Random,420,0.006559,0.063571,0.45339,0.381351,despreciable
+8,TPE,420,0.006853,0.068724,0.471673,0.414986,despreciable
+8,Genético,420,0.006322,0.055482,0.412353,0.316369,despreciable
+24,Random,420,-0.000331,-0.00818,-0.198874,-0.27304,despreciable
+24,TPE,420,0.000353,0.013815,0.253089,0.443427,despreciable
+24,Genético,420,-5.4e-05,-0.000431,-0.035481,0.055383,despreciable

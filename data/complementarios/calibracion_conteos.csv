@@ -1,0 +1,5 @@
+Comparación,Configuraciones,Total
+Sigmoid mejora a nativa (Brier y ECE),80,96
+Isotónica mejora a nativa (Brier y ECE),84,96
+Isotónica con menor Brier que sigmoid,67,112
+Isotónica con menor ECE que sigmoid,74,112

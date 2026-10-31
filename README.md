@@ -6,7 +6,7 @@ Dashboard interactivo en español, construido con **Python Dash y Plotly**, para
 
 - Jupyter Book: https://nataly-cardenas.github.io/Telco_Churn_JBook/
 - Fuente de los datos y resultados: https://github.com/Nataly-Cardenas/Telco_Churn_JBook
-- Commit de los datos: `41191edb71ebf15a1543d538a158513db8781d2f` (recuperado el 23 de octubre de 2026).
+- Commit de los datos: `de91225f8` (recuperado el 31 de octubre de 2026, incluye las correcciones del entregable 3).
 
 ## Ejecutar
 
@@ -40,12 +40,16 @@ Las secciones siguen los capítulos del Jupyter Book, con las mismas gráficas y
 - **Introducción:** contexto, objetivo general, objetivos específicos, marco teórico en tarjetas y descripción de variables.
 - **Análisis exploratorio:** filtros globales y pestañas numeradas en el orden del dash: ETL y partición, univariado, bivariado (pruebas, Cramér V y Holm), multivariado (Q-Q, Spearman, matriz de dispersión, KDE), valores faltantes, resumen y explorador con descarga CSV.
 - **Preprocesamiento:** pasos del pipeline, validación cruzada, ablación y evaluación del modelo base en test (matriz de confusión y ROC animada).
-- **Modelado avanzado:** podio; resultados por modelo (matriz de confusión, ROC y confiabilidad), calibración, optimizadores, comparación estadística (Friedman, Nemenyi, DeLong) e interpretabilidad (SHAP global, waterfall y LIME).
+- **Modelado avanzado:** podio y siete pestañas: resultados por modelo (matriz de confusión, ROC, confiabilidad y robustez entre semillas), calibración Platt frente a isotónica, optimizadores (convergencia, diversidad, costo y tamaño del efecto frente a Grid), multifidelidad (Successive Halving), eficiencia computacional (perfilamiento, implementaciones alternativas, escalamiento en n y p, paralelismo y tabla estándar frente a optimizado), comparación estadística (Friedman, Nemenyi, DeLong y tamaños del efecto) e interpretabilidad (SHAP global, waterfall y LIME).
 - **Simulador:** herramienta creada para el dash (perfil de riesgo, clientes reales del test y laboratorio de umbral).
-- **Conclusiones:** hallazgos, limitaciones, próximos pasos y enlace al paper.
+- **Conclusiones:** hallazgos, limitaciones, próximos pasos, reproducibilidad (con enlace al código del experimento) y enlace al paper.
 - **Autoras:** fotos, LinkedIn, GitHub y correo.
 
 Cada capítulo tiene un único enlace a su versión en el Jupyter Book, debajo del título. El diseño se adapta a móvil y respeta `prefers-reduced-motion`.
+
+## Tamaño para proyectar
+
+Cada gráfica toma como alto máximo el espacio visible bajo la barra superior (`min(alto, 100vh − 230 px)`), así que se ve completa sin desplazarse incluso en 1280 × 720. La tipografía se mantiene legible para proyección y el menú cabe en una sola fila desde 1180 px.
 
 ## Idioma, tema y paleta
 
@@ -54,9 +58,9 @@ Cada capítulo tiene un único enlace a su versión en el Jupyter Book, debajo d
 - **Íconos:** íconos de línea propios en `icons.py` (sin emojis).
 - **Paleta:** las gráficas usan un solo color (`#2E86AB` azul) y cambian a `#E4572E` naranja solo para resaltar el mejor resultado o la clase de interés; `#9AA5B1` gris para referencias. Los textos usan blanco/gris y el mismo azul como acento. El título de la portada y los botones llevan un degradado azul → naranja. Un test verifica que ninguna gráfica use otros colores.
 
-## Asistente
+## Asistente: Antena
 
-El botón flotante abre un asistente sin límite de preguntas que responde sobre el proyecto, sus datos y cada sección del dash. No responde copiando texto del Jupyter Book. Para preguntas sobre perfiles concretos, como «tasa de abandono de clientes con fibra y mes a mes», calcula la cifra sobre el conjunto de entrenamiento.
+El botón flotante abre a **Antena**, la asistente del dash. Al abrirla saluda en voz alta con una voz femenina («Hola, soy Antena, estoy aquí para resolver tus dudas. ¿En qué te puedo ayudar?»), en español o inglés según el idioma elegido. La voz es la del navegador (Web Speech API): en Edge y Chrome para Windows suena natural; el botón del altavoz la silencia y la elección se recuerda. Es un asistente sin límite de preguntas que responde sobre el proyecto, sus datos y cada sección del dash. No responde copiando texto del Jupyter Book. Para preguntas sobre perfiles concretos, como «tasa de abandono de clientes con fibra y mes a mes», calcula la cifra sobre el conjunto de entrenamiento.
 
 - **Sin configuración**, responde con la base de conocimiento local de `chatbot.py` (preguntas frecuentes en ES/EN sobre el dash).
 - **Con la variable de entorno `ANTHROPIC_API_KEY`**, redacta las respuestas con Claude (`claude-opus-5-5`) usando ese mismo contexto, y vuelve a la respuesta local si la API falla. Cada pregunta consume créditos de la API de Anthropic.
@@ -94,6 +98,8 @@ En Render, la variable se agrega en *Environment* (ya está declarada en `render
 - `eda.py`: pruebas estadísticas del análisis exploratorio.
 - `analytics.py`: carga local, cohortes, tasas, clientes similares y errores por umbral.
 - `assets/style.css`: diseño visual, animaciones y estilos de los controles de Dash 4.
+- `assets/antena.js`: voz y animación de Antena.
+- `data/complementarios/`: resultados del entregable 3 (calibración isotónica, multifidelidad, eficiencia computacional y tamaños del efecto).
 - `assets/cover.js`: red de clientes, celular 3D y contadores animados (Dash lo carga automáticamente).
 - `data/`: CSV, interpretabilidad y textos originales necesarios, unos 8 MB.
 - `tests/test_dashboard.py`: integridad del split, métricas, filtros, simulador, páginas en ES/EN sin emojis, traducciones completas, descarga única del CSV, asistente y endpoints.

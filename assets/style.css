@@ -707,3 +707,84 @@ html[data-theme=light] .tab.on *, html[data-theme=light] .nav-link.on *, html[da
 @media (max-width: 700px) { .topbar .nav { justify-content: flex-start; flex-wrap: nowrap; overflow-x: auto; } }
 /* La barra de filtros del análisis exploratorio se queda en su lugar (no se fija al desplazarse). */
 .filters { position: static !important; top: auto; }
+
+/* ================= CONTENIDO NUEVO DEL MODELADO ================= */
+.findings { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.kpis.k4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.repro { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin: 14px 0 16px; }
+.repro .station { text-align: left; }
+.repro .st-icon { margin: 0 0 8px; }
+.card > h3 + .repro { margin-top: 10px; }
+@media (max-width: 1100px) { .findings, .repro { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .findings, .repro { grid-template-columns: 1fr; } }
+
+/* =====================================================================
+   ESCALA PARA PROYECCIÓN: letra legible y cada gráfica completa en pantalla
+   (las gráficas toman su alto de min(alto, 100vh − 230 px) desde app.py).
+   ===================================================================== */
+body { font-size: 15px; line-height: 1.55; }
+p { font-size: 15px; }
+h1 { font-size: clamp(28px, 3vw, 40px); margin: 4px 0 6px; }
+h2 { font-size: clamp(20px, 1.9vw, 25px); }
+h3, .chart-title { font-size: 16.5px; }
+.lead { font-size: 16px; max-width: 900px; }
+main { padding: 16px clamp(14px, 2.4vw, 32px) 36px; max-width: 1500px; }
+.page-head { margin-bottom: 14px; }
+.page-head .chip-link { margin-top: 8px; }
+.section-head { margin: 22px 0 10px; }
+.card { padding: 16px 18px; margin-bottom: 14px; }
+.chart-title { margin: 0 0 4px; }
+.grid { gap: 14px; }
+.grid + .card, .grid + .grid, .card + .grid, .kpis + .grid, .grid + .note { margin-top: 14px; }
+.kpis { gap: 12px; margin-bottom: 14px; }
+.kpi { padding: 11px 15px; }
+.k-value { font-size: 25px; margin: 3px 0 0; }
+.kpis.k5 .k-value, .kpis.k6 .k-value { font-size: 22px; }
+.kpi small { font-size: 12.5px; }
+.insight { font-size: 13.5px; padding-top: 8px; margin-top: 6px; }
+.hero { padding: 16px 18px; gap: 16px; margin-bottom: 14px; }
+.pod.first .bar-podium { height: 88px; } .pod.second .bar-podium { height: 70px; } .pod.third .bar-podium { height: 56px; }
+.bar-podium { font-size: 18px; }
+.tab-body { padding-top: 14px; }
+.tab { padding: 7px 14px !important; font-size: 14px !important; }
+.note { padding: 12px 16px; }
+.topbar { padding: 8px clamp(14px, 2.4vw, 32px); gap: 10px; }
+.nav-link { padding: 7px 10px; font-size: 13.5px; }
+.ticker-track { padding: 5px 0; }
+.filters { padding: 10px clamp(14px, 2.4vw, 32px); }
+.objectives { gap: 12px; }
+.obj { padding: 14px 16px; }
+.big-text { font-size: 17px; }
+.flip { height: 240px; }
+/* El menú cabe en una sola fila: en pantallas medianas se ocultan los íconos y solo se parte en dos filas por debajo de 1180 px. */
+@media (max-width: 1440px) { .nav-link .nav-i { display: none; } }
+@media (max-width: 1360px) and (min-width: 1181px) {
+  .topbar { flex-wrap: nowrap; }
+  .topbar .nav { order: 0; flex: 1 1 auto; flex-wrap: nowrap; justify-content: flex-start; }
+  .top-actions { margin-left: 0; }
+}
+
+/* ================= ANTENA, LA ASISTENTE ================= */
+.antena-face { position: relative; display: grid; place-items: center; }
+.antena-face .ic { width: 26px; height: 26px; position: relative; z-index: 1; }
+.antena-face .wv { position: absolute; inset: 0; margin: auto; width: 100%; height: 100%; border-radius: 50%; border: 2px solid currentColor; opacity: 0;
+  animation: antena-wave 2.6s ease-out infinite; pointer-events: none; }
+.antena-face .wv.w2 { animation-delay: 1.3s; }
+@keyframes antena-wave { 0% { transform: scale(.55); opacity: .55; } 100% { transform: scale(1.35); opacity: 0; } }
+.antena-face.speaking .wv { animation-duration: .9s; border-color: var(--hot); }
+.antena-face.speaking .wv.w2 { animation-delay: .45s; }
+.antena-face.speaking .ic { animation: antena-talk .35s ease-in-out infinite alternate; }
+@keyframes antena-talk { to { transform: translateY(-1.5px) scale(1.06); } }
+.chat-fab .antena-face { width: 60px; height: 60px; color: #ffffff; }
+.chat-fab::after { display: none; }
+.chat-fab .fab-name { position: absolute; right: 70px; top: 50%; transform: translate(6px, -50%); opacity: 0; pointer-events: none; white-space: nowrap;
+  padding: 6px 12px; border-radius: 999px; background: var(--panel-solid); border: 1px solid var(--line2); color: var(--text); font: 600 13px var(--display);
+  box-shadow: var(--shadow); transition: .25s; }
+.chat-fab:hover .fab-name { opacity: 1; transform: translate(0, -50%); }
+.chat.open .chat-fab .fab-name { display: none; }
+.chat-avatar.antena-face { width: 42px; height: 42px; color: #ffffff; background: linear-gradient(135deg, var(--cyan), var(--hot)); }
+.chat-avatar.antena-face .ic { width: 22px; height: 22px; }
+.chat-head .voice .off, .chat.muted .chat-head .voice .on { display: none; }
+.chat.muted .chat-head .voice .off { display: inline-block; }
+.chat-head strong { font-size: 17px; letter-spacing: .02em; }
+@media (prefers-reduced-motion: reduce) { .antena-face .wv, .antena-face .ic { animation: none !important; } }
