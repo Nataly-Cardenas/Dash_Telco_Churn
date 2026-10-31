@@ -764,27 +764,61 @@ main { padding: 16px clamp(14px, 2.4vw, 32px) 36px; max-width: 1500px; }
   .top-actions { margin-left: 0; }
 }
 
-/* ================= ANTENA, LA ASISTENTE ================= */
-.antena-face { position: relative; display: grid; place-items: center; }
-.antena-face .ic { width: 26px; height: 26px; position: relative; z-index: 1; }
-.antena-face .wv { position: absolute; inset: 0; margin: auto; width: 100%; height: 100%; border-radius: 50%; border: 2px solid currentColor; opacity: 0;
-  animation: antena-wave 2.6s ease-out infinite; pointer-events: none; }
-.antena-face .wv.w2 { animation-delay: 1.3s; }
-@keyframes antena-wave { 0% { transform: scale(.55); opacity: .55; } 100% { transform: scale(1.35); opacity: 0; } }
-.antena-face.speaking .wv { animation-duration: .9s; border-color: var(--hot); }
-.antena-face.speaking .wv.w2 { animation-delay: .45s; }
-.antena-face.speaking .ic { animation: antena-talk .35s ease-in-out infinite alternate; }
-@keyframes antena-talk { to { transform: translateY(-1.5px) scale(1.06); } }
-.chat-fab .antena-face { width: 60px; height: 60px; color: #ffffff; }
+/* ================= ANTENA, LA ASISTENTE =================
+   Robot de telecomunicaciones dibujado por assets/antena.js: flota, parpadea, saluda y brilla en neón. */
+.antena-bot { display: inline-block; position: relative; line-height: 0; }
+.antena-bot .bot { width: 100%; height: 100%; overflow: visible;
+  filter: drop-shadow(0 0 3px rgba(143, 246, 255, .9)) drop-shadow(0 0 10px rgba(79, 195, 247, .65)) drop-shadow(0 0 22px rgba(46, 134, 171, .55)); }
+.antena-bot .eye, .antena-bot .mouth-open, .antena-bot .bot-shadow { transform-box: fill-box; }
+.antena-bot .bot-shadow { fill: #4FA3C7; opacity: .35; transform-origin: center; animation: bot-shadow 3.2s ease-in-out infinite; }
+.antena-bot .bot-float { animation: bot-float 3.2s ease-in-out infinite; }
+@keyframes bot-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+@keyframes bot-shadow { 0%, 100% { transform: scaleX(1); opacity: .35; } 50% { transform: scaleX(.8); opacity: .2; } }
+.antena-bot .bot-waves path { stroke: #8fd8f5; stroke-width: 3; opacity: 0; animation: bot-wave 2.4s ease-out infinite; }
+.antena-bot .bot-waves .w2 { animation-delay: .3s; } .antena-bot .bot-waves .w3 { animation-delay: .6s; }
+@keyframes bot-wave { 0% { opacity: 0; } 20% { opacity: .95; } 70%, 100% { opacity: 0; } }
+.antena-bot .bulb { animation: bot-bulb 2s ease-in-out infinite; }
+.antena-bot .bulb.b1 { animation-delay: .7s; } .antena-bot .bulb.b2 { animation-delay: 1.4s; }
+@keyframes bot-bulb { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.6) drop-shadow(0 0 4px #F06A45); } }
+.antena-bot .eye { transform-origin: center; animation: bot-blink 4.5s infinite; }
+@keyframes bot-blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(.1); } }
+.antena-bot .chest { animation: bot-chest 1.8s ease-in-out infinite; }
+@keyframes bot-chest { 50% { opacity: .45; } }
+.antena-bot .led { animation: bot-chest 1.1s steps(2) infinite; }
+.antena-bot .mouth-open { opacity: 0; transform-origin: center; }
+.antena-bot .arm-r { transform-origin: 89px 80px; animation: bot-wave-hand 5s ease-in-out infinite; }
+@keyframes bot-wave-hand { 0%, 60%, 100% { transform: rotate(0); } 66% { transform: rotate(-16deg); } 72% { transform: rotate(8deg); } 78% { transform: rotate(-14deg); } 84% { transform: rotate(4deg); } }
+.antena-bot.waving .arm-r, .chat-fab:hover .antena-bot .arm-r { animation: bot-wave-fast .9s ease-in-out infinite; }
+@keyframes bot-wave-fast { 0%, 100% { transform: rotate(4deg); } 50% { transform: rotate(-20deg); } }
+/* hablando: boca abierta, ojos felices, ondas rápidas y brillo naranja */
+.antena-bot.speaking .mouth { opacity: 0; }
+.antena-bot.speaking .mouth-open { opacity: 1; animation: bot-talk .22s ease-in-out infinite alternate; }
+@keyframes bot-talk { from { transform: scaleY(.35); } to { transform: scaleY(1.1); } }
+.antena-bot.speaking .bot-waves path { animation-duration: .9s; stroke: #F06A45; }
+.antena-bot.speaking .bot { filter: drop-shadow(0 0 3px rgba(143, 246, 255, .95)) drop-shadow(0 0 12px rgba(79, 195, 247, .8)) drop-shadow(0 0 26px rgba(240, 106, 69, .45)); }
+.antena-bot.speaking .bot-float { animation-duration: 1.2s; }
+html[data-theme=light] .antena-bot .bot { filter: drop-shadow(0 0 2px rgba(46, 134, 171, .7)) drop-shadow(0 0 9px rgba(46, 134, 171, .45)); }
+
+/* botón flotante: el robot de pie con su globo de diálogo */
+.chat-fab { width: 92px; height: 112px; border-radius: 0; background: none !important; box-shadow: none !important; padding: 0; overflow: visible; }
 .chat-fab::after { display: none; }
-.chat-fab .fab-name { position: absolute; right: 70px; top: 50%; transform: translate(6px, -50%); opacity: 0; pointer-events: none; white-space: nowrap;
-  padding: 6px 12px; border-radius: 999px; background: var(--panel-solid); border: 1px solid var(--line2); color: var(--text); font: 600 13px var(--display);
-  box-shadow: var(--shadow); transition: .25s; }
-.chat-fab:hover .fab-name { opacity: 1; transform: translate(0, -50%); }
-.chat.open .chat-fab .fab-name { display: none; }
-.chat-avatar.antena-face { width: 42px; height: 42px; color: #ffffff; background: linear-gradient(135deg, var(--cyan), var(--hot)); }
-.chat-avatar.antena-face .ic { width: 22px; height: 22px; }
+.chat-fab:hover { transform: translateY(-4px) scale(1.05); }
+.chat-fab .antena-bot { width: 92px; height: 112px; }
+.chat.open .chat-fab { width: 70px; height: 86px; }
+.chat.open .chat-fab .antena-bot { width: 70px; height: 86px; }
+.bot-bubble { position: absolute; right: 92px; top: 6px; max-width: 220px; padding: 9px 14px; border-radius: 14px 14px 4px 14px; white-space: nowrap;
+  background: linear-gradient(135deg, #12406a, #1b5b8a); color: #ffffff; font: 600 13.5px var(--display); letter-spacing: .01em;
+  box-shadow: 0 0 0 1px rgba(143, 246, 255, .35), 0 0 18px rgba(79, 195, 247, .45); opacity: 0; transform: translateY(6px) scale(.95);
+  transition: opacity .3s, transform .3s; pointer-events: none; }
+.bot-bubble.show, .chat-fab:hover .bot-bubble { opacity: 1; transform: none; }
+.chat.open .bot-bubble { display: none; }
+.chat-fab .fab-name { display: none; }
+/* cabecera del chat: el robot de medio cuerpo */
+.chat-avatar.antena-bot { width: 54px; height: 62px; margin: -10px 0 -8px -4px; background: none; border-radius: 0; }
 .chat-head .voice .off, .chat.muted .chat-head .voice .on { display: none; }
 .chat.muted .chat-head .voice .off { display: inline-block; }
 .chat-head strong { font-size: 17px; letter-spacing: .02em; }
-@media (prefers-reduced-motion: reduce) { .antena-face .wv, .antena-face .ic { animation: none !important; } }
+@media (max-width: 560px) { .chat-fab, .chat-fab .antena-bot { width: 70px; height: 86px; } .bot-bubble { right: 70px; } }
+@media (prefers-reduced-motion: reduce) { .antena-bot * { animation: none !important; } }
+
+.chat-panel { height: min(620px, calc(100vh - 150px)); }

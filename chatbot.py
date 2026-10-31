@@ -325,12 +325,12 @@ def layout():
             dcc.Loading(html.Div(id='chat-messages', className='chat-messages'), type='dot', color='#1BA7C4', parent_className='chat-loading'),
             html.Div([dcc.Input(id='chat-input', type='text', debounce=False, autoComplete='off', maxLength=400, n_submit=0),
                       html.Button(icon('send'), id='chat-send', className='chat-send', n_clicks=0)], className='chat-form')], id='chat-panel', className='chat-panel'),
-        html.Button([antena_face(''), html.Span('Antena', className='fab-name')], id='chat-fab', className='chat-fab', n_clicks=0, title='Antena')], id='chat', className='chat')
+        html.Button([antena_face(''), html.Span(className='bot-bubble')], id='chat-fab', className='chat-fab', n_clicks=0, title='Antena')], id='chat', className='chat')
 
 
 def antena_face(cls):
-    """Antena, la asistente: una antena que emite ondas (laten más rápido mientras habla)."""
-    return html.Span([icon('antenna'), html.I(className='wv'), html.I(className='wv w2')], className='antena-face ' + cls)
+    """Antena, la asistente: assets/antena.js dibuja dentro de este elemento el robot animado."""
+    return html.Span(className='antena-bot ' + cls)
 
 
 def bubble(role, text): return html.Div(dcc.Markdown(text, link_target='_blank'), className='msg ' + role)
