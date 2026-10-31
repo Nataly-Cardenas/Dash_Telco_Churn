@@ -59,15 +59,27 @@ FAQ = [
     (['qué optimizador es mejor', 'grid random tpe genético', 'which optimizer'],
      'Con el mismo presupuesto de 24 evaluaciones, TPE, Random y el algoritmo genético solo mejoraron a Grid con presupuestos bajos; al final quedaron prácticamente empatados. El balanceo influyó mucho más que el buscador. Míralo en *Modelado avanzado → 3 · Optimizadores*.',
      'With the same budget of 24 evaluations, TPE, Random and the genetic algorithm only beat Grid at low budgets; in the end they were practically tied. Balancing mattered far more than the search method. See *Advanced modeling → 3 · Optimizers*.'),
-    (['qué es la calibración', 'brier ece', 'what is calibration'],
-     'La **calibración sigmoide** (Platt) ajusta las probabilidades para que reflejen la frecuencia real. Redujo a la vez el puntaje de Brier y el ECE en 80 de 96 configuraciones.',
-     '**Sigmoid calibration** (Platt) adjusts probabilities so they match observed frequencies. It reduced both the Brier score and ECE in 80 of 96 configurations.'),
+    (['qué es la calibración', 'brier ece', 'qué es la calibración isotónica', 'platt o isotónica', 'what is calibration', 'isotonic calibration'],
+     'Balancear infla las probabilidades, así que se recalibraron con dos métodos: **Platt** (curva en S de dos parámetros) e **isotónica** (escalera no decreciente, sin forma fija). Platt mejoró Brier y ECE frente a la probabilidad nativa en 80 de 96 configuraciones y la isotónica en 84; entre ellas la diferencia de Brier está en la cuarta cifra decimal. Conviene isotónica en árboles y GaussianNB, y Platt en SVM y KNN. Míralo en *Modelado avanzado → 2 · Calibración*.',
+     'Balancing inflates probabilities, so they were recalibrated two ways: **Platt** (a two-parameter S curve) and **isotonic** (a non-decreasing staircase with no fixed shape). Platt improved Brier and ECE over the native probability in 80 of 96 configurations and isotonic in 84; between them the Brier difference is in the fourth decimal. Isotonic suits trees and GaussianNB, Platt suits SVM and KNN. See *Advanced modeling → 2 · Calibration*.'),
+    (['qué es successive halving', 'qué es la multifidelidad', 'optimización multifidelidad', 'hyperband', 'what is successive halving', 'multi-fidelity'],
+     '**Successive Halving** evalúa 27 candidatos con poco recurso (pocos árboles o pocas filas), descarta los peores en cada ronda y reserva el presupuesto completo para el ganador: 12 ajustes completos frente a 72. Igualó el F1 de una búsqueda completa en Random Forest y SVM con 3.7× y 7.1× menos tiempo, pero en XGBoost ahorró poco (1.6×) y eligió peor. Míralo en *Modelado avanzado → 4 · Multifidelidad*.',
+     '**Successive Halving** evaluates 27 candidates with little resource (few trees or few rows), drops the worst each round and saves the full budget for the winner: 12 full fits instead of 72. It matched the F1 of a full search in Random Forest and SVM with 3.7× and 7.1× less time, but in XGBoost it saved little (1.6×) and picked worse. See *Advanced modeling → 4 · Multi-fidelity*.'),
+    (['eficiencia computacional', 'qué modelo es más rápido', 'linearsvc', 'optimizaciones computacionales', 'complejidad', 'paralelismo', 'computational efficiency', 'which model is fastest'],
+     'El costo está en el núcleo de cada algoritmo: el 81 % del ajuste de SVM ocurre en su solver y el 84 % de la predicción de KNN en las distancias. SVM RBF escala como n². Cambiarlo por **LinearSVC** acelera 36× el entrenamiento y unas 900× la inferencia perdiendo solo 0.002 de F1; `hist` es 2.8× más rápido que el método exacto en XGBoost y paralelizar da 2× en Random Forest. Míralo en *Modelado avanzado → 5 · Eficiencia computacional*.',
+     'The cost sits in the core of each algorithm: 81 % of the SVM fit is in its solver and 84 % of KNN prediction is distance computation. RBF SVM scales as n². Swapping it for **LinearSVC** speeds training up 36× and inference about 900× while losing only 0.002 F1; `hist` is 2.8× faster than the exact method in XGBoost and parallelizing gives 2× in Random Forest. See *Advanced modeling → 5 · Computational efficiency*.'),
+    (['qué es el tamaño del efecto', 'delta de cliff', 'importa la diferencia', 'effect size', 'cliff delta'],
+     'El **tamaño del efecto** dice si una diferencia importa, no solo si es improbable por azar. Con el δ de Cliff, las diferencias entre los tres finalistas son despreciables (δ entre −0.06 y 0.10), mientras que SMOTE tiene un efecto grande en 5 de 7 familias (δ ≥ 0.68). Los 31 pares que separa Nemenyi tienen δ = 1. Míralo en *Modelado avanzado → 6 · Comparación estadística*.',
+     "The **effect size** says whether a difference matters, not just whether it is unlikely by chance. With Cliff's δ, the differences among the three finalists are negligible (δ between −0.06 and 0.10), while SMOTE has a large effect in 5 of 7 families (δ ≥ 0.68). The 31 pairs Nemenyi separates have δ = 1. See *Advanced modeling → 6 · Statistical comparison*."),
+    (['se puede reproducir', 'reproducibilidad', 'dónde está el código', 'is it reproducible', 'where is the code'],
+     'Sí: `requirements.txt` fija las versiones exactas, `verificar_reproduccion.py` comprueba versiones, huellas SHA-256 de los datos y los artefactos de las 1,680 unidades, y el Jupyter Book incluye un apéndice con el código exacto del entrenamiento de las 112 configuraciones. Está resumido en *Conclusiones*.',
+     'Yes: `requirements.txt` pins exact versions, `verificar_reproduccion.py` checks versions, SHA-256 fingerprints of the data and the artifacts of the 1,680 units, and the Jupyter Book includes an appendix with the exact training code of the 112 configurations. It is summarized in *Conclusions*.'),
     (['hay diferencias significativas', 'pruebas estadísticas', 'delong friedman', 'statistical tests'],
      'Friedman detecta diferencias entre las 112 configuraciones, pero Nemenyi no separa a las mejores. DeLong con corrección de Holm da p = 1.0 entre los tres finalistas y los intervalos bootstrap del AUC incluyen el cero.',
      'Friedman detects differences among the 112 configurations, but Nemenyi does not separate the best ones. DeLong with Holm correction gives p = 1.0 among the three finalists and the bootstrap AUC intervals include zero.'),
     (['qué es shap', 'qué es lime', 'interpretabilidad', 'what is shap'],
-     '**SHAP** reparte cada predicción entre las variables (valores de Shapley) y su promedio da la importancia global. **LIME** explica un cliente concreto con un modelo simple local. Describen al modelo, no causas del abandono. Míralo en *Modelado avanzado → 5 · Interpretabilidad*.',
-     '**SHAP** splits each prediction among the variables (Shapley values) and its average gives global importance. **LIME** explains one customer with a simple local model. They describe the model, not causes of churn. See *Advanced modeling → 5 · Interpretability*.'),
+     '**SHAP** reparte cada predicción entre las variables (valores de Shapley) y su promedio da la importancia global. **LIME** explica un cliente concreto con un modelo simple local. Describen al modelo, no causas del abandono. Míralo en *Modelado avanzado → 7 · Interpretabilidad*.',
+     '**SHAP** splits each prediction among the variables (Shapley values) and its average gives global importance. **LIME** explains one customer with a simple local model. They describe the model, not causes of churn. See *Advanced modeling → 7 · Interpretability*.'),
     (['cómo uso el simulador', 'perfil de riesgo', 'how do i use the simulator'],
      'En *Simulador → Perfil de riesgo* eliges contrato, internet, método de pago, antigüedad y cargo mensual; el dash busca clientes de entrenamiento parecidos y muestra su tasa de abandono observada. En *Clientes reales* ves las probabilidades de los 3 finalistas para un cliente del test, y en *Umbral de alerta* mueves la alarma de retención.',
      'In *Simulator → Risk profile* you choose contract, internet, payment method, tenure and monthly charge; the dash finds similar training customers and shows their observed churn rate. *Real customers* shows the 3 finalists\' probabilities for a test customer, and *Alert threshold* lets you move the retention alarm.'),
@@ -127,8 +139,8 @@ GUIDE = [
      '*Preprocesamiento* muestra los pasos del pipeline, la imputación de TotalCharges con 0 frente a la mediana, la validación cruzada (AUC 0.8454 frente a controles cercanos a 0.5), la ablación de variables y la evaluación del modelo base en test: matriz de confusión, curva ROC (AUC 0.8419) y coeficientes.',
      '*Preprocessing* shows the pipeline steps, imputing TotalCharges with 0 vs. the median, cross-validation (AUC 0.8454 vs. controls near 0.5), the variable ablation and the baseline evaluated on test: confusion matrix, ROC curve (AUC 0.8419) and coefficients.'),
     (['qué muestra el modelado avanzado', 'qué es el podio', 'what is in the advanced modeling section', 'what is the podium'],
-     '*Modelado avanzado* tiene el podio de finalistas y cinco pestañas: resultados por modelo (matriz de confusión, ROC y confiabilidad fuera de muestra), calibración, optimizadores (convergencia, diversidad y costo), comparación estadística (Friedman, Nemenyi, DeLong y curvas ROC en test) e interpretabilidad (SHAP y LIME).',
-     '*Advanced modeling* has the finalists podium and five tabs: results by model (out-of-fold confusion matrix, ROC and reliability), calibration, optimizers (convergence, diversity and cost), statistical comparison (Friedman, Nemenyi, DeLong and test ROC curves) and interpretability (SHAP and LIME).'),
+     '*Modelado avanzado* tiene el podio de finalistas y siete pestañas: resultados por modelo (matriz de confusión, ROC, confiabilidad y robustez entre semillas), calibración Platt e isotónica, optimizadores (convergencia, diversidad, costo y tamaño del efecto), multifidelidad (Successive Halving), eficiencia computacional (perfilamiento, implementaciones alternativas, escalamiento y paralelismo), comparación estadística (Friedman, Nemenyi, DeLong y tamaños del efecto) e interpretabilidad (SHAP y LIME).',
+     '*Advanced modeling* has the finalists podium and seven tabs: results by model (confusion matrix, ROC, reliability and robustness across seeds), Platt and isotonic calibration, optimizers (convergence, diversity, cost and effect size), multi-fidelity (Successive Halving), computational efficiency (profiling, alternative implementations, scaling and parallelism), statistical comparison (Friedman, Nemenyi, DeLong and effect sizes) and interpretability (SHAP and LIME).'),
     (['qué es el diagrama de nemenyi', 'qué es la diferencia crítica', 'what is the nemenyi diagram', 'critical difference'],
      'En el diagrama de **Nemenyi** cada punto es una de las 112 configuraciones ordenada por su rango medio. Las que caen dentro de la banda de la diferencia crítica (89.4) no se distinguen estadísticamente de la mejor.',
      'In the **Nemenyi** diagram each dot is one of the 112 configurations ordered by mean rank. Those inside the critical-difference band (89.4) are not statistically distinguishable from the best.'),
@@ -150,9 +162,13 @@ GUIDE = [
 ]
 FAQ.extend(GUIDE)
 
+FAQ.append((['quién eres', 'cómo te llamas', 'qué eres', 'por qué antena', 'who are you', 'what is your name'],
+            'Soy **Antena**, la asistente de *Señal perdida*. Como una antena, mi trabajo es que nadie pierda la señal: te ayudo a entender los datos, los modelos y cada sección del dash. Respondo con la información del proyecto y, cuando preguntas por un perfil de clientes, calculo su tasa de abandono.',
+            "I'm **Antena**, the *Lost signal* assistant. Like an antenna, my job is to keep everyone connected: I help you understand the data, the models and every section of the dash. I answer with the project's information and, when you ask about a customer profile, I compute its churn rate."))
+
 FAQ.append((['hola', 'buenas', 'hello', 'hi', 'gracias', 'thanks'],
-            '¡Hola! Puedo contarte sobre los datos, quiénes abandonan más, cómo se compararon los modelos, qué significan las métricas o cómo usar cada sección del dash. ¿Qué te gustaría saber?',
-            'Hi! I can tell you about the data, who churns the most, how the models were compared, what the metrics mean or how to use each section of the dash. What would you like to know?'))
+            '¡Hola! Soy Antena. Puedo contarte sobre los datos, quiénes abandonan más, cómo se compararon los modelos, qué significan las métricas o cómo usar cada sección del dash. ¿Qué te gustaría saber?',
+            "Hi! I'm Antena. I can tell you about the data, who churns the most, how the models were compared, what the metrics mean or how to use each section of the dash. What would you like to know?"))
 
 SUGGESTIONS = [N('¿Qué clientes abandonan más?'), N('¿Cuál fue el mejor modelo?'), N('¿Qué es SMOTE y por qué se usó?'), N('¿Cómo uso el simulador?'), N('¿Cómo descargo los datos?')]
 
@@ -165,10 +181,16 @@ Hechos del proyecto:
 - Diseño: 7 familias de modelos × 4 balanceos × 4 optimizadores = 112 configuraciones, validación cruzada anidada (5 folds externos, 3 internos), F1 de la clase de abandono como métrica principal.
 - Resultados: Random Forest + SMOTE F1 0.638 ± 0.023 (AUC 0.844), XGBoost + SMOTE 0.638, regresión logística 0.634; sin diferencias estadísticamente detectables. SMOTE mejoró 6 de 7 familias. La calibración sigmoide mejoró Brier y ECE en 80 de 96 configuraciones.
 - SHAP: contrato, servicio de internet y antigüedad son las variables más importantes. Las atribuciones no son causales.
+- Calibración: Platt mejoró Brier y ECE en 80 de 96 configuraciones y la isotónica en 84; isotónica para árboles y GaussianNB, Platt para SVM y KNN.
+- Successive Halving igualó el F1 de la búsqueda completa en Random Forest y SVM con 3.7× y 7.1× menos tiempo; en XGBoost ahorró 1.6× y perdió 0.011 de F1.
+- Eficiencia: 81 % del ajuste de SVM está en el solver; SVM RBF escala como n²; LinearSVC entrena 36× y predice ~900× más rápido con 0.002 menos de F1; hist 2.8× más rápido que exact; paralelizar 2× en Random Forest y 1.8× en la validación cruzada.
+- Tamaños del efecto (δ de Cliff): finalistas despreciables (−0.06 a 0.10); SMOTE grande en 5 de 7 familias; los 31 pares de Nemenyi tienen δ = 1.
+- Reproducibilidad: requirements.txt exacto, verificar_reproduccion.py y un apéndice con el código del entrenamiento.
 - Secciones del dashboard: Portada (red de clientes y celular con clientes reales); Introducción (contexto, objetivos, marco teórico, variables);
   Análisis exploratorio (ETL y partición, univariado, bivariado, multivariado, valores faltantes, resumen, explorador con descarga CSV y filtros);
   Preprocesamiento (pipeline, imputación, validación cruzada, ablación, evaluación del modelo base en test); Modelado avanzado (podio, resultados por modelo,
-  calibración, optimizadores, comparación estadística, SHAP y LIME); Simulador (perfil de riesgo, clientes reales, umbral de alerta); Conclusiones; Autoras.
+  calibración Platt e isotónica, optimizadores, multifidelidad, eficiencia computacional, comparación estadística con tamaños del efecto, SHAP y LIME);
+  Simulador (perfil de riesgo, clientes reales, umbral de alerta); Conclusiones (con reproducibilidad); Autoras.
   Botones ES/EN y modo claro/oscuro arriba a la derecha.
 
 Reglas:
@@ -296,13 +318,19 @@ def layout():
     return html.Div([
         dcc.Store(id='chat-log', storage_type='session', data=[]),
         html.Div([
-            html.Div([html.Span(icon('signal'), className='chat-avatar'), html.Div([html.Strong(id='chat-title'), html.Small(id='chat-sub')]),
+            html.Div([antena_face('chat-avatar'), html.Div([html.Strong(id='chat-title'), html.Small(id='chat-sub')]),
+                      html.Button([icon('volume', 'on'), icon('mute', 'off')], id='chat-voice', className='icon-btn voice', n_clicks=0),
                       html.Button(icon('close'), id='chat-close', className='icon-btn', n_clicks=0)], className='chat-head'),
             html.Div([html.Span(id='chat-quota'), html.Button([icon('reset', 'sm'), html.Span(id='chat-new-t')], id='chat-new', className='chat-new', n_clicks=0)], className='chat-quota'),
             dcc.Loading(html.Div(id='chat-messages', className='chat-messages'), type='dot', color='#1BA7C4', parent_className='chat-loading'),
             html.Div([dcc.Input(id='chat-input', type='text', debounce=False, autoComplete='off', maxLength=400, n_submit=0),
                       html.Button(icon('send'), id='chat-send', className='chat-send', n_clicks=0)], className='chat-form')], id='chat-panel', className='chat-panel'),
-        html.Button(icon('chat'), id='chat-fab', className='chat-fab', n_clicks=0)], id='chat', className='chat')
+        html.Button([antena_face(''), html.Span(className='bot-bubble')], id='chat-fab', className='chat-fab', n_clicks=0, title='Antena')], id='chat', className='chat')
+
+
+def antena_face(cls):
+    """Antena, la asistente: assets/antena.js dibuja dentro de este elemento el robot animado."""
+    return html.Span(className='antena-bot ' + cls)
 
 
 def bubble(role, text): return html.Div(dcc.Markdown(text, link_target='_blank'), className='msg ' + role)
@@ -340,11 +368,11 @@ def register(app):
         set_lang(lang)
         log = log or []
         asked = sum(m['role'] == 'user' for m in log)
-        hello = T('¡Hola! Soy el asistente de Señal perdida. Pregúntame lo que quieras sobre el proyecto, sus datos o cualquier sección del dash: no hay límite de preguntas.')
+        hello = T('¡Hola! Soy Antena, estoy aquí para resolver tus dudas. ¿En qué te puedo ayudar? Pregúntame por los datos, los modelos o cualquier sección del dash: no hay límite de preguntas.')
         msgs = [bubble('assistant', hello)]
         if not log:
             msgs.append(html.Div([html.Button(T(s), id={'type': 'chat-sug', 'index': i}, className='chat-chip', n_clicks=0) for i, s in enumerate(SUGGESTIONS)], className='chat-chips'))
         msgs += [bubble(m['role'], m['text']) for m in log]
         quota = T('Preguntas ilimitadas · {n} en esta conversación').format(n=asked)
         mode = T('Respuestas con Claude') if client() else T('Respuestas del proyecto')
-        return msgs, quota, T('Asistente Señal'), T('Datos: proyecto Telco Churn') + ' · ' + mode, T('Pregunta lo que quieras sobre el dash…'), T('Nueva conversación')
+        return msgs, quota, 'Antena', T('Asistente de Señal perdida') + ' · ' + mode, T('Pregunta lo que quieras sobre el dash…'), T('Nueva conversación')

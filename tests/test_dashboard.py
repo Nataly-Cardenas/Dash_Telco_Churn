@@ -59,6 +59,9 @@ def test_pages_and_interactions_serialize():
         json.dumps(app.opt_output(model),cls=PlotlyJSONEncoder)
         json.dumps(app.res_output(model),cls=PlotlyJSONEncoder)
     for model in a.FINALISTS[:2]:json.dumps(app.explain_output(model),cls=PlotlyJSONEncoder)
+    for model in app.BEST_BY_FAMILY:json.dumps(app.cal_map(model),cls=PlotlyJSONEncoder)
+    for model in app.VARIANT_FAMILIES:json.dumps(app.eff_variants(model),cls=PlotlyJSONEncoder)
+    for model in app.comp('escalamiento').model.unique():json.dumps(app.eff_scale(model),cls=PlotlyJSONEncoder)
     for model in a.FINALISTS:json.dumps(app.threshold_output(model,.3),cls=PlotlyJSONEncoder)
     for row in a.TEST_IDS[:5]:json.dumps(app.real_output(row),cls=PlotlyJSONEncoder)
     assert app.real_random(3) in set(a.TEST_IDS)
@@ -202,3 +205,30 @@ def test_charts_use_one_color_plus_highlight():
     payload=json.dumps(drop_templates(json.loads(payload)))
     used={c.lower() for c in re.findall(r'"(#[0-9A-Fa-f]{6})"',payload)}
     assert used<=allowed|{'#0b1426','#eaf2ff','#8792a8','#ffffff'}, used-allowed
+
+
+def test_new_jupyter_book_results_match_the_book():
+    """Calibración isotónica, multifidelidad, eficiencia y tamaños del efecto del entregable 3."""
+    u=a.UNITS[a.UNITS.replicate==0].groupby('experiment_id')[['brier','ece','cal_brier','cal_ece']].mean()
+    m=u.join(app.comp('isotonica_unidades').groupby('experiment_id')[['iso_brier','iso_ece']].mean())
+    assert (m.iso_brier<m.cal_brier).sum()==67 and (m.iso_ece<m.cal_ece).sum()==74
+    n=m.dropna(subset=['brier'])
+    assert ((n.iso_brier<n.brier)&(n.iso_ece<n.ece)).sum()==84 and ((n.cal_brier<n.brier)&(n.cal_ece<n.ece)).sum()==80
+    r=app.comp('multifidelidad_resumen').set_index(['model','method']).segundos
+    assert [round(r[x,'random_completo']/r[x,'successive_halving'],1) for x in ['random_forest','svm','xgboost']]==[3.7,7.1,1.6]
+    v=app.comp('estandar_vs_optimizado').set_index('variant')
+    assert round(v.loc['LinearSVC','aceleración_entrenamiento'])==36 and round(1/v.loc['exact','aceleración_entrenamiento'],1)==2.8
+    assert round(app.comp('escalamiento_exponentes').set_index('model').loc['svm rbf','exponente_n'],1)==2.0
+    assert app.comp('efecto_pares_nemenyi').pares.iloc[0]==31
+    assert app.oof().probability_isotonic.notna().all()
+
+
+def test_antena_greets_and_answers_who_she_is():
+    import chatbot
+    from i18n import set_lang
+    set_lang('es')
+    assert 'Antena' in chatbot.answer('¿cómo te llamas?',[],'es')
+    assert 'Successive Halving' in chatbot.answer('qué es successive halving',[],'es')
+    assert 'isotónica' in chatbot.answer('platt o isotónica',[],'es')
+    js=(a.ROOT/'assets'/'antena.js').read_text(encoding='utf-8')
+    assert 'Hola, soy Antena, estoy aquí para resolver tus dudas' in js and 'speechSynthesis' in js

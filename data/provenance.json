@@ -1,12 +1,14 @@
 {
   "repository": "https://github.com/Nataly-Cardenas/Telco_Churn_JBook",
-  "commit": "41191edb71ebf15a1543d538a158513db8781d2f",
-  "retrieved": "2026-10-23",
+  "commit": "de91225f8",
+  "retrieved": "2026-10-31",
   "toc": [
     "intro",
     "EDA_",
     "PREPROCESAMIENTO",
     "MODELADO_AVANZADO",
+    "CODIGO_EXPERIMENTO",
     "paper"
-  ]
+  ],
+  "complementarios": "resultados_modelado/complementarios (calibración isotónica, multifidelidad, optimización computacional) y tablas del notebook MODELADO_AVANZADO"
 }

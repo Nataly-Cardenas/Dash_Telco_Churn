@@ -1,0 +1,8 @@
+model,training_O,prediction_O,memory_O,assumptions
+knn,O(np) almacenamiento/validación,O(np + n log k) por consulta con selección heap conservadora,O(np),brute; no se usaron índices ni vecinos aproximados
+naive_bayes,O(np),O(p) por consulta y dos clases,"O(p), además de los datos",Estadísticas por clase; partial_fit no fue necesario
+logistic,"O(I np), aproximación por barridos; liblinear depende de problema primal/dual y tolerancia",O(p),O(np) con matriz densa,I efectivo depende de condicionamiento; no se atribuye la complejidad de SAGA
+decision_tree,O(p n log n) típico balanceado; O(p n²) cota degenerada,O(h),O(nodos),h: profundidad; el caso balanceado no es garantía universal
+random_forest,O(T m n log n) típico; m variables candidatas,O(T h),O(T nodos),"T árboles; suma de costes, no mejora asintótica por paralelizar"
+xgboost,"O(T [n p h + p B L]) esquema de histogramas, más discretización inicial",O(T h),O(np + p B L + T L),"B bins, L hojas; esquema de operaciones, depende de reutilización de histogramas"
+svm,"Entre O(n²p) y O(n³p) como referencia del solver kernel, dependiente de datos/tolerancia",O(n_sv p),Caché kernel acotada + O(n_sv p),n_sv vectores soporte; no se sustituyó RBF por un clasificador lineal
