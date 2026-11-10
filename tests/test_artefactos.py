@@ -19,18 +19,32 @@ def test_estan_los_12_artefactos_y_son_livianos():
     assert total < 50                                    # cabe en el plan gratuito de Render y en GitHub
 
 
-@pytest.mark.parametrize('modelo', M.MODELOS)
-def test_ida_y_vuelta_identica(modelo):
-    """El modelo cargado desde disco predice exactamente lo mismo que el modelo en memoria al serializarlo."""
-    p = M.predecir(modelo, FIJO[ENTRADA])
-    assert np.array_equal(p, FIJO[f'p_{modelo}'].to_numpy())
+@pytest.mark.parametrize('modelo', BENCHMARKS)
+def test_ida_y_vuelta_identica(modelo, tmp_path):
+    """Serializar con joblib (compress=3) y volver a cargar da exactamente las mismas predicciones que el modelo en memoria."""
+    en_memoria = joblib.load(M.ART / modelo / 'modelo.joblib')
+    joblib.dump(en_memoria, tmp_path / 'm.joblib', compress=3)
+    recargado = joblib.load(tmp_path / 'm.joblib')
+    X = FIJO[ENTRADA]
+    assert np.array_equal(en_memoria.predict_proba(X), recargado.predict_proba(X))
 
 
-def test_recargar_desde_disco_no_cambia_nada():
+def test_ida_y_vuelta_identica_regionalmapem(tmp_path):
     modelos = {m: joblib.load(M.ART / m / 'modelo.joblib') for m in BENCHMARKS}
     ens = joblib.load(M.ART / ORIGINAL / 'modelo.joblib').conectar(modelos)
-    assert np.array_equal(ens.predict_proba(FIJO[ENTRADA])[:, 1], FIJO[f'p_{ORIGINAL}'].to_numpy())
-    assert ens.__getstate__()['modelos_'] is None          # los expertos no se serializan dos veces
+    joblib.dump(ens, tmp_path / 'r.joblib', compress=3)
+    recargado = joblib.load(tmp_path / 'r.joblib')
+    assert recargado.modelos_ is None                      # los expertos no se serializan dos veces
+    recargado.conectar(modelos)
+    assert np.array_equal(ens.predict_proba(FIJO[ENTRADA]), recargado.predict_proba(FIJO[ENTRADA]))
+
+
+@pytest.mark.parametrize('modelo', M.MODELOS)
+def test_predice_lo_mismo_que_al_construir_el_artefacto(modelo):
+    """Coincide con las probabilidades guardadas al construir el artefacto (Windows). Entre sistemas operativos pueden
+    cambiar los últimos bits por la BLAS y la librería matemática; en el mismo equipo la coincidencia es exacta."""
+    p = M.predecir(modelo, FIJO[ENTRADA])
+    assert np.allclose(p, FIJO[f'p_{modelo}'].to_numpy(), rtol=0, atol=1e-9)
 
 
 @pytest.mark.parametrize('modelo', M.MODELOS)

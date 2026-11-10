@@ -75,8 +75,8 @@ pip install -r requirements-dev.txt
 python -m pytest -q
 ```
 
-Incluyen la prueba de ida y vuelta (cada artefacto cargado desde disco predice exactamente lo mismo que el modelo en
-memoria sobre 40 clientes fijos), la metadata, la validación de entradas, SHAP, las 12 pruebas del modelo original, las
+Incluyen la prueba de ida y vuelta (serializar y volver a cargar cada artefacto da exactamente las mismas predicciones que el
+modelo en memoria sobre 40 clientes fijos), la metadata, la validación de entradas, SHAP, las 12 pruebas del modelo original, las
 tres páginas y sus callbacks, las traducciones y la paleta. GitHub Actions las corre en cada push.
 
 ## Despliegue en Render
