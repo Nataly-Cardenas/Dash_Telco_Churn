@@ -4,9 +4,12 @@ services:
     runtime: python
     plan: free
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:server --bind 0.0.0.0:$PORT --workers 2 --timeout 120
+    # Un solo proceso: los 12 modelos y SHAP ocupan unos 280 MB, dentro de los 512 MB del plan gratuito.
+    startCommand: gunicorn app:server --bind 0.0.0.0:$PORT --workers 1 --threads 4 --timeout 180
+    healthCheckPath: /healthz
+    autoDeploy: true
     envVars:
       - key: PYTHON_VERSION
-        value: 3.12.12
+        value: 3.12.14
       - key: ANTHROPIC_API_KEY
         sync: false

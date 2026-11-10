@@ -10,9 +10,9 @@ from functools import lru_cache
 import numpy as np
 from dash import dcc, html, Input, Output, State, ALL, ctx, no_update
 from sklearn.feature_extraction.text import TfidfVectorizer
-import analytics as a
-from i18n import EN, T, N, set_lang, get_lang
-from icons import icon
+from src import data as a
+from src.i18n import EN, T, N, set_lang, get_lang
+from src.icons import icon
 
 MODEL = 'claude-opus-5-5'
 BOOK = 'https://nataly-cardenas.github.io/Telco_Churn_Entregable/'
@@ -36,8 +36,8 @@ FAQ = [
      'Las tasas más altas aparecen con **cheque electrónico (45.7 %)**, **contrato mes a mes (42.7 %)**, **fibra óptica (42.1 %)**, sin seguridad en línea (41.9 %) y sin soporte técnico (41.8 %). SHAP confirma que **contrato, servicio de internet y antigüedad** son las variables que más pesan en los modelos.',
      'The highest rates appear with **electronic check (45.7 %)**, **month-to-month contracts (42.7 %)**, **fiber optic (42.1 %)**, no online security (41.9 %) and no tech support (41.8 %). SHAP confirms that **contract, internet service and tenure** weigh the most in the models.'),
     (['cuál fue el mejor modelo', 'qué modelo ganó', 'qué modelo funcionó mejor', 'cuál es el modelo con mejor f1', 'which was the best model', 'which model won', 'what is the best model'],
-     '**Random Forest con SMOTE** obtuvo el mayor F1 medio (0.638 ± 0.023), empatado con **XGBoost con SMOTE** (0.638) y seguido por la regresión logística (0.634). Las diferencias no son estadísticamente detectables, así que no hay un ganador demostrado. Míralo en *Modelado avanzado*.',
-     '**Random Forest with SMOTE** had the highest mean F1 (0.638 ± 0.023), tied with **XGBoost with SMOTE** (0.638) and followed by logistic regression (0.634). The differences are not statistically detectable, so there is no proven winner. See *Advanced modeling*.'),
+     'En la comparación final por log-loss, **RegionalMAPEM** (el modelo propio, 0.41127) empata con la **logística con splines** (0.41130): ninguna prueba rechaza H0 tras Holm, así que no hay un ganador demostrado. En el entregable 2, por F1, **Random Forest con SMOTE** obtuvo 0.638 ± 0.023, empatado con XGBoost (0.638). Míralo en *Modelos → Tabla de líderes*.',
+     'In the final log-loss comparison, **RegionalMAPEM** (our own model, 0.41127) ties with **logistic regression with splines** (0.41130): no test rejects H0 after Holm, so there is no proven winner. In deliverable 2, by F1, **Random Forest with SMOTE** reached 0.638 ± 0.023, tied with XGBoost (0.638). See *Models → Leaderboard*.'),
     (['qué es el f1', 'qué métrica se usó', 'por qué f1', 'what is f1', 'which metric'],
      'El **F1** de la clase de abandono es la media armónica de Precision y Recall: F1 = 2TP / (2TP + FP + FN). Se eligió porque equilibra detectar a quienes se van y no generar demasiadas falsas alertas; con clases desbalanceadas es más informativo que la exactitud.',
      'The **F1** of the churn class is the harmonic mean of precision and recall: F1 = 2TP / (2TP + FP + FN). It balances catching churners and avoiding false alarms, and is more informative than accuracy with imbalanced classes.'),
@@ -57,8 +57,8 @@ FAQ = [
      'Se compararon **112 configuraciones**: 7 familias (regresión logística, KNN, Naive Bayes, árbol de decisión, Random Forest, XGBoost y SVM) × 4 balanceos (ninguno, pesos, SMOTE, ADASYN) × 4 buscadores de hiperparámetros (Grid, Random, TPE y genético).',
      '**112 configurations** were compared: 7 families (logistic regression, KNN, Naive Bayes, decision tree, Random Forest, XGBoost and SVM) × 4 balancing strategies (none, weights, SMOTE, ADASYN) × 4 hyperparameter searches (Grid, Random, TPE and genetic).'),
     (['qué optimizador es mejor', 'grid random tpe genético', 'which optimizer'],
-     'Con el mismo presupuesto de 24 evaluaciones, TPE, Random y el algoritmo genético solo mejoraron a Grid con presupuestos bajos; al final quedaron prácticamente empatados. El balanceo influyó mucho más que el buscador. Míralo en *Modelado avanzado → 2 · Optimizadores*.',
-     'With the same budget of 24 evaluations, TPE, Random and the genetic algorithm only beat Grid at low budgets; in the end they were practically tied. Balancing mattered far more than the search method. See *Advanced modeling → 2 · Optimizers*.'),
+     'Con el mismo presupuesto de 24 evaluaciones, TPE, Random y el algoritmo genético solo mejoraron a Grid con presupuestos bajos; al final quedaron prácticamente empatados. El balanceo influyó mucho más que el buscador. Míralo en *Modelos → Entregable 2 → 2 · Optimizadores*.',
+     'With the same budget of 24 evaluations, TPE, Random and the genetic algorithm only beat Grid at low budgets; in the end they were practically tied. Balancing mattered far more than the search method. See *Models → Deliverable 2 → 2 · Optimizers*.'),
     (['qué es la calibración', 'brier ece', 'what is calibration'],
      'La **calibración sigmoide** (Platt) ajusta las probabilidades para que reflejen la frecuencia real. Redujo a la vez el puntaje de Brier y el ECE en 80 de 96 configuraciones.',
      '**Sigmoid calibration** (Platt) adjusts probabilities so they match observed frequencies. It reduced both the Brier score and ECE in 80 of 96 configurations.'),
@@ -66,23 +66,23 @@ FAQ = [
      'Friedman detecta diferencias entre las 112 configuraciones, pero Nemenyi no separa a las mejores. DeLong con corrección de Holm da p = 1.0 entre los tres finalistas y los intervalos bootstrap del AUC incluyen el cero.',
      'Friedman detects differences among the 112 configurations, but Nemenyi does not separate the best ones. DeLong with Holm correction gives p = 1.0 among the three finalists and the bootstrap AUC intervals include zero.'),
     (['qué es shap', 'qué es lime', 'interpretabilidad', 'what is shap'],
-     '**SHAP** reparte cada predicción entre las variables (valores de Shapley) y su promedio da la importancia global. **LIME** explica un cliente concreto con un modelo simple local. Describen al modelo, no causas del abandono. Míralo en *Modelado avanzado → 3.2 · Interpretabilidad*.',
-     '**SHAP** splits each prediction among the variables (Shapley values) and its average gives global importance. **LIME** explains one customer with a simple local model. They describe the model, not causes of churn. See *Advanced modeling → 3.2 · Interpretability*.'),
-    (['cómo uso el simulador', 'perfil de riesgo', 'how do i use the simulator'],
-     'En *Simulador → Perfil de riesgo* eliges contrato, internet, método de pago, antigüedad y cargo mensual; el dash busca clientes de entrenamiento parecidos y muestra su tasa de abandono observada. En *Clientes reales* ves las probabilidades de los 3 finalistas para un cliente del test, y en *Umbral de alerta* mueves la alarma de retención.',
-     'In *Simulator → Risk profile* you choose contract, internet, payment method, tenure and monthly charge; the dash finds similar training customers and shows their observed churn rate. *Real customers* shows the 3 finalists\' probabilities for a test customer, and *Alert threshold* lets you move the retention alarm.'),
+     '**SHAP** reparte cada predicción entre las variables (valores de Shapley) y su promedio da la importancia global. **LIME** explica un cliente concreto con un modelo simple local. Describen al modelo, no causas del abandono. Míralo en *Modelos → Interpretabilidad global* y en la explicación de *Predicción en vivo*.',
+     '**SHAP** splits each prediction among the variables (Shapley values) and its average gives global importance. **LIME** explains one customer with a simple local model. They describe the model, not causes of churn. See *Models → Global interpretability* and the explanation in *Live prediction*.'),
+    (['cómo hago una predicción', 'cómo uso la predicción en vivo', 'cómo uso el simulador', 'how do i make a prediction', 'live prediction', 'how do i use the simulator'],
+     'En *Modelos → Predicción en vivo* eliges un modelo, cargas un cliente del hold-out o editas sus 19 variables y pulsas **Predecir**. Verás la probabilidad calibrada, la decisión con el umbral F1, el conjunto conforme al 90 % y la explicación SHAP de ese cliente. Los modelos ya están entrenados: el dash no reentrena nada.',
+     'In *Models → Live prediction* you pick a model, load a hold-out customer or edit its 19 variables and press **Predict**. You get the calibrated probability, the decision at the F1 threshold, the 90 % conformal set and the SHAP explanation for that customer. Models are already trained: the dash never retrains.'),
     (['qué pasa si cambio el umbral', 'umbral de alerta', 'threshold'],
      'Bajar el umbral detecta más clientes que se van (más Recall) pero genera más falsas alertas (menos Precision). Elegirlo bien exige conocer el costo de contactar a un cliente y el de perderlo.',
      'Lowering the threshold catches more churners (higher recall) but raises more false alarms (lower precision). Choosing it well requires knowing the cost of contacting a customer and of losing one.'),
     (['cómo descargo los datos', 'cómo descargo el csv', 'puedo exportar la tabla', 'how do i download the data', 'download csv', 'export the table'],
-     'Ve a *Análisis exploratorio → Explorador de datos*, elige las columnas y pulsa **Descargar CSV**. Se descarga un solo archivo con la selección de los filtros superiores.',
-     'Go to *Exploratory analysis → Data explorer*, pick the columns and press **Download CSV**. You get a single file with the current selection of the top filters.'),
+     'Ve a *EDA → Explorador de datos*, elige las columnas y pulsa **Descargar CSV**. Se descarga un solo archivo con la selección de los filtros superiores.',
+     'Go to *EDA → Data explorer*, pick the columns and press **Download CSV**. You get a single file with the current selection of the top filters.'),
     (['cómo cambio el idioma', 'cómo cambio a modo oscuro', 'cómo pongo el modo claro', 'how do i change the language', 'how do i switch to dark mode', 'light mode'],
      'Arriba a la derecha están los botones **ES / EN** para el idioma y el botón de sol/luna para cambiar entre modo claro y oscuro. La elección se recuerda en tu navegador.',
      'At the top right you\'ll find the **ES / EN** buttons for the language and the sun/moon button to switch between light and dark mode. Your choice is remembered in your browser.'),
     (['qué secciones tiene el dash', 'cómo navego', 'what sections'],
-     'El dash sigue el orden del proyecto: Introducción, Análisis exploratorio, Preprocesamiento, Modelado avanzado, Simulador, Conclusiones y Autoras. La portada es interactiva: pasa el cursor sobre los puntos rojos para retener clientes.',
-     'The dash follows the project\'s order: Introduction, Exploratory analysis, Preprocessing, Advanced modeling, Simulator, Conclusions and Authors. The cover is interactive: hover over the red dots to retain customers.'),
+     'El dash tiene tres secciones en la barra superior: **Contexto** (problema, pregunta, datos, metodología, limitaciones y autoras), **EDA** (filtros y análisis exploratorio) y **Modelos** (tabla de líderes, predicción en vivo, diagnóstico, comparación estadística, modelo original y ficha del modelo). La portada es interactiva: pasa el cursor sobre los puntos rojos para retener clientes.',
+     'The dash has three sections in the top bar: **Context** (problem, question, data, methodology, limitations and authors), **EDA** (filters and exploratory analysis) and **Models** (leaderboard, live prediction, diagnostics, statistical comparison, original model and model card). The cover is interactive: hover over the red dots to retain customers.'),
     (['quiénes son las autoras', 'quién hizo el proyecto', 'who are the authors'],
      'Las autoras son **Laura S. Rivera Figueredo** y **Natalý A. Cárdenas Izaquita**, del Departamento de Matemáticas, Física y Ciencia de Datos de la Universidad del Norte (Barranquilla, Colombia).',
      'The authors are **Laura S. Rivera Figueredo** and **Natalý A. Cárdenas Izaquita**, from the Department of Mathematics, Physics and Data Science at Universidad del Norte (Barranquilla, Colombia).'),
@@ -90,30 +90,30 @@ FAQ = [
      f'Todo el proyecto está en el [Jupyter Book]({BOOK}), incluido el [paper]({BOOK}paper.html). También hay un botón en la barra superior.',
      f'The whole project is in the [Jupyter Book]({BOOK}), including the [paper]({BOOK}paper.html). There is also a button in the top bar.'),
     (['cuáles son las limitaciones', 'limitations'],
-     'Se usó un único conjunto de datos, el test ya había sido expuesto (es evidencia suplementaria), los datos son una foto de un momento y no hay costos de intervención, así que el F1 no se traduce directamente en dinero.',
-     'A single dataset was used, the test set had already been seen (it is supplementary evidence), the data are a snapshot in time and there are no intervention costs, so F1 does not translate directly into money.'),
+     'Telco es un solo operador ficticio y una sola foto en el tiempo; en Telco las regiones de RegionalMAPEM no aportan frente a pesos globales; el modelo propio necesita a los 11 expertos para predecir, y sin costos de retención el umbral no se traduce en dinero.',
+     'Telco is a single fictional operator and a single snapshot in time; in Telco the regions of RegionalMAPEM add nothing over global weights; our model needs the 11 experts to predict, and without retention costs the threshold does not translate into money.'),
     (['cómo se preparó la información', 'preprocesamiento', 'valores faltantes', 'preprocessing', 'missing values'],
      'TotalCharges tenía 11 vacíos, todos de clientes con antigüedad 0, que se reemplazaron por 0. Se unificaron las categorías "sin internet/sin teléfono" en "No", se creó el cargo promedio mensual, se codificó con One-Hot y se estandarizó. Todo dentro del pipeline, sin fuga de información.',
      'TotalCharges had 11 blanks, all for customers with tenure 0, replaced by 0. "No internet/no phone" categories were merged into "No", an average monthly charge was created, and data were one-hot encoded and standardized, all inside the pipeline with no leakage.'),
     (['qué sigue', 'trabajo futuro', 'future work', 'next steps'],
-     'Los próximos pasos son validar en clientes futuros (validación temporal), incorporar costos explícitos para elegir el umbral y diseñar un modelo propio que supere a las referencias en desempeño y tiempo.',
-     'Next steps are validating on future customers (temporal validation), adding explicit costs to choose the threshold, and designing a proposed model that beats the baselines in performance and time.'),
+     'Los próximos pasos son validar en clientes futuros (validación temporal), incorporar costos explícitos para elegir el umbral y probar las regiones de RegionalMAPEM en conjuntos con más heterogeneidad entre clientes.',
+     'Next steps are validating on future customers (temporal validation), adding explicit costs to choose the threshold, and testing the regions of RegionalMAPEM on datasets with more heterogeneity between customers.'),
 ]
 
 FAQ.append((['qué variables tiene el dataset', 'qué significa tenure', 'qué es monthlycharges', 'what variables are there', 'what does tenure mean'],
-            'Hay 19 variables candidatas: de **cuenta** (contrato, método de pago, factura electrónica, `tenure` = antigüedad en meses, `MonthlyCharges` = cargo mensual, `TotalCharges` = cargo acumulado), de **servicios** (teléfono, líneas múltiples, internet, seguridad y respaldo en línea, protección de dispositivos, soporte técnico, streaming) y **demográficas** (género, adulto mayor, pareja, dependientes). Están descritas en *Introducción* y analizadas en *Análisis exploratorio*.',
-            'There are 19 candidate variables: **account** (contract, payment method, paperless billing, `tenure` = months as a customer, `MonthlyCharges`, `TotalCharges`), **services** (phone, multiple lines, internet, online security and backup, device protection, tech support, streaming) and **demographics** (gender, senior citizen, partner, dependents). They are described in *Introduction* and analyzed in *Exploratory analysis*.'))
+            'Hay 19 variables candidatas: de **cuenta** (contrato, método de pago, factura electrónica, `tenure` = antigüedad en meses, `MonthlyCharges` = cargo mensual, `TotalCharges` = cargo acumulado), de **servicios** (teléfono, líneas múltiples, internet, seguridad y respaldo en línea, protección de dispositivos, soporte técnico, streaming) y **demográficas** (género, adulto mayor, pareja, dependientes). Están descritas en *Contexto* y analizadas en *EDA*.',
+            'There are 19 candidate variables: **account** (contract, payment method, paperless billing, `tenure` = months as a customer, `MonthlyCharges`, `TotalCharges`), **services** (phone, multiple lines, internet, online security and backup, device protection, tech support, streaming) and **demographics** (gender, senior citizen, partner, dependents). They are described in *Context* and analyzed in *EDA*.'))
 # Guía del dash: qué muestra cada sección y de qué capítulo del Jupyter Book viene.
 GUIDE = [
     (['qué hay en la portada', 'qué son los puntos rojos', 'qué muestra el celular de la portada', 'what is on the cover', 'what are the red dots', 'what does the phone show'],
-     'La **portada** muestra una red de clientes conectados a un celular. Los puntos rojos son clientes a punto de irse: si pasas el cursor encima los retienes. El celular recorre clientes reales del test con la probabilidad de abandono que les dio el Random Forest finalista y lo que pasó en realidad.',
-     'The **cover** shows a network of customers connected to a phone. Red dots are customers about to leave: hover over them to retain them. The phone cycles through real test customers with the churn probability given by the finalist Random Forest and what actually happened.'),
+     'La **portada** muestra una red de clientes conectados a un celular. Los puntos rojos son clientes a punto de irse: si pasas el cursor encima los retienes. El celular recorre clientes reales del hold-out con la probabilidad de abandono que les dio RegionalMAPEM y lo que pasó en realidad.',
+     'The **cover** shows a network of customers connected to a phone. Red dots are customers about to leave: hover over them to retain them. The phone cycles through real hold-out customers with the churn probability given by RegionalMAPEM and what actually happened.'),
     (['qué muestra la introducción', 'dónde están los objetivos', 'dónde está el marco teórico', 'what is in the introduction', 'where are the objectives'],
-     'La sección *Introducción* presenta el contexto del problema, el objetivo general, los 8 objetivos específicos, el **marco teórico** en tarjetas que se voltean y la descripción de las 21 variables.',
-     'The *Introduction* section presents the problem context, the main goal, the 8 specific objectives, the **theoretical framework** as flip cards and the description of the 21 variables.'),
+     'La sección *Contexto* presenta el problema con una cifra citada, la pregunta de investigación, los objetivos, la ficha de los datos y el diccionario de variables, el diagrama de la metodología, el **marco teórico** en tarjetas que se voltean, las limitaciones, la ética y las autoras.',
+     'The *Context* section presents the problem with a cited figure, the research question, the objectives, the data sheet and variable dictionary, the methodology diagram, the **theoretical framework** as flip cards, the limitations, ethics and the authors.'),
     (['qué muestra el análisis exploratorio', 'para qué sirven los filtros', 'what is in the exploratory analysis', 'what do the filters do'],
-     '*Análisis exploratorio* tiene una pestaña por parte del EDA: 1–2 ETL y partición, 3 Univariado, 4 Bivariado, 5 Multivariado, 6 Valores faltantes, 7–8 Resumen y el Explorador de datos. Los filtros de arriba (universo, contrato, internet y antigüedad) recalculan todas sus gráficas y tablas.',
-     '*Exploratory analysis* has one tab per part of the EDA: 1–2 ETL and split, 3 Univariate, 4 Bivariate, 5 Multivariate, 6 Missing values, 7–8 Summary and the Data explorer. The top filters (population, contract, internet and tenure) recompute all its charts and tables.'),
+     '*EDA* tiene una pestaña por parte del análisis: 1–2 ETL y partición, 3 Univariado, 4 Bivariado, el explorador bivariado (eliges ejes y color), 5 Multivariado, 6 Valores faltantes, 7–8 Resumen, Preparación de datos y el Explorador de datos. Los filtros de arriba (universo, contrato, internet y antigüedad) recalculan todas sus gráficas y tablas.',
+     '*EDA* has one tab per part of the analysis: 1–2 ETL and split, 3 Univariate, 4 Bivariate, the bivariate explorer (you pick axes and color), 5 Multivariate, 6 Missing values, 7–8 Summary, Data preparation and the Data explorer. The top filters (population, contract, internet and tenure) recompute all its charts and tables.'),
     (['qué es el análisis univariado', 'qué muestra la pestaña univariado', 'what is the univariate analysis'],
      'El **análisis univariado** describe cada variable por separado: la variable objetivo, histogramas con boxplot para las numéricas (con la media marcada), barras de frecuencia para las categóricas y la tabla de outliers según el IQR.',
      'The **univariate analysis** describes each variable on its own: the target, histograms with box plots for numeric variables (mean marked), frequency bars for categorical ones and the IQR outlier table.'),
@@ -124,29 +124,35 @@ GUIDE = [
      'El **análisis multivariado** incluye los gráficos Q-Q de normalidad, la matriz de Spearman (tenure y TotalCharges, ρ ≈ 0.89), la asociación entre variables categóricas, las redundancias, la matriz de dispersión, las densidades por clase y antigüedad vs. cargo mensual por contrato.',
      'The **multivariate analysis** includes the normality Q-Q plots, the Spearman matrix (tenure and TotalCharges, ρ ≈ 0.89), associations between categorical variables, redundancies, the scatter matrix, densities by class and tenure vs. monthly charge by contract.'),
     (['qué muestra el preprocesamiento', 'qué es el pipeline', 'what is in the preprocessing section', 'what is the pipeline'],
-     '*Preprocesamiento* muestra los pasos del pipeline, la imputación de TotalCharges con 0 frente a la mediana, la validación cruzada (AUC 0.8454 frente a controles cercanos a 0.5), la ablación de variables y la evaluación del modelo base en test: matriz de confusión, curva ROC (AUC 0.8419) y coeficientes.',
-     '*Preprocessing* shows the pipeline steps, imputing TotalCharges with 0 vs. the median, cross-validation (AUC 0.8454 vs. controls near 0.5), the variable ablation and the baseline evaluated on test: confusion matrix, ROC curve (AUC 0.8419) and coefficients.'),
+     '*EDA → Preparación de datos* muestra los pasos del pipeline, la imputación de TotalCharges con 0 frente a la mediana, la ingeniería de características y el modelo base del entregable 2 en test (matriz de confusión y curva ROC, AUC 0.8419).',
+     '*EDA → Data preparation* shows the pipeline steps, imputing TotalCharges with 0 vs. the median, feature engineering and the deliverable 2 baseline on test (confusion matrix and ROC curve, AUC 0.8419).'),
     (['qué muestra el modelado avanzado', 'qué es el podio', 'what is in the advanced modeling section', 'what is the podium'],
-     '*Modelado avanzado* tiene el podio de finalistas y cinco pestañas: resultados por modelo (matriz de confusión, ROC y confiabilidad fuera de muestra), calibración, optimizadores (convergencia, diversidad y costo), comparación estadística (Friedman, Nemenyi, DeLong y curvas ROC en test) e interpretabilidad (SHAP y LIME).',
-     '*Advanced modeling* has the finalists podium and five tabs: results by model (out-of-fold confusion matrix, ROC and reliability), calibration, optimizers (convergence, diversity and cost), statistical comparison (Friedman, Nemenyi, DeLong and test ROC curves) and interpretability (SHAP and LIME).'),
+     '*Modelos → Entregable 2* conserva el podio de finalistas de las 112 configuraciones y cinco pestañas: resultados por modelo (matriz de confusión, ROC y confiabilidad fuera de muestra), calibración, optimizadores (convergencia, diversidad y costo), comparación estadística (Friedman, Nemenyi, DeLong y curvas ROC en test) e interpretabilidad (SHAP y LIME).',
+     '*Models → Deliverable 2* keeps the finalists podium of the 112 configurations and five tabs: results by model (out-of-fold confusion matrix, ROC and reliability), calibration, optimizers (convergence, diversity and cost), statistical comparison (Friedman, Nemenyi, DeLong and test ROC curves) and interpretability (SHAP and LIME).'),
     (['qué es el diagrama de nemenyi', 'qué es la diferencia crítica', 'what is the nemenyi diagram', 'critical difference'],
-     'En el diagrama de **Nemenyi** cada punto es una de las 112 configuraciones ordenada por su rango medio. Las que caen dentro de la banda de la diferencia crítica (89.4) no se distinguen estadísticamente de la mejor.',
-     'In the **Nemenyi** diagram each dot is one of the 112 configurations ordered by mean rank. Those inside the critical-difference band (89.4) are not statistically distinguishable from the best.'),
-    (['qué muestra el simulador', 'what does the simulator show'],
-     'El *Simulador* es una herramienta creada para el dash: **Perfil de riesgo** calcula la tasa de abandono de clientes de entrenamiento parecidos, **Clientes reales** muestra las probabilidades de los tres finalistas para un cliente del test y **Umbral de alerta** deja mover la alarma de retención.',
-     'The *Simulator* is a tool built for the dash: **Risk profile** computes the churn rate of similar training customers, **Real customers** shows the three finalists\' probabilities for a test customer and **Alert threshold** lets you move the retention alarm.'),
+     'En el **diagrama de diferencia crítica** de *Modelos → Comparación estadística* cada modelo aparece en su rango medio sobre las 25 evaluaciones externas; las barras unen los modelos que Nemenyi no distingue (CD = 4.94). En *Entregable 2* hay otro diagrama de Nemenyi con las 112 configuraciones (CD = 89.4).',
+     'In the **critical difference diagram** in *Models → Statistical comparison* each model sits at its mean rank over the 25 outer evaluations; bars join the models Nemenyi cannot tell apart (CD = 4.94). *Deliverable 2* has another Nemenyi diagram with the 112 configurations (CD = 89.4).'),
+    (['qué muestra la sección modelos', 'qué hay en modelos', 'what is in the models section'],
+     '*Modelos* tiene ocho pestañas: tabla de líderes (12 modelos con log-loss, F1 y AUC como media ± DE e IC 95 %), predicción en vivo con SHAP, diagnóstico (confusión, calibración, ROC y precisión-recall), interpretabilidad global, comparación estadística (diagrama de diferencia crítica y 223 contrastes con Holm), modelo original (pseudocódigo, convergencia, pruebas, robustez y veredicto), ficha del modelo y los resultados del entregable 2.',
+     '*Models* has eight tabs: leaderboard (12 models with log-loss, F1 and AUC as mean ± SD and 95 % CI), live prediction with SHAP, diagnostics (confusion, calibration, ROC and precision-recall), global interpretability, statistical comparison (critical difference diagram and 223 Holm-corrected tests), original model (pseudocode, convergence, tests, robustness and verdict), model card and the deliverable 2 results.'),
+    (['qué es regionalmapem', 'cuál es el modelo propio', 'qué es el modelo original', 'what is regionalmapem', 'what is the original model'],
+     '**RegionalMAPEM** es el modelo propio: combina las probabilidades de 11 clasificadores calibrados con pesos distintos en cada región del espacio de clientes. Las regiones salen de un GMM y los pesos se estiman con MAP-EM y un prior de Dirichlet hacia los pesos globales. En Telco empata con la logística con splines y no cumple la definición de superioridad. Míralo en *Modelos → Modelo original*.',
+     '**RegionalMAPEM** is our own model: it combines the probabilities of 11 calibrated classifiers with different weights in each region of the customer space. Regions come from a GMM and weights are estimated with MAP-EM and a Dirichlet prior towards the global weights. On Telco it ties with logistic regression with splines and does not meet the superiority definition. See *Models → Original model*.'),
+    (['qué es el log-loss', 'por qué log-loss', 'what is log-loss'],
+     'El **log-loss** es el promedio de −log de la probabilidad asignada a la clase real: castiga más las predicciones seguras y equivocadas. Se eligió como métrica principal porque el objetivo es entregar probabilidades bien calibradas, no solo ordenar a los clientes.',
+     '**Log-loss** is the average of −log of the probability given to the true class: it punishes confident wrong predictions the most. It is the main metric because the goal is well-calibrated probabilities, not just ranking customers.'),
     (['qué muestran los 100 cuadros del umbral', 'qué es la cuadrícula de 100 clientes', 'what is the 100 customer grid'],
-     'En *Umbral de alerta*, la cuadrícula representa 100 clientes del test: abandonos detectados, abandonos que se escapan (borde punteado), falsas alertas y clientes estables bien leídos. Al mover el umbral cambian las proporciones y el punto en la curva ROC.',
-     'In *Alert threshold*, the grid represents 100 test customers: churners caught, churners missed (dashed border), false alarms and stable customers read correctly. Moving the threshold changes the proportions and the point on the ROC curve.'),
-    (['qué muestra la sección de conclusiones', 'what is in the conclusions section'],
-     '*Conclusiones* reúne los hallazgos principales, las limitaciones, los próximos pasos y el enlace al paper del proyecto.',
-     '*Conclusions* gathers the main findings, limitations, next steps and the link to the project paper.'),
+     'En *Modelos → Entregable 2 → Umbral de alerta*, la cuadrícula representa 100 clientes del test: abandonos detectados, abandonos que se escapan (borde punteado), falsas alertas y clientes estables bien leídos. Al mover el umbral cambian las proporciones y el punto en la curva ROC.',
+     'In *Models → Deliverable 2 → Alert threshold*, the grid represents 100 test customers: churners caught, churners missed (dashed border), false alarms and stable customers read correctly. Moving the threshold changes the proportions and the point on the ROC curve.'),
+    (['dónde está la ficha del modelo', 'model card', 'where is the model card'],
+     'La ficha del modelo está en *Modelos → Ficha del modelo*: uso previsto, datos de entrenamiento, métricas, limitaciones, riesgos y usos no recomendados, junto con los datos del artefacto cargado (semilla, versiones, hiperparámetros y su metadata.json).',
+     'The model card is in *Models → Model card*: intended use, training data, metrics, limitations, risks and non-recommended uses, plus the loaded artifact details (seed, versions, hyperparameters and its metadata.json).'),
     (['qué significan los colores de las gráficas', 'por qué hay barras resaltadas', 'what do the chart colors mean'],
      'Las gráficas usan un solo color (azul). El naranja resalta el mejor resultado o el dato que la gráfica quiere señalar, y también identifica a los clientes que abandonan cuando se comparan las dos clases.',
      'Charts use a single color (blue). Orange highlights the best result or the point the chart wants to make, and also identifies churners when the two classes are compared.'),
     (['dónde están los linkedin de las autoras', 'cómo contacto a las autoras', 'linkedin', 'how do i contact the authors'],
-     'En la sección *Autoras* están las fotos de Laura y Natalý con sus enlaces de **LinkedIn**, GitHub y correo, además de los repositorios, el dataset y el paper.',
-     'The *Authors* section has Laura\'s and Natalý\'s photos with their **LinkedIn**, GitHub and email links, plus the repositories, the dataset and the paper.'),
+     'Al final de *Contexto* están las fotos de Laura y Natalý con sus enlaces de **LinkedIn**, GitHub y correo, además de los repositorios, el dataset y el paper.',
+     'The end of *Context* has Laura\'s and Natalý\'s photos with their **LinkedIn**, GitHub and email links, plus the repositories, the dataset and the paper.'),
 ]
 FAQ.extend(GUIDE)
 
@@ -154,21 +160,21 @@ FAQ.append((['hola', 'buenas', 'hello', 'hi', 'gracias', 'thanks'],
             '¡Hola! Puedo contarte sobre los datos, quiénes abandonan más, cómo se compararon los modelos, qué significan las métricas o cómo usar cada sección del dash. ¿Qué te gustaría saber?',
             'Hi! I can tell you about the data, who churns the most, how the models were compared, what the metrics mean or how to use each section of the dash. What would you like to know?'))
 
-SUGGESTIONS = [N('¿Qué clientes abandonan más?'), N('¿Cuál fue el mejor modelo?'), N('¿Qué es SMOTE y por qué se usó?'), N('¿Cómo uso el simulador?'), N('¿Cómo descargo los datos?')]
+SUGGESTIONS = [N('¿Qué clientes abandonan más?'), N('¿Cuál fue el mejor modelo?'), N('¿Qué es SMOTE y por qué se usó?'), N('¿Cómo hago una predicción?'), N('¿Cómo descargo los datos?')]
 
 SYSTEM = """Eres el asistente del dashboard "Señal perdida", sobre el proyecto Telco Customer Churn de Laura S. Rivera Figueredo y Natalý A. Cárdenas Izaquita (Universidad del Norte).
 Respondes preguntas de cualquier visitante sobre el proyecto, sus resultados y cómo usar el dashboard.
 
 Hechos del proyecto:
-- Datos: Telco Customer Churn de IBM, 7,043 clientes, 21 columnas, 26.5 % de abandono. Partición estratificada 80/20 (5,634 entrenamiento, 1,409 test).
+- Datos: Telco Customer Churn de IBM, 7,043 clientes, 21 columnas, 26.5 % de abandono. Partición estratificada: 5,634 de desarrollo y 1,409 de hold-out.
 - Tasas de abandono más altas: cheque electrónico 45.7 %, contrato mes a mes 42.7 %, fibra óptica 42.1 %, sin seguridad en línea 41.9 %, sin soporte técnico 41.8 %. Con contrato a dos años: 2.9 %.
-- Diseño: 7 familias de modelos × 4 balanceos × 4 optimizadores = 112 configuraciones, validación cruzada anidada (5 folds externos, 3 internos), F1 de la clase de abandono como métrica principal.
-- Resultados: Random Forest + SMOTE F1 0.638 ± 0.023 (AUC 0.844), XGBoost + SMOTE 0.638, regresión logística 0.634; sin diferencias estadísticamente detectables. SMOTE mejoró 6 de 7 familias. La calibración sigmoide mejoró Brier y ECE en 80 de 96 configuraciones.
-- SHAP: contrato, servicio de internet y antigüedad son las variables más importantes. Las atribuciones no son causales.
-- Secciones del dashboard: Portada (red de clientes y celular con clientes reales); Introducción (contexto, objetivos, marco teórico, variables);
-  Análisis exploratorio (ETL y partición, univariado, bivariado, multivariado, valores faltantes, resumen, explorador con descarga CSV y filtros);
-  Preprocesamiento (pipeline, imputación, validación cruzada, ablación, evaluación del modelo base en test); Modelado avanzado (podio, resultados por modelo,
-  calibración, optimizadores, comparación estadística, SHAP y LIME); Simulador (perfil de riesgo, clientes reales, umbral de alerta); Conclusiones; Autoras.
+- Entregable 4: 11 benchmarks calibrados con Platt, optimizados con TPE (30 evaluaciones) minimizando el log-loss, validación anidada 5 × 5. Modelo propio RegionalMAPEM: pesos por región estimados con MAP-EM y prior de Dirichlet.
+- Resultado: RegionalMAPEM log-loss 0.41127 frente a 0.41130 de la logística con splines; ninguna prueba rechaza H0 tras Holm, delta de Cliff = -0.008. Hold-out: 0.4109. No es superior (R3 no se cumple).
+- Entregable 2: 112 configuraciones (7 familias × 4 balanceos × 4 optimizadores); Random Forest + SMOTE F1 0.638 ± 0.023, empatado con XGBoost.
+- SHAP: contrato, antigüedad e internet son las variables más importantes. Las atribuciones no son causales.
+- Secciones del dashboard: Contexto (portada, problema, pregunta, datos, metodología, limitaciones, ética, autoras); EDA (filtros, univariado, bivariado,
+  explorador bivariado, multivariado, faltantes, resumen, preparación de datos, explorador con descarga CSV); Modelos (tabla de líderes, predicción en vivo con SHAP,
+  diagnóstico, interpretabilidad global, comparación estadística, modelo original, ficha del modelo, entregable 2).
   Botones ES/EN y modo claro/oscuro arriba a la derecha.
 
 Reglas:
@@ -236,8 +242,8 @@ def data_answer(question, lang):
     n, k = len(d), int(d.target.sum())
     profile = ' · '.join(desc)
     if lang == 'en':
-        return f'In the training set, customers with **{profile}** are {n:,}; {k:,} of them churned (**{k / n:.1%}**), versus 26.5 % overall. It is an observed association, not a cause. You can explore it in *Simulator → Risk profile* and *Exploratory analysis → 4 · Bivariate*.'
-    return f'En el conjunto de entrenamiento, los clientes con **{profile}** son {n:,}; de ellos abandonaron {k:,} (**{k / n:.1%}**), frente al 26.5 % general. Es una asociación observada, no una causa. Puedes explorarlo en *Simulador → Perfil de riesgo* y en *Análisis exploratorio → 4 · Bivariado*.'
+        return f'In the training set, customers with **{profile}** are {n:,}; {k:,} of them churned (**{k / n:.1%}**), versus 26.5 % overall. It is an observed association, not a cause. You can explore it in *EDA → 4 · Bivariate* and *EDA → Bivariate explorer*.'
+    return f'En el conjunto de entrenamiento, los clientes con **{profile}** son {n:,}; de ellos abandonaron {k:,} (**{k / n:.1%}**), frente al 26.5 % general. Es una asociación observada, no una causa. Puedes explorarlo en *EDA → 4 · Bivariado* y en *EDA → Explorador bivariado*.'
 
 
 def local_answer(question, lang):

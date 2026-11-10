@@ -1,0 +1,261 @@
+{
+ "modelo": "knn",
+ "tipo": "benchmark",
+ "creado": "2026-11-10T13:56:12-05:00",
+ "fuente": {
+  "repositorio": "https://github.com/Nataly-Cardenas/Telco_Churn_Entregable",
+  "commit": "3e6dcb661948a39591d6601b44b4f1003f266b48",
+  "corrida": "experiments/resultados/crudos/telco_holdout/r9_f0/"
+ },
+ "versiones": {
+  "python": "3.12.14",
+  "scikit-learn": "1.6.1",
+  "numpy": "2.0.2",
+  "pandas": "2.3.3",
+  "scipy": "1.15.3",
+  "joblib": "1.5.3",
+  "xgboost": "3.0.5",
+  "lightgbm": "4.7.0",
+  "catboost": "1.2.10"
+ },
+ "semilla": {
+  "raiz": 42,
+  "derivacion": "seed_for('model', 9, 0, 0)",
+  "valor": 2212890813
+ },
+ "entrenamiento": {
+  "clientes": 5634,
+  "abandonos": 1495,
+  "segundos_ajuste": 0.782,
+  "calibracion": "CalibratedClassifierCV(method='sigmoid', cv=3)",
+  "balanceo": "ninguno"
+ },
+ "hiperparametros": {
+  "n_neighbors": 34,
+  "weights": "uniform",
+  "p": 1
+ },
+ "busqueda": {
+  "metodo": "TPE (optuna)",
+  "evaluaciones": 30,
+  "objetivo": "log-loss medio de 3 pliegues internos",
+  "log_loss_interno": 0.431691315595861
+ },
+ "umbral_f1": 0.2545929649337379,
+ "esquema_entrada": [
+  {
+   "nombre": "gender",
+   "tipo": "categórica",
+   "dtype": "str",
+   "categorias": [
+    "Female",
+    "Male"
+   ]
+  },
+  {
+   "nombre": "SeniorCitizen",
+   "tipo": "numérica",
+   "dtype": "int64",
+   "min": 0.0,
+   "max": 1.0
+  },
+  {
+   "nombre": "Partner",
+   "tipo": "categórica",
+   "dtype": "str",
+   "categorias": [
+    "No",
+    "Yes"
+   ]
+  },
+  {
+   "nombre": "Dependents",
+   "tipo": "categórica",
+   "dtype": "str",
+   "categorias": [
+    "No",
+    "Yes"
+   ]
+  },
+  {
+   "nombre": "tenure",
+   "tipo": "numérica",
+   "dtype": "int64",
+   "min": 0.0,
+   "max": 72.0
+  },
+  {
+   "nombre": "PhoneService",
+   "tipo": "categórica",
+   "dtype": "str",
+   "categorias": [
+    "No",
+    "Yes"
+   ]
+  },
+  {
+   "nombre": "MultipleLines",
+   "tipo": "categórica",
+   "dtype": "str",
+   "categorias": [
+    "No",
+    "No phone service",
+    "Yes"
+   ]
+  },
+  {
+   "nombre": "InternetService",
+   "tipo": "categórica",
+   "dtype": "str",
+   "categorias": [
+    "DSL",
+    "Fiber optic",
+    "No"
+   ]
+  },
+  {
+   "nombre": "OnlineSecurity",
+   "tipo": "categórica",
+   "dtype": "str",
+   "categorias": [
+    "No",
+    "No internet service",
+    "Yes"
+   ]
+  },
+  {
+   "nombre": "OnlineBackup",
+   "tipo": "categórica",
+   "dtype": "str",
+   "categorias": [
+    "No",
+    "No internet service",
+    "Yes"
+   ]
+  },
+  {
+   "nombre": "DeviceProtection",
+   "tipo": "categórica",
+   "dtype": "str",
+   "categorias": [
+    "No",
+    "No internet service",
+    "Yes"
+   ]
+  },
+  {
+   "nombre": "TechSupport",
+   "tipo": "categórica",
+   "dtype": "str",
+   "categorias": [
+    "No",
+    "No internet service",
+    "Yes"
+   ]
+  },
+  {
+   "nombre": "StreamingTV",
+   "tipo": "categórica",
+   "dtype": "str",
+   "categorias": [
+    "No",
+    "No internet service",
+    "Yes"
+   ]
+  },
+  {
+   "nombre": "StreamingMovies",
+   "tipo": "categórica",
+   "dtype": "str",
+   "categorias": [
+    "No",
+    "No internet service",
+    "Yes"
+   ]
+  },
+  {
+   "nombre": "Contract",
+   "tipo": "categórica",
+   "dtype": "str",
+   "categorias": [
+    "Month-to-month",
+    "One year",
+    "Two year"
+   ]
+  },
+  {
+   "nombre": "PaperlessBilling",
+   "tipo": "categórica",
+   "dtype": "str",
+   "categorias": [
+    "No",
+    "Yes"
+   ]
+  },
+  {
+   "nombre": "PaymentMethod",
+   "tipo": "categórica",
+   "dtype": "str",
+   "categorias": [
+    "Bank transfer (automatic)",
+    "Credit card (automatic)",
+    "Electronic check",
+    "Mailed check"
+   ]
+  },
+  {
+   "nombre": "MonthlyCharges",
+   "tipo": "numérica",
+   "dtype": "float64",
+   "min": 18.4,
+   "max": 118.75
+  },
+  {
+   "nombre": "TotalCharges",
+   "tipo": "numérica",
+   "dtype": "float (texto en el archivo original)",
+   "min": 0.0,
+   "max": 8684.8,
+   "nota": "vacío solo si tenure = 0; se imputa con 0"
+  }
+ ],
+ "salida": "probabilidad de abandono en [0, 1] (predict_proba[:, 1])",
+ "metricas_externas": {
+  "validacion_anidada": {
+   "diseno": "5 repeticiones × 5 pliegues externos (25 evaluaciones)",
+   "log_loss_media": 0.4304439694868535,
+   "log_loss_de": 0.0100396770882221,
+   "f1_media": 0.6260861546831316,
+   "f1_de": 0.0120776587758934,
+   "auc_media": 0.8363860301209068,
+   "auc_de": 0.008694579390865,
+   "brier_media": 0.1394585059663936,
+   "brier_de": 0.0042979220540827,
+   "ece_media": 0.0324472723037903,
+   "ece_de": 0.0073227374346915,
+   "log_loss_ic95": [
+    0.4264118132166827,
+    0.4340809379031337
+   ]
+  },
+  "holdout": {
+   "clientes": 1409,
+   "log_loss": 0.4348853408005468,
+   "f1": 0.6192017259978425,
+   "auc": 0.8333165413728073,
+   "brier": 0.1415307212114689,
+   "ece": 0.0335480628892937,
+   "umbral": 0.2545929649337379
+  }
+ },
+ "costo": {
+  "ms_por_cliente_lote_200": 0.368,
+  "seg_pred_por_1000_validacion": 0.6003062635601937,
+  "tamano_mb": 0.431
+ },
+ "verificacion": {
+  "max_dif_vs_experimento_holdout": 0.0,
+  "ida_y_vuelta_identica": true,
+  "sha256": "63e0d602f4e07547e56a992df83afac482fbc5b8b72a7804efc683c7fbfd58fa"
+ }
+}

@@ -1,109 +1,97 @@
 # Señal perdida · Dashboard Telco Customer Churn
 
-Dashboard interactivo en español, construido con **Python Dash y Plotly**, para explorar el proyecto de abandono de clientes de **Laura Rivera y Natalý Cárdenas**, Universidad del Norte.
+Dashboard predictivo construido con **Dash y Plotly** para el proyecto de abandono de clientes de **Laura S. Rivera
+Figueredo y Natalý A. Cárdenas Izaquita** (Universidad del Norte). Explica el problema, deja explorar los datos y usa los
+12 modelos finales del entregable 4 (11 benchmarks calibrados y el modelo propio, RegionalMAPEM) para predecir en vivo.
 
 ![Portada del dashboard](preview-desktop.png)
 
-- Jupyter Book: https://nataly-cardenas.github.io/Telco_Churn_Entregable/
-- Fuente de los datos y resultados: https://github.com/Nataly-Cardenas/Telco_Churn_Entregable
-- Commit de los datos: `41191edb71ebf15a1543d538a158513db8781d2f` (recuperado el 23 de octubre de 2026).
+- URL pública: _pendiente de crear el servicio en Render_
+- Jupyter Book: https://nataly-cardenas.github.io/Telco_Churn_Entregable/ (capítulo 8: dashboard y despliegue)
+- Experimento y resultados: https://github.com/Nataly-Cardenas/Telco_Churn_Entregable
 
-## Ejecutar
+## Secciones
 
-Requiere Python 3.12. Desde esta carpeta:
+La aplicación es multipágina (`use_pages=True`), con una página por sección:
+
+| Ruta | Página | Contenido |
+|---|---|---|
+| `/` | Contexto | Portada interactiva, problema con cifra citada, pregunta de investigación, objetivos, ficha y diccionario de los datos, diagrama de la metodología, marco teórico, limitaciones, ética, autoras y versión |
+| `/eda` | EDA | Filtros globales (partición, contrato, internet, antigüedad), variable objetivo, univariado, bivariado con pruebas y Holm, explorador bivariado (ejes y color a elección), correlaciones, faltantes y atípicos, preparación de datos y descarga CSV |
+| `/modelos` | Modelos | Tabla de líderes ordenable y filtrable, predicción en vivo con probabilidad, conjunto conforme al 90 % y SHAP local, diagnóstico (confusión, calibración, ROC, precisión-recall), SHAP global, diagrama de diferencia crítica y 223 contrastes con Holm, modelo original (pseudocódigo, convergencia, pruebas, robustez y veredicto), ficha del modelo y resultados del entregable 2 |
+
+## Estructura
+
+```
+app.py                  punto de entrada: crea la app, la barra fija, idioma y tema; expone server
+pages/                  contexto.py, eda.py, modelos.py (layout y callbacks de cada página)
+src/
+  data.py               carga única de datos y resultados (lru_cache)
+  modelos.py            carga de artefactos, validación de entradas, predicción y SHAP local
+  pipeline_telco.py     preprocesamiento y benchmarks del experimento (para cargar los artefactos)
+  original_model.py     clase RegionalMAPEM (copia del repositorio del experimento)
+  plots.py              paleta, plantilla y funciones de las figuras
+  ui.py                 tarjetas, tablas, pestañas y avisos
+  eda.py, entregable2.py, chatbot.py, i18n.py, icons.py
+artifacts/<modelo>/     modelo.joblib (compress=3) y metadata.json de cada uno de los 12 modelos
+data/                   datos originales, resultados copiados del experimento, MODEL_CARD.md y DATA_STATEMENT.md
+scripts/                construir_artefactos.py y preparar_resultados.py (se corren fuera del servidor)
+tests/                  pruebas del tablero, de los artefactos (ida y vuelta) y del modelo original
+.github/workflows/      pytest en cada push
+```
+
+## Artefactos
+
+`scripts/construir_artefactos.py` reentrena los 12 pipelines finales sobre los 5634 clientes de desarrollo con los
+hiperparámetros que eligió la búsqueda del protocolo (TPE, 30 evaluaciones sobre 3 pliegues internos) en la corrida final,
+y verifica que sus probabilidades sobre el hold-out coinciden exactamente con las guardadas por el experimento. Cada
+`metadata.json` registra versiones, semilla, hiperparámetros, esquema de entrada (tipos, categorías y rangos), métricas de
+la validación anidada y del hold-out, umbral F1, tamaño y SHA-256. Los 12 artefactos ocupan 6 MB.
+
+El dashboard **nunca entrena**: solo carga los artefactos una vez por proceso. Para regenerarlos:
+
+```bash
+python scripts/construir_artefactos.py ../Telco_Churn_Entregable
+python scripts/preparar_resultados.py ../Telco_Churn_Entregable
+```
+
+## Ejecutar localmente
+
+Requiere Python 3.12 (las versiones de `requirements.txt` son las del entorno con el que se entrenaron los artefactos).
 
 ```bash
 python -m venv .venv
-source .venv/bin/activate
+.venv\Scripts\activate          # Windows; en Linux o macOS: source .venv/bin/activate
 pip install -r requirements.txt
 python app.py
 ```
 
-En Windows, activar con `.venv\Scripts\activate`.
-Abrir http://localhost:8050. La variable `PORT` permite cambiar el puerto.
+Abrir http://localhost:8050. La variable `PORT` cambia el puerto.
 
-## Publicar en Render
-
-El proyecto incluye `render.yaml` y expone `server = app.server`:
-
-1. Subir estos archivos al repositorio de la aplicación.
-2. En Render, crear un Blueprint desde ese repositorio usando `render.yaml`.
-3. Render instala dependencias y ejecuta `gunicorn app:server --bind 0.0.0.0:$PORT --workers 2 --timeout 120`.
-
-La app no requiere claves, base de datos ni acceso a GitHub al ejecutarse. No se ha creado un servicio remoto desde esta sesión.
-
-## Recorrido
-
-Las secciones siguen los capítulos del Jupyter Book, con las mismas gráficas y tablas (aquí animadas e interactivas), para poder explicar el proyecto desde el dash.
-
-- **Portada interactiva:** una red de clientes conectados a un celular 3D. Los puntos resaltados son clientes a punto de irse y se pueden retener pasando el cursor (o el dedo).
-- **Introducción:** contexto, objetivo general, objetivos específicos, marco teórico en tarjetas y descripción de variables.
-- **Análisis exploratorio:** filtros globales y pestañas con la numeración del libro: ETL y partición, univariado, bivariado (pruebas, Cramér V y Holm), multivariado (Q-Q, Spearman, matriz de dispersión, KDE), valores faltantes, resumen y explorador con descarga CSV.
-- **Preprocesamiento:** pasos del pipeline, validación cruzada, ablación y evaluación del modelo base en test (matriz de confusión y ROC animada).
-- **Modelado avanzado:** podio; resultados por modelo (matriz de confusión, ROC y confiabilidad), calibración, optimizadores, comparación estadística (Friedman, Nemenyi, DeLong) e interpretabilidad (SHAP global, waterfall y LIME).
-- **Simulador:** herramienta creada para el dash (perfil de riesgo, clientes reales del test y laboratorio de umbral).
-- **Conclusiones:** hallazgos, limitaciones, próximos pasos y enlace al paper.
-- **Autoras:** fotos, LinkedIn, GitHub y correo.
-
-Cada capítulo tiene un único enlace a su versión en el Jupyter Book, debajo del título. El diseño se adapta a móvil y respeta `prefers-reduced-motion`.
-
-## Idioma, tema y paleta
-
-- **Español / inglés:** botones `ES | EN` arriba a la derecha. Todos los textos están en `i18n.py` y un test verifica que ninguno quede sin traducir.
-- **Modo claro / oscuro:** botón de sol/luna. La elección se guarda en el navegador.
-- **Íconos:** íconos de línea propios en `icons.py` (sin emojis).
-- **Paleta:** las gráficas usan un solo color (`#2E86AB` azul) y cambian a `#E4572E` naranja solo para resaltar el mejor resultado o la clase de interés; `#9AA5B1` gris para referencias. Los textos usan blanco/gris y el mismo azul como acento. Un test verifica que ninguna gráfica use otros colores.
-
-## Asistente
-
-El botón flotante abre un asistente sin límite de preguntas que responde sobre el proyecto, sus datos y cada sección del dash. No responde copiando texto del Jupyter Book. Para preguntas sobre perfiles concretos, como «tasa de abandono de clientes con fibra y mes a mes», calcula la cifra sobre el conjunto de entrenamiento.
-
-- **Sin configuración**, responde con la base de conocimiento local de `chatbot.py` (preguntas frecuentes en ES/EN sobre el dash).
-- **Con la variable de entorno `ANTHROPIC_API_KEY`**, redacta las respuestas con Claude (`claude-opus-5-5`) usando ese mismo contexto, y vuelve a la respuesta local si la API falla. Cada pregunta consume créditos de la API de Anthropic.
+## Pruebas
 
 ```bash
-# Windows PowerShell
-$env:ANTHROPIC_API_KEY="tu-clave"
-python app.py
-```
-
-En Render, la variable se agrega en *Environment* (ya está declarada en `render.yaml` sin valor).
-
-## Contrato de datos
-
-- Dataset real de 7.043 clientes, 1.869 abandonos.
-- Índices históricos: 5.634 train y 1.409 test, sin solapamiento.
-- `TotalCharges` se convierte a numérico para el EDA y conserva sus 11 ausencias. La explicación del pipeline documenta su imputación determinista con cero por `tenure = 0`.
-- Los filtros superiores afectan al EDA y al explorador. **No recalculan ni reentrenan modelos publicados**.
-- El simulador de perfil muestra la tasa de abandono **observada** en clientes de entrenamiento parecidos; no es una predicción del modelo.
-- La tabla de 112 configuraciones representa media y desviación de cinco folds externos de la realización 0. `unidades.csv` contiene las 1.680 unidades (112 × 3 × 5).
-- El panel de optimización promedia el mejor F1 **interno** acumulado, sin confundirlo con el externo.
-- El laboratorio de umbral usa predicciones **nativas** guardadas de tres finalistas sobre el test histórico. Es didáctico: mover el umbral no valida una regla operativa.
-- El test ya había sido expuesto en la primera entrega y es evidencia suplementaria. Los contrastes por folds son exploratorios, no confirmatorios.
-- No se cargan pickles ni se entrena al iniciar. La selección de archivos está en `data/provenance.json`.
-- Las gráficas y tablas presentan los resultados numéricos originales del libro (pruebas del EDA recalculadas con los mismos métodos; predicciones OOF, SHAP y LIME tomadas de los artefactos publicados).
-- En el comparador, las barras de error son **desviaciones estándar**, no IC. El mapa familia × balanceo promedia optimizadores.
-- La tabla del explorador filtra su vista localmente. El CSV exporta la selección completa de los filtros superiores y las columnas elegidas, tal como indica la interfaz.
-
-## Archivos
-
-- `app.py`: portada, secciones, callbacks, paleta y servidor.
-- `i18n.py`: traducciones español → inglés.
-- `icons.py`: íconos de línea.
-- `chatbot.py`: asistente (base de conocimiento, búsqueda y conexión opcional con Claude).
-- `eda.py`: pruebas estadísticas del análisis exploratorio.
-- `analytics.py`: carga local, cohortes, tasas, clientes similares y errores por umbral.
-- `assets/style.css`: diseño visual, animaciones y estilos de los controles de Dash 4.
-- `assets/cover.js`: red de clientes, celular 3D y contadores animados (Dash lo carga automáticamente).
-- `data/`: CSV, interpretabilidad y textos originales necesarios, unos 8 MB.
-- `tests/test_dashboard.py`: integridad del split, métricas, filtros, simulador, páginas en ES/EN sin emojis, traducciones completas, descarga única del CSV, asistente y endpoints.
-- `preview-desktop.png`, `preview-mobile.png`: capturas reales del dashboard.
-
-## Verificar
-
-```bash
-pip install pytest
+pip install -r requirements-dev.txt
 python -m pytest -q
 ```
 
-Se comprobaron navegación, filtros, comparación de modelos, búsqueda, descarga CSV y visualización de escritorio/móvil con Chromium. `/healthz` entrega un estado simple para monitoreo. No se han reproducido los entrenamientos originales; se verifican los artefactos publicados.
+Incluyen la prueba de ida y vuelta (cada artefacto cargado desde disco predice exactamente lo mismo que el modelo en
+memoria sobre 40 clientes fijos), la metadata, la validación de entradas, SHAP, las 12 pruebas del modelo original, las
+tres páginas y sus callbacks, las traducciones y la paleta. GitHub Actions las corre en cada push.
+
+## Despliegue en Render
+
+1. En Render, **New → Blueprint** y elegir este repositorio: `render.yaml` crea el servicio web.
+2. Render ejecuta `pip install -r requirements.txt` y arranca con
+   `gunicorn app:server --bind 0.0.0.0:$PORT --workers 1 --threads 4 --timeout 180`.
+3. `PYTHON_VERSION` queda fijada en 3.12.14 y `/healthz` sirve como verificación de salud.
+4. Revisar los logs de construcción y abrir las tres páginas en la URL pública.
+
+Un solo proceso basta: con los 12 modelos y SHAP cargados la app ocupa unos 280 MB, dentro de los 512 MB del plan
+gratuito. El servicio gratuito se suspende tras un rato sin visitas; conviene abrir la URL unos minutos antes de la
+sustentación. La variable `ANTHROPIC_API_KEY` es opcional (asistente con Claude); sin ella el asistente usa su base local.
+
+## Idioma, tema y paleta
+
+Botones `ES | EN` y modo claro u oscuro arriba a la derecha. Las gráficas usan `#2E86AB` para todas las series,
+`#E4572E` para resaltar y `#9AA5B1` para referencias; una prueba verifica que no aparezcan otros colores.
