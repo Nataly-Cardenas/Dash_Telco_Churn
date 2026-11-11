@@ -2,7 +2,7 @@
 import numpy as np
 import pandas as pd
 from scipy import stats
-import analytics as a
+from src import data as a
 
 ALPHA = 0.05
 TARGET = 'Churn'
