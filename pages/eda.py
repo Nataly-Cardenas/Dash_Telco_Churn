@@ -9,7 +9,7 @@ from src import data as a
 from src import eda
 from src.i18n import N, T, set_lang
 from src.icons import icon
-from src.plots import BASE, DIVERGING, GREY, HOT, SEQ, go, highlight, make_subplots, px, roc_animation
+from src.plots import BASE, DIVERGING, GREY, HOT, SEQ, bar_labels, go, highlight, make_subplots, px, roc_animation
 from src.ui import (card, cat, chart, churn_label, details, dropdown, empty, field, graph, grid, kpi, kpis, note, options,
                     page_head, scope, subhead, table, tabs, tt)
 
@@ -60,18 +60,18 @@ def eda_page(d):
            grid(chart(T('División train / test estratificada'), split_figure(), T('El test se separa primero y conserva la proporción de abandono (26.5 %) en ambas particiones.'), 320),
                 card(html.H3(T('Estructura original'), className='chart-title'), table(tt(structure_table()), page_size=8),
                      html.P(T('TotalCharges llega como texto: los espacios en blanco se convierten en valores faltantes y la columna pasa a numérica.'), className='insight')))]
-    univariado = [grid(chart(T('3.1 Variable objetivo'), target_figure(d), T('Clientes que permanecen y que abandonan: el desbalance obliga a usar métricas de la clase positiva.'), 340, False),
-                       card(html.H3(T('3.2.1 Estadísticas descriptivas'), className='chart-title'), table(tt(eda.numeric_summary(d))))),
-                  subhead(T('3.2 Variables numéricas')),
+    univariado = [grid(chart(T('Variable objetivo'), target_figure(d), T('Clientes que permanecen y que abandonan: el desbalance obliga a usar métricas de la clase positiva.'), 340, False),
+                       card(html.H3(T('Estadísticas descriptivas'), className='chart-title'), table(tt(eda.numeric_summary(d))))),
+                  subhead(T('Variables numéricas')),
                   card(field(T('Variable'), dropdown('uni-num', a.NUMERIC, 'tenure', num_opts)), html.Div(id='uni-num-output'), cls='controls-card'),
-                  subhead(T('3.3 Variables categóricas')),
+                  subhead(T('Variables categóricas')),
                   card(field(T('Variable'), dropdown('uni-cat', ['__all__'] + a.CATEGORICAL, '__all__', {'__all__': T('Todas las variables'), **cat_opts})), html.Div(id='uni-cat-output'), cls='controls-card'),
-                  subhead(T('3.4 Outliers y sesgos')),
+                  subhead(T('Outliers y sesgos')),
                   card(table(tt(eda.outliers(d))), html.P(T('Con el criterio IQR ninguna variable numérica presenta valores atípicos; TotalCharges tiene asimetría positiva. No se eliminan observaciones.'), className='insight'))]
-    bivariado = [subhead(T('4.1 Variable objetivo vs variables numéricas')),
+    bivariado = [subhead(T('Variable objetivo vs variables numéricas')),
                  card(field(T('Variable'), dropdown('bi-num', a.NUMERIC, 'tenure', num_opts)), html.Div(id='bi-num-output'), cls='controls-card'),
                  html.Div(id='bi-pb-output'),
-                 subhead(T('4.2 Variable objetivo vs variables categóricas')),
+                 subhead(T('Variable objetivo vs variables categóricas')),
                  card(field(T('Variable'), dropdown('bi-cat', a.CATEGORICAL, 'Contract', cat_opts)), html.Div(id='bi-cat-output'), cls='controls-card'),
                  html.Div(id='bi-holm-output')]
     color_opts = {'Churn': T('Abandono'), **{v: v for v in a.CATEGORICAL}}
@@ -88,10 +88,10 @@ def eda_page(d):
                      kpis(kpi(T('CLIENTES'), len(d), T('en la selección')), kpi(T('ABANDONO'), round(d.target.mean() * 100, 2), T('{n} clientes').format(n=f'{int(d.target.sum()):,}'), 'hot', 2, ' %'),
                           kpi(T('ANTIGÜEDAD MEDIA'), round(d.tenure.mean(), 1), T('meses'), '', 1), kpi(T('CARGO MENSUAL MEDIO'), round(d.MonthlyCharges.mean(), 2), T('dólares'), '', 2, '', '$')),
                      note(T('Sin fechas en los datos'), T('El conjunto es una fotografía de corte transversal: no hay una variable de fecha para filtrar por periodo. Los filtros usan partición, contrato, internet y antigüedad.')),
-                     tabs('eda-tabs', [(T('1–2 · ETL y partición'), etl), (T('3 · Univariado'), univariado), (T('4 · Bivariado'), bivariado),
-                                       (T('Explorador bivariado'), explorador_xy), (T('5 · Multivariado'), [html.Div(id='multi-output')]),
-                                       (T('6 · Valores faltantes'), [html.Div(id='missing-output')]), (T('7–8 · Resumen'), [eda_summary()]),
-                                       (T('Preparación de datos'), preparacion()), (T('Explorador de datos'), explorador)])])
+                     tabs('eda-tabs', [(T('1 · ETL y partición'), etl), (T('2 · Univariado'), univariado), (T('3 · Bivariado'), bivariado),
+                                       (T('4 · Explorador bivariado'), explorador_xy), (T('5 · Multivariado'), [html.Div(id='multi-output')]),
+                                       (T('6 · Valores faltantes'), [html.Div(id='missing-output')]), (T('7 · Resumen'), [eda_summary()]),
+                                       (T('8 · Preparación de datos'), preparacion()), (T('9 · Explorador de datos'), explorador)])])
 
 
 def split_figure():
@@ -137,14 +137,15 @@ def eda_summary():
 
 
 # ---------------------------------------------------------------- preparación de datos (capítulo de preprocesamiento)
-STEPS = [('target', N('4.1 Objetivo'), N('Churn Yes/No → 1/0. customerID solo para control.')), ('shield', N('4.2 TotalCharges'), N('Texto a número; los 8 vacíos de train (3 de test) tienen tenure 0 → 0.')),
-         ('layers', N('4.3 Ingeniería'), N('“Sin internet / sin teléfono” → “No” y AvgChargePerMonth = TotalCharges / tenure.')), ('table', N('4.4–4.5 Codificar y escalar'), N('5 numéricas con StandardScaler y 15 categóricas con One-Hot: 24 columnas.')),
+STEPS = [('target', N('Objetivo'), N('Churn Yes/No → 1/0. customerID solo para control.')), ('shield', N('TotalCharges'), N('Texto a número; los 8 vacíos de train (3 de test) tienen tenure 0 → 0.')),
+         ('layers', N('Ingeniería'), N('“Sin internet / sin teléfono” → “No” y AvgChargePerMonth = TotalCharges / tenure.')), ('table', N('Codificar y escalar'), N('5 numéricas con StandardScaler y 15 categóricas con One-Hot: 24 columnas.')),
          ('scale', N('Calibrar'), N('Platt (sigmoide, 3 pliegues) dentro del entrenamiento de cada modelo; sin remuestreo.')), ('network', N('Modelo'), N('Se ajusta en entrenamiento y se evalúa en el pliegue reservado.'))]
 
 
 def preparacion():
     imput = pd.DataFrame({'m': [T('Imputar con 0'), T('Mediana + indicador')], 'auc': [.8459, .8460], 'sd': [.0124, .0125]})
-    fi = go.Figure(go.Bar(x=imput.m, y=imput.auc, error_y={'type': 'data', 'array': imput.sd, 'color': GREY}, marker_color=[BASE, GREY], text=imput.auc.map('{:.4f}'.format), textposition='inside'))
+    fi = go.Figure(go.Bar(x=imput.m, y=imput.auc, error_y={'type': 'data', 'array': imput.sd, 'color': GREY}, marker_color=[HOT, BASE]))
+    bar_labels(fi, imput.auc, imput.m, .802, '{:.4f}', horizontal=False)
     fi.update_yaxes(range=[.8, .87], title='AUC-ROC CV')
     b = pd.read_csv(a.DATA / 'baseline_test.csv'); fpr, tpr, _ = roc_curve(b.y_true, b.probability)
     cm = confusion_matrix(b.y_true, (b.probability >= .5).astype(int))
@@ -152,8 +153,8 @@ def preparacion():
     fcm.update_coloraxes(showscale=False); fcm.update_traces(textfont_size=18)
     return [card(html.H3(T('El pipeline paso a paso'), className='chart-title'), html.Div([html.Div(className='flow-line'), *[html.Div([html.Span(icon(i), className='st-icon'), html.H4(T(t)), html.P(T(s))], className='station',
                  style={'animationDelay': f'{k * .15}s'}) for k, (i, t, s) in enumerate(STEPS)]], className='pipeline')),
-            grid(chart(T('4.2 ¿Cero o mediana para TotalCharges?'), fi, T('Diferencia pareada por fold: +0.0001 ± 0.0001. Imputar con 0 es coherente con clientes sin facturación y no pierde desempeño.'), 320, False),
-                 card(html.H3(T('4.3 Ingeniería de características'), className='chart-title'),
+            grid(chart(T('¿Cero o mediana para TotalCharges?'), fi, T('Diferencia pareada por fold: +0.0001 ± 0.0001. Imputar con 0 es coherente con clientes sin facturación y no pierde desempeño.'), 320, False),
+                 card(html.H3(T('Ingeniería de características'), className='chart-title'),
                       kpis(kpi(T('CORRELACIÓN CON MONTHLYCHARGES'), .9963, 'AvgChargePerMonth', '', 4), kpi(T('COLUMNAS TRAS CODIFICAR'), 24, T('5 numéricas + 19 indicadores')), cls='k2'),
                       html.P(T('El cargo promedio mensual comparte casi toda la información con el cargo mensual; su aporte se evalúa en la ablación.'), className='insight'))),
             grid(chart(T('Modelo base del entregable 2 · matriz de confusión en test'), fcm, T('Regresión logística con umbral 0.5: detecta 293 de 374 abandonos, con 286 falsas alertas.'), 340, False),
@@ -276,7 +277,7 @@ def multi(split, contract, internet, tenure, lang='es'):
     fh = px.imshow(corr, zmin=-1, zmax=1, color_continuous_scale=DIVERGING, text_auto='.3f', aspect='auto')
     sp = d.sample(min(1500, len(d)), random_state=42).assign(Estado=lambda x: x.Churn.map(churn_label))
     fs = px.scatter_matrix(sp, dimensions=a.NUMERIC, color='Estado', color_discrete_map=outcome_colors(), opacity=.35, category_orders={'Estado': [T('Permanece'), T('Abandona')]})
-    fs.update_traces(diagonal_visible=False, showupperhalf=False, marker_size=3)
+    fs.update_traces(diagonal_visible=False, showupperhalf=False, marker_size=4)
     fk = make_subplots(rows=1, cols=2, subplot_titles=['MonthlyCharges', 'TotalCharges'])
     for j, c in enumerate(['MonthlyCharges', 'TotalCharges'], 1):
         g, dens = eda.kde(d, c)

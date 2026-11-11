@@ -184,7 +184,7 @@ def cierre():
               N('Las atribuciones SHAP describen al modelo, no causas del abandono.')]
     people = [('laura.jpg', 'Laura S. Rivera Figueredo', 'sriveral@uninorte.edu.co', 'https://github.com/lauraformore', 'https://www.linkedin.com/in/laura-s-rivera-figueredo-862451315/'),
               ('nataly.jpg', 'Natalý A. Cárdenas Izaquita', 'nizaquita@uninorte.edu.co', 'https://github.com/Nataly-Cardenas', 'https://www.linkedin.com/in/n%C3%A1taly-c%C3%A1rdenas-iz%C3%A1quita')]
-    res = [('code', T('Código y notebooks'), T('Repositorio Telco_Churn_Entregable'), REPO), ('sliders', T('Este dashboard'), T('Repositorio Dash_Telco_Churn'), DASH_REPO),
+    res = [('code', T('Código y notebooks'), T('Repositorio Telco_Churn_JBook'), REPO), ('sliders', T('Este dashboard'), T('Repositorio Dash_Telco_Churn'), DASH_REPO),
            ('table', T('Conjunto de datos'), 'Kaggle · Telco Customer Churn (IBM)', 'https://www.kaggle.com/datasets/blastchar/telco-customer-churn'), ('book', 'Jupyter Book', T('Informe técnico completo'), BOOK)]
     return html.Div([
         grid(card(eyebrow(T('LIMITACIONES')), html.Ul([html.Li(T(x)) for x in limits])),

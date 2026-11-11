@@ -8,8 +8,8 @@ from src.i18n import T, get_lang
 from src.icons import icon
 from src.plots import style
 
-BOOK = 'https://nataly-cardenas.github.io/Telco_Churn_Entregable/'
-REPO = 'https://github.com/Nataly-Cardenas/Telco_Churn_Entregable'
+BOOK = 'https://nataly-cardenas.github.io/Telco_Churn_JBook/'
+REPO = 'https://github.com/Nataly-Cardenas/Telco_Churn_JBook'
 DASH_REPO = 'https://github.com/Nataly-Cardenas/Dash_Telco_Churn'
 VERSION = '4.0'
 ACTUALIZADO = '2026-11-10'
@@ -78,7 +78,8 @@ def table(d, id=None, **kw):
 
 def graph(f, height=360, legend=True, margin=None, id=None):
     args = {'id': id} if id else {}
-    return dcc.Graph(figure=style(f, height, legend, margin), style={'height': height, 'width': '100%'},
+    fit = f'min({height}px, calc(100vh - 230px))'   # nunca más alta que la pantalla disponible bajo la barra superior
+    return dcc.Graph(figure=style(f, height, legend, margin), style={'height': fit, 'minHeight': f'{min(height, 240)}px', 'width': '100%'},
                      config={'displaylogo': False, 'responsive': True, 'modeBarButtonsToRemove': ['lasso2d', 'select2d']}, **args)
 
 

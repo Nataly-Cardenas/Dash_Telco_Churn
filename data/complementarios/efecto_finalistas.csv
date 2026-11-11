@@ -1,0 +1,4 @@
+a,b,mean_delta_f1,sd_delta_f1,folds_a_higher,cliff_5_folds,cliff_15_unidades,magnitud,d_z_15,rank_biserial_15
+random_forest__smote__bayesian_tpe,xgboost__smote__random,0.000431,0.011252,2,-0.12,-0.057778,despreciable,0.052423,0.1
+random_forest__smote__bayesian_tpe,logistic__smote__grid,0.004467,0.015267,3,0.12,0.102222,despreciable,0.305408,0.366667
+xgboost__smote__random,logistic__smote__grid,0.004037,0.013711,2,0.04,0.093333,despreciable,0.231756,0.1

@@ -20,7 +20,8 @@ from src.ui import BOOK
 
 NAV = [('/', N('Contexto'), 'signal'), ('/eda', N('EDA'), 'chart'), ('/modelos', N('Modelos'), 'trophy')]
 TICKER = [N('Contrato mes a mes: 42.7 % de abandono'), N('Fibra óptica: 42.1 %'), N('Cheque electrónico: 45.7 %'), N('Primer año: el periodo más frágil'),
-          N('RegionalMAPEM: log-loss 0,41127'), N('Logística con splines: 0,41130'), N('Empate: ninguna prueba rechaza H0 tras Holm'), N('Contrato, antigüedad e internet lideran SHAP')]
+          N('RegionalMAPEM: log-loss 0,41127'), N('Logística con splines: 0,41130'), N('Empate: ninguna prueba rechaza H0 tras Holm'), N('Contrato, antigüedad e internet lideran SHAP'),
+          N('LinearSVC: 36× más rápido que SVC RBF'), N('Successive Halving: 7.1× menos tiempo en SVM')]
 BOOTSTRAP_GRID = 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap-grid.min.css'
 FONTS = 'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap'
 

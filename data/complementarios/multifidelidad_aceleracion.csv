@@ -1,0 +1,4 @@
+model,aceleracion_media,reduccion_computo,delta_f1_medio,delta_f1_ds,folds_sh_mejor
+random_forest,3.761947,6.0,0.001931,0.003388,2
+svm,7.220431,6.014414,9.3e-05,0.002284,2
+xgboost,1.604255,6.0,-0.011321,0.015072,1

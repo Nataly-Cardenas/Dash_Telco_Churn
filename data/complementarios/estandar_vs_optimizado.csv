@@ -1,0 +1,22 @@
+model,variant,complejidad,entrenamiento_s,inferencia_s,memoria_entrenamiento_mib,aceleración_entrenamiento,aceleración_inferencia,delta_f1
+knn,brute (estándar),Consulta O(n·p),0.001276,0.146921,0.01875,1.0,1.0,0.0
+knn,kd_tree,Consulta O(log n) en baja p; se degrada a O(n·p) si p es alta,0.026437,0.171973,0.008594,0.048285,0.854327,0.0
+knn,ball_tree,Consulta O(log n) idealmente; poda por bolas,0.01324,0.165097,0.007031,0.096409,0.889905,0.0
+knn,FAISS HNSW (aprox.),"Consulta ≈O(log n), aproximada",0.454603,0.107987,1.685938,0.002808,1.360544,-0.000731
+knn,"brute, n_jobs=4",O(n·p)/4 en tiempo de pared,0.001068,0.16247,0.057031,1.195516,0.904296,0.0
+naive_bayes,fit (estándar),"O(n·p), todo en memoria",0.002379,0.000664,0.007812,1.0,1.0,0.0
+naive_bayes,partial_fit (10 bloques),"O(n·p), memoria O(bloque·p)",0.009141,0.000581,0.007812,0.26023,1.142631,0.0
+logistic,liblinear (estándar),"O(I·n·p), coordenadas",0.029391,0.000397,1.994531,1.0,1.0,0.0
+logistic,saga,"O(n·p) por época, estocástico",0.064748,0.000424,0.00625,0.453929,0.935099,-0.000348
+random_forest,n_jobs=1 (estándar),O(T·m·n log n),0.907939,0.02453,0.036719,1.0,1.0,0.0
+random_forest,n_jobs=2,O(T·m·n log n)/2,0.653674,0.050022,1.413281,1.388978,0.490373,0.0
+random_forest,n_jobs=4,O(T·m·n log n)/4,0.456553,0.042683,1.921094,1.988682,0.574697,0.0
+random_forest,n_jobs=8,O(T·m·n log n)/8,0.428021,0.047685,2.021094,2.121249,0.514408,0.0
+xgboost,hist (estándar),O(T·n·p) con B bins,0.17148,0.002422,1.201563,1.0,1.0,0.0
+xgboost,exact,O(T·p·n log n) con ordenamiento,0.479498,0.002269,2.45,0.357624,1.067242,-0.004836
+xgboost,"hist, T=1000 sin early stopping",O(T·n·p) con T=1000,1.394161,0.009669,3.31875,0.122999,0.250464,-0.035665
+xgboost,hist + early stopping,"O(T*·n·p), T* ≤ T elegido en validación",0.406601,0.003387,1.06875,0.42174,0.715037,-0.013405
+svm,SVC RBF (estándar),O(n²·p) a O(n³·p),1.00838,0.349734,81.189844,1.0,1.0,0.0
+svm,LinearSVC,O(n·p) por iteración,0.02785,0.000376,1.451563,36.208135,931.085894,-0.001613
+svm,SGD (hinge),O(n·p) por época,0.023385,0.000366,0.014063,43.121685,955.036855,-0.039151
+svm,Nyström(300) + LinearSVC,"O(n·m·p + n·m²), m=300",0.735393,0.015438,45.689844,1.371212,22.653427,-0.000819

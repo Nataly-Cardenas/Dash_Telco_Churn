@@ -17,6 +17,7 @@ LOW, MID, HIGH = BASE, GREY, HOT
 SEQ = [[0, 'rgba(46,134,171,.06)'], [1, BASE]]
 DIVERGING = [[0, BASE], [.5, 'rgba(154,165,177,.15)'], [1, HOT]]
 GRID = 'rgba(139,147,167,.18)'
+SOFT = 'rgba(46,134,171,.45)'   # el mismo azul, más suave: la versión de referencia (sin calibrar, estándar)
 
 
 def highlight(values, best=None):
@@ -27,15 +28,27 @@ def highlight(values, best=None):
     return [HOT if i in best else BASE for i in range(len(values))]
 
 
+def bar_labels(f, values, cats, at, fmt='{:.3f}', horizontal=True):
+    """Valores escritos al inicio visible de cada barra, lejos de los bigotes de error (el eje no empieza en cero)."""
+    kw = dict(x=[at] * len(values), y=list(cats), textposition='middle right') if horizontal else dict(x=list(cats), y=[at] * len(values), textposition='top center')
+    f.add_trace(go.Scatter(mode='text', text=[fmt.format(v) for v in values], textfont={'color': '#ffffff', 'size': 13}, hoverinfo='skip', showlegend=False, **kw))
+    return f
+
+
 def style(f, height=360, legend=True, margin=None):
     # Los colores de texto y rejilla se ajustan al tema desde CSS (assets/style.css, sección "gráficas").
+    # La altura la pone el contenedor (ui.graph): así cada gráfica cabe completa en la pantalla al proyectar.
+    below = f.layout.legend.y is not None and f.layout.legend.y < 0   # leyenda pedida debajo de la gráfica
+    if margin is None and f.layout.margin.b is not None: margin = f.layout.margin.to_plotly_json()   # margen propio de la figura
     f.update_layout(template='plotly_white', paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
-                    font={'family': 'Inter, sans-serif', 'color': '#8792a8', 'size': 13.5}, colorway=[BASE, GREY, HOT],
-                    margin=margin or {'l': 20, 'r': 20, 't': 36, 'b': 30}, height=height, showlegend=legend,
-                    legend={'orientation': 'h', 'y': 1.14, 'title_text': '', 'bgcolor': 'rgba(0,0,0,0)'},
+                    font={'family': 'Inter, sans-serif', 'color': '#8792a8', 'size': 13.5}, colorway=[BASE, HOT, GREY],
+                    margin=margin or {'l': 20, 'r': 20, 't': 36, 'b': 30}, height=None, autosize=True, showlegend=legend,
+                    legend={'orientation': 'h', 'y': f.layout.legend.y if below else 1.14, 'yanchor': 'top' if below else 'auto', 'title_text': '', 'bgcolor': 'rgba(0,0,0,0)'},
                     transition={'duration': 600, 'easing': 'cubic-in-out'},
                     hoverlabel={'bgcolor': '#0b1426', 'bordercolor': BASE, 'font': {'family': 'Inter', 'color': '#eaf2ff', 'size': 13}})
     f.update_xaxes(gridcolor=GRID, zerolinecolor=GRID, linecolor=GRID); f.update_yaxes(gridcolor=GRID, zerolinecolor=GRID, linecolor=GRID)
+    # Ejes que Plotly crea al dibujar (matriz de dispersión) heredan la rejilla de la plantilla: se ajusta también ahí.
+    for ax in (f.layout.template.layout.xaxis, f.layout.template.layout.yaxis): ax.update(gridcolor=GRID, zerolinecolor=GRID, linecolor=GRID)
     return f
 
 
@@ -167,5 +180,5 @@ def bars_ci(nombres, media, bajo, alto, resaltar, titulo_x):
     return f
 
 
-__all__ = ['BASE', 'HOT', 'GREY', 'LOW', 'MID', 'HIGH', 'SEQ', 'DIVERGING', 'GRID', 'highlight', 'style', 'roc_animation', 'gauge',
+__all__ = ['BASE', 'HOT', 'GREY', 'LOW', 'MID', 'HIGH', 'SEQ', 'DIVERGING', 'GRID', 'SOFT', 'highlight', 'bar_labels', 'style', 'roc_animation', 'gauge',
            'confusion', 'roc', 'precision_recall', 'reliability', 'cd_diagram', 'shap_waterfall', 'shap_beeswarm', 'bars_ci', 'make_subplots', 'px', 'go']

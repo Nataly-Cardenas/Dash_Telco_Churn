@@ -7,8 +7,8 @@ Figueredo y Natalý A. Cárdenas Izaquita** (Universidad del Norte). Explica el 
 ![Portada del dashboard](preview-desktop.png)
 
 - URL pública: _pendiente de crear el servicio en Render_
-- Jupyter Book: https://nataly-cardenas.github.io/Telco_Churn_Entregable/ (capítulo 8: dashboard y despliegue)
-- Experimento y resultados: https://github.com/Nataly-Cardenas/Telco_Churn_Entregable
+- Jupyter Book: https://nataly-cardenas.github.io/Telco_Churn_JBook/ (capítulo 8: dashboard y despliegue)
+- Experimento y resultados: https://github.com/Nataly-Cardenas/Telco_Churn_JBook
 
 ## Secciones
 
@@ -18,7 +18,7 @@ La aplicación es multipágina (`use_pages=True`), con una página por sección:
 |---|---|---|
 | `/` | Contexto | Portada interactiva, problema con cifra citada, pregunta de investigación, objetivos, ficha y diccionario de los datos, diagrama de la metodología, marco teórico, limitaciones, ética, autoras y versión |
 | `/eda` | EDA | Filtros globales (partición, contrato, internet, antigüedad), variable objetivo, univariado, bivariado con pruebas y Holm, explorador bivariado (ejes y color a elección), correlaciones, faltantes y atípicos, preparación de datos y descarga CSV |
-| `/modelos` | Modelos | Tabla de líderes ordenable y filtrable, predicción en vivo con probabilidad, conjunto conforme al 90 % y SHAP local, diagnóstico (confusión, calibración, ROC, precisión-recall), SHAP global, diagrama de diferencia crítica y 223 contrastes con Holm, modelo original (pseudocódigo, convergencia, pruebas, robustez y veredicto), ficha del modelo y resultados del entregable 2 |
+| `/modelos` | Modelos | Tabla de líderes ordenable y filtrable, predicción en vivo con probabilidad, conjunto conforme al 90 % y SHAP local, diagnóstico (confusión, calibración, ROC, precisión-recall), SHAP global, diagrama de diferencia crítica y 223 contrastes con Holm, modelo original (pseudocódigo, convergencia, pruebas, robustez y veredicto), ficha del modelo y resultados de los entregables 2 y 3 (112 configuraciones, calibración Platt e isotónica, optimizadores, multifidelidad, eficiencia computacional, tamaños del efecto, interpretabilidad, umbral y conclusiones) |
 
 ## Estructura
 
@@ -33,8 +33,9 @@ src/
   plots.py              paleta, plantilla y funciones de las figuras
   ui.py                 tarjetas, tablas, pestañas y avisos
   eda.py, entregable2.py, chatbot.py, i18n.py, icons.py
+assets/                 style.css, cover.js (portada) y antena.js (voz y animación de Antena)
 artifacts/<modelo>/     modelo.joblib (compress=3) y metadata.json de cada uno de los 12 modelos
-data/                   datos originales, resultados copiados del experimento, MODEL_CARD.md y DATA_STATEMENT.md
+data/                   datos originales, resultados del experimento, complementarios/ (entregable 3), MODEL_CARD.md y DATA_STATEMENT.md
 scripts/                construir_artefactos.py y preparar_resultados.py (se corren fuera del servidor)
 tests/                  pruebas del tablero, de los artefactos (ida y vuelta) y del modelo original
 .github/workflows/      pytest en cada push
@@ -91,7 +92,27 @@ Un solo proceso basta: con los 12 modelos y SHAP cargados la app ocupa unos 280 
 gratuito. El servicio gratuito se suspende tras un rato sin visitas; conviene abrir la URL unos minutos antes de la
 sustentación. La variable `ANTHROPIC_API_KEY` es opcional (asistente con Claude); sin ella el asistente usa su base local.
 
+## Tamaño para proyectar
+
+Cada gráfica toma como alto máximo el espacio visible bajo la barra superior (`min(alto, 100vh − 230 px)`), así que se ve completa sin desplazarse incluso en 1280 × 720. La tipografía se mantiene legible para proyección y el menú cabe en una sola fila desde 1180 px.
+
+## Asistente: Antena
+
+El botón flotante abre a **Antena**, la asistente del dash. Al abrirla saluda en voz alta con una voz femenina («Hola, soy Antena, estoy aquí para resolver tus dudas. ¿En qué te puedo ayudar?»), en español o inglés según el idioma elegido. La voz es la del navegador (Web Speech API): en Edge y Chrome para Windows suena natural; el botón del altavoz la silencia y la elección se recuerda. Es un asistente sin límite de preguntas que responde sobre el proyecto, sus datos y cada sección del dash. No responde copiando texto del Jupyter Book. Para preguntas sobre perfiles concretos, como «tasa de abandono de clientes con fibra y mes a mes», calcula la cifra sobre el conjunto de entrenamiento.
+
+- **Sin configuración**, responde con la base de conocimiento local de `src/chatbot.py` (preguntas frecuentes en ES/EN sobre el dash).
+- **Con la variable de entorno `ANTHROPIC_API_KEY`**, redacta las respuestas con Claude (`claude-opus-5-5`) usando ese mismo contexto, y vuelve a la respuesta local si la API falla. Cada pregunta consume créditos de la API de Anthropic.
+
+```bash
+# Windows PowerShell
+$env:ANTHROPIC_API_KEY="tu-clave"
+python app.py
+```
+
+En Render, la variable se agrega en *Environment* (ya está declarada en `render.yaml` sin valor).
+
 ## Idioma, tema y paleta
 
 Botones `ES | EN` y modo claro u oscuro arriba a la derecha. Las gráficas usan `#2E86AB` para todas las series,
-`#E4572E` para resaltar y `#9AA5B1` para referencias; una prueba verifica que no aparezcan otros colores.
+`#E4572E` para resaltar y `#9AA5B1` para referencias; una prueba verifica que no aparezcan otros colores. El título de la
+portada y los botones llevan un degradado azul → naranja.
