@@ -113,3 +113,10 @@ python -m pytest -q
 ```
 
 Se comprobaron navegación, filtros, comparación de modelos, búsqueda, descarga CSV y visualización de escritorio/móvil con Chromium. `/healthz` entrega un estado simple para monitoreo. No se han reproducido los entrenamientos originales; se verifican los artefactos publicados.
+
+## Sección «Modelos finales» (entregable de ML)
+
+Pestaña agregada sobre la versión original del dash (commit `5708094`). Reúne los 12 modelos finales (11 benchmarks calibrados y RegionalMAPEM),
+predicción en vivo con SHAP, diagnóstico, comparación estadística, ficha y modelo original. El código vive en `modelos_ml.py` y `src/`
+(artefactos en `artifacts/`, resultados en `data/resultados/`); `src/data.py`, `src/i18n.py` y `src/icons.py` solo enlazan con los módulos del dash.
+Las librerías de `requirements.txt` están fijadas a las versiones con que se entrenaron los artefactos (scikit-learn 1.6.1).

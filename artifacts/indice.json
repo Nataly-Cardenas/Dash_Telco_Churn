@@ -1,0 +1,66 @@
+{
+ "creado": "2026-11-10T13:56:12-05:00",
+ "commit_experimento": "3e6dcb661948a39591d6601b44b4f1003f266b48",
+ "modelos": [
+  {
+   "modelo": "knn",
+   "tamano_mb": 0.431,
+   "max_dif_vs_experimento": 0.0
+  },
+  {
+   "modelo": "naive_bayes",
+   "tamano_mb": 0.006,
+   "max_dif_vs_experimento": 0.0
+  },
+  {
+   "modelo": "logistic",
+   "tamano_mb": 0.004,
+   "max_dif_vs_experimento": 0.0
+  },
+  {
+   "modelo": "decision_tree",
+   "tamano_mb": 0.01,
+   "max_dif_vs_experimento": 0.0
+  },
+  {
+   "modelo": "random_forest",
+   "tamano_mb": 3.674,
+   "max_dif_vs_experimento": 0.0
+  },
+  {
+   "modelo": "xgboost",
+   "tamano_mb": 0.091,
+   "max_dif_vs_experimento": 0.0
+  },
+  {
+   "modelo": "svm",
+   "tamano_mb": 0.218,
+   "max_dif_vs_experimento": 0.0
+  },
+  {
+   "modelo": "logistic_splines",
+   "tamano_mb": 0.009,
+   "max_dif_vs_experimento": 0.0
+  },
+  {
+   "modelo": "hist_gb",
+   "tamano_mb": 0.286,
+   "max_dif_vs_experimento": 0.0
+  },
+  {
+   "modelo": "lightgbm",
+   "tamano_mb": 0.272,
+   "max_dif_vs_experimento": 0.0
+  },
+  {
+   "modelo": "catboost",
+   "tamano_mb": 0.171,
+   "max_dif_vs_experimento": 0.0
+  },
+  {
+   "modelo": "RegionalMAPEM",
+   "tamano_mb": 0.698,
+   "max_dif_vs_experimento": 0.0
+  }
+ ]
+}

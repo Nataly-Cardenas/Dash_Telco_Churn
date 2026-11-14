@@ -64,3 +64,33 @@ def similar_customers(contract, internet, payment, tenure, monthly):
         if use_pay: s = s[s.PaymentMethod == payment]
         if len(s) >= 30 or t_win == 72:
             return s, {'tenure': t_win, 'monthly': m_win, 'payment': use_pay}
+
+
+# ---------------------------------------------------------------- resultados del experimento confirmatorio (entregable 4)
+from functools import lru_cache
+
+RES = DATA / 'resultados'
+
+
+@lru_cache(maxsize=None)
+def resultado(nombre):
+    """Tabla o JSON copiado de experiments/resultados/tablas/ (ver data/resultados/procedencia.json)."""
+    ruta = RES / nombre
+    if ruta.suffix == '.json': return json.loads(ruta.read_text(encoding='utf-8'))
+    return pd.read_csv(ruta, index_col=0 if nombre in ('pesos_por_region_r0_f0.csv', 'shap_importancia.csv', 'umbrales.csv') else None)
+
+
+@lru_cache(maxsize=1)
+def predicciones_finales():
+    """Probabilidades externas: repetición 0 de la validación anidada (5634) y hold-out (1409), una columna por modelo."""
+    return pd.read_csv(RES / 'predicciones.csv')
+
+
+def telco(nombre):
+    d = resultado(nombre)
+    return d[d.conjunto == 'telco'].copy() if 'conjunto' in d else d
+
+
+@lru_cache(maxsize=1)
+def documento(nombre):
+    return (DATA / nombre).read_text(encoding='utf-8')

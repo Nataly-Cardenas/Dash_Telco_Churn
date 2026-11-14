@@ -17,6 +17,7 @@ from sklearn.metrics import roc_curve, roc_auc_score, confusion_matrix
 import analytics as a
 import chatbot
 import eda
+import modelos_ml
 from i18n import EN, T, N, set_lang, get_lang
 from icons import icon
 
@@ -50,7 +51,7 @@ def bar_labels(f, values, cats, at, fmt='{:.3f}', horizontal=True):
 
 
 NAV = [('introduccion', N('Introducción'), 'signal'), ('eda', N('Análisis exploratorio'), 'chart'), ('preprocesamiento', N('Preprocesamiento'), 'flask'),
-       ('modelado', N('Modelado avanzado'), 'trophy'), ('simulador', N('Simulador'), 'sliders'), ('conclusiones', N('Conclusiones'), 'flag'), ('autoras', N('Autoras'), 'users')]
+       ('modelado', N('Modelado avanzado'), 'trophy'), ('modelos_ml', N('Modelos finales'), 'network'), ('simulador', N('Simulador'), 'sliders'), ('conclusiones', N('Conclusiones'), 'flag'), ('autoras', N('Autoras'), 'users')]
 TITLES = {'inicio': N('Inicio'), **{k: t for k, t, _ in NAV}}
 CHAPTER = {'introduccion': 'intro', 'eda': 'EDA_', 'preprocesamiento': 'PREPROCESAMIENTO', 'modelado': 'MODELADO_AVANZADO'}
 DATA_PAGES = {'eda'}
@@ -851,11 +852,12 @@ def pretty(feature):
 
 
 PAGES = {'inicio': lambda d: cover(), 'introduccion': introduccion, 'eda': eda_page, 'preprocesamiento': preprocesamiento, 'modelado': modelado,
-         'simulador': simulador, 'conclusiones': conclusiones, 'autoras': autoras}
+         'modelos_ml': lambda d: modelos_ml.contenido(get_lang()), 'simulador': simulador, 'conclusiones': conclusiones, 'autoras': autoras}
 
 # ---------------------------------------------------------------- layout
 TICKER = [N('Contrato mes a mes: 42.7 % de abandono'), N('Fibra óptica: 42.1 %'), N('Cheque electrónico: 45.7 %'), N('Primer año: el periodo más frágil'),
-          N('Sin seguridad en línea: 41.9 %'), N('Mejor F1: 0.638 · Random Forest + SMOTE'), N('SMOTE mejoró 6 de 7 familias'), N('Contrato, internet y antigüedad lideran SHAP'), N('LinearSVC: 36× más rápido que SVC RBF'), N('Successive Halving: 7.1× menos tiempo en SVM')]
+          N('Sin seguridad en línea: 41.9 %'), N('Mejor F1: 0.638 · Random Forest + SMOTE'), N('SMOTE mejoró 6 de 7 familias'), N('Contrato, internet y antigüedad lideran SHAP'), N('LinearSVC: 36× más rápido que SVC RBF'), N('Successive Halving: 7.1× menos tiempo en SVM'),
+          N('RegionalMAPEM: log-loss 0,41127'), N('Logística con splines: 0,41130'), N('Empate: ninguna prueba rechaza H0 tras Holm')]
 
 
 def ticker():

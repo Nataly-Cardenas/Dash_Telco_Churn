@@ -181,7 +181,7 @@ def test_chatbot_answers_from_project_knowledge():
 
 def test_sections_follow_the_book_with_one_link_each():
     d=a.cohort('train','Todos','Todos',[0,72])
-    assert [k for k,_,_ in app.NAV]==['introduccion','eda','preprocesamiento','modelado','simulador','conclusiones','autoras']
+    assert [k for k,_,_ in app.NAV]==['introduccion','eda','preprocesamiento','modelado','modelos_ml','simulador','conclusiones','autoras']
     intro=json.dumps(app.PAGES['introduccion'](d),cls=PlotlyJSONEncoder)
     assert 'bivariado' not in intro.lower() and 'var-chip' not in intro
     for key,chapter in app.CHAPTER.items():

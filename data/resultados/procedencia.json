@@ -1,0 +1,27 @@
+{
+ "repositorio": "https://github.com/Nataly-Cardenas/Telco_Churn_Entregable",
+ "commit": "3e6dcb661948a39591d6601b44b4f1003f266b48",
+ "cambios_sin_commit_en_tablas": false,
+ "copiado": "2026-11-10",
+ "sha256": {
+  "resumen_modelos.csv": "4b83229da5ece84c62cadf06f68610278e7cbae338f85f185cc388e55637da1b",
+  "friedman_telco.json": "5a0e6d1b419190bf6e05e1e8f2e1363370bc620cadd9d7c21d2757db9b8b7812",
+  "familia_resultados.csv": "324cf7fb66637d94910af53e92994fb07ebbf03dbed75929bb17f0313a9bc2f2",
+  "veredicto_R3.json": "70dd777ad346a488dafc3ac38a9e5c3e87bade1f6beb67659f0e977281a69d07",
+  "metricas_por_pliegue.csv": "8f774eb4faebc58021abd633efce96dae593653699ea86d139271e90060ad90f",
+  "memoria_por_modelo.csv": "70d580f0ba092eed83f512c2d512a5d06ebcf7f6c6fa32d47d4258d6ff8fab2f",
+  "pesos_por_region_r0_f0.csv": "59a356376a421fe81c1a514af36143cc0ae47394acc01bcb4163eb8388e0da57",
+  "shap_importancia.csv": "2a1413272f3700784041481329ff2c8a69b3b80808dd0ccf4e43c2b23486820d",
+  "tabla_maestra_experimentos.csv": "063f6cd35b6558c5f8584ed892dc002f94d588e8d0791accee21f88f755291a5",
+  "bayesiana_rope.csv": "4a2d32d8fa2f9af690e28cf31848f5d7207b1fb3535e7905de7eac0263813d2b",
+  "escalabilidad.csv": "84b97e2284eb42a4d3c8a8593d2b21c2860e0dc108b4a26da9b3ffd1de63a7a8",
+  "corridas_finales.csv": "a1d7b899c668df97909a4b4a98234ff81abf4b05ec03c61008f1759f4f18a275",
+  "robustez_resumen.csv": "4257668daf80e6da61c90d354ab61657cac808e3d61e974e7b1531b40146c983",
+  "conforme.csv": "65a5a47853c8fc0716e08b0a4a31667128b8a5c9da3cf0b70ccf8e1c2bbb6508",
+  "calibracion_telco.csv": "c023df6af9754be2d34b85a9637739b94a3ab469f35a28275cbdf7b4a3aa014a",
+  "errores_subgrupos.csv": "493f10a4f40e9dad600ddd0ace27581d7b25bdeb0cadc60a78087d209764a8b4",
+  "conjuntos.csv": "a85f06e113bfcfaadc0c9b2b8e307e1e01fb6153b907a28c95270071c8147f78",
+  "MODEL_CARD.md": "92c14804f1f08bc8309307d8a690044706647803968ed9835a36c4cc9e7d7ec5",
+  "DATA_STATEMENT.md": "11b3b1bc2305e6943b7d3d0ed29d0ad67cfbe6e7bfbfdf6f730df6c0237a3b66"
+ }
+}
