@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+message: "Si usas este trabajo, por favor cítalo así."
+title: "Dashboard de churn Telco con RegionalMAPEM"
+type: software
+authors:
+  - family-names: "Rivera Figueredo"
+    given-names: "Laura S."
+    affiliation: "Universidad del Norte"
+  - family-names: "Cárdenas Izaquita"
+    given-names: "Natalý A."
+    affiliation: "Universidad del Norte"
+repository-code: "https://github.com/lauraformore/Dash_Telco_Churn_ML"
+url: "https://telco-churn-dashboard-hom3.onrender.com/"
+date-released: 2026-11-15
+license: MIT
+doi: 10.5281/zenodo.24268653

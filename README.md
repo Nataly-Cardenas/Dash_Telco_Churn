@@ -6,7 +6,7 @@ Figueredo y Natalý A. Cárdenas Izaquita** (Universidad del Norte). Explica el 
 
 ![Portada del dashboard](preview-desktop.png)
 
-- URL pública: _pendiente de crear el servicio en Render_
+- URL pública: https://telco-churn-dashboard-hom3.onrender.com/
 - Jupyter Book: https://nataly-cardenas.github.io/Telco_Churn_JBook/ (capítulo 8: dashboard y despliegue)
 - Experimento y resultados: https://github.com/Nataly-Cardenas/Telco_Churn_JBook
 
