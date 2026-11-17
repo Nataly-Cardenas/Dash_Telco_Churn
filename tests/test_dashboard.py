@@ -62,9 +62,8 @@ def test_pages_and_interactions_serialize():
     for model in app.BEST_BY_FAMILY:json.dumps(app.cal_map(model),cls=PlotlyJSONEncoder)
     for model in app.VARIANT_FAMILIES:json.dumps(app.eff_variants(model),cls=PlotlyJSONEncoder)
     for model in app.comp('escalamiento').model.unique():json.dumps(app.eff_scale(model),cls=PlotlyJSONEncoder)
-    for model in a.FINALISTS:json.dumps(app.threshold_output(model,.3),cls=PlotlyJSONEncoder)
-    for row in a.TEST_IDS[:5]:json.dumps(app.real_output(row),cls=PlotlyJSONEncoder)
-    assert app.real_random(3) in set(a.TEST_IDS)
+    for x,y,c in [('tenure','MonthlyCharges','Churn'),('Contract','tenure','InternetService'),('tenure','Contract','Churn'),('Contract','InternetService','Churn')]:
+        json.dumps(app.free_output(x,y,c,'train','Todos','Todos',[0,72]),cls=PlotlyJSONEncoder)
 
 
 def test_eda_statistics_match_the_book():
@@ -91,15 +90,11 @@ def test_modeling_artifacts_match_the_book():
     assert (b.y_true.to_numpy()==a.RAW.loc[b.row_id,'target'].to_numpy()).all()
 
 
-def test_cover_and_simulator():
+def test_cover_and_ml_rows():
     customers=app.cover_customers()
     assert len(customers)==30 and len({c['id'] for c in customers})==30
     assert all(0<=c['prob']<=1 for c in customers)
-    for contract in ['Month-to-month','One year','Two year']:
-        for internet in ['Fiber optic','DSL','No']:
-            s,_=a.similar_customers(contract,internet,'Electronic check',10,70)
-            assert len(s)>0 and set(s.index)<=set(a.TRAIN_IDS)
-            json.dumps(app.sim_output(contract,internet,'Electronic check',10,70),cls=PlotlyJSONEncoder)
+    assert set(r for r,_ in app.cover_rows())<=set(a.TEST_IDS)
 
 def test_download_and_http_endpoints():
     # Pintar la sección no descarga nada: solo un clic real (n_clicks > 0).
@@ -150,8 +145,7 @@ def test_pages_render_in_english_without_emoji():
                 payload=json.dumps(app.PAGES[key](d),cls=PlotlyJSONEncoder,ensure_ascii=False)
                 assert not emoji.search(payload), key
             assert ('Lost' in json.dumps(app.chrome(lang),cls=PlotlyJSONEncoder))==(lang=='en')
-            json.dumps(app.threshold_output(a.FINALISTS[0],.4,lang),cls=PlotlyJSONEncoder)
-            json.dumps(app.real_output(a.TEST_IDS[0],lang),cls=PlotlyJSONEncoder)
+            json.dumps(app.free_output('tenure','MonthlyCharges','Churn','train','Todos','Todos',[0,72],lang),cls=PlotlyJSONEncoder)
         set_lang('en')
         assert app.cover_customers()[0]['contract'] in {'Month-to-month','One year','Two year'}
     finally:
@@ -181,7 +175,7 @@ def test_chatbot_answers_from_project_knowledge():
 
 def test_sections_follow_the_book_with_one_link_each():
     d=a.cohort('train','Todos','Todos',[0,72])
-    assert [k for k,_,_ in app.NAV]==['introduccion','eda','preprocesamiento','modelado','modelos_ml','simulador','conclusiones','autoras']
+    assert [k for k,_,_ in app.NAV]==['introduccion','eda','preprocesamiento','modelado','modelos_ml','conclusiones','autoras']
     intro=json.dumps(app.PAGES['introduccion'](d),cls=PlotlyJSONEncoder)
     assert 'bivariado' not in intro.lower() and 'var-chip' not in intro
     for key,chapter in app.CHAPTER.items():

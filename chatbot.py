@@ -80,9 +80,9 @@ FAQ = [
     (['qué es shap', 'qué es lime', 'interpretabilidad', 'what is shap'],
      '**SHAP** reparte cada predicción entre las variables (valores de Shapley) y su promedio da la importancia global. **LIME** explica un cliente concreto con un modelo simple local. Describen al modelo, no causas del abandono. Míralo en *Modelado avanzado → 7 · Interpretabilidad*.',
      '**SHAP** splits each prediction among the variables (Shapley values) and its average gives global importance. **LIME** explains one customer with a simple local model. They describe the model, not causes of churn. See *Advanced modeling → 7 · Interpretability*.'),
-    (['cómo uso el simulador', 'perfil de riesgo', 'how do i use the simulator'],
-     'En *Simulador → Perfil de riesgo* eliges contrato, internet, método de pago, antigüedad y cargo mensual; el dash busca clientes de entrenamiento parecidos y muestra su tasa de abandono observada. En *Clientes reales* ves las probabilidades de los 3 finalistas para un cliente del test, y en *Umbral de alerta* mueves la alarma de retención.',
-     'In *Simulator → Risk profile* you choose contract, internet, payment method, tenure and monthly charge; the dash finds similar training customers and shows their observed churn rate. *Real customers* shows the 3 finalists\' probabilities for a test customer, and *Alert threshold* lets you move the retention alarm.'),
+    (['cómo hago una predicción en vivo', 'predicción en vivo', 'how do i make a live prediction'],
+     'En *Modelos finales → Predicción en vivo* eliges un modelo, cargas un cliente del hold-out o editas cualquier variable del formulario, y pulsas *Predecir*: ves la probabilidad calibrada, la decisión, el conjunto conforme al 90 % y la explicación SHAP local. Con *Umbral de alerta* eliges el que maximiza el F1 o uno propio.',
+     'In *Final models → Live prediction* you pick a model, load a hold-out customer or edit any form variable, and press *Predict*: you get the calibrated probability, the decision, the 90 % conformal set and the local SHAP explanation. With *Alert threshold* you choose the F1-maximizing one or your own.'),
     (['qué pasa si cambio el umbral', 'umbral de alerta', 'threshold'],
      'Bajar el umbral detecta más clientes que se van (más Recall) pero genera más falsas alertas (menos Precision). Elegirlo bien exige conocer el costo de contactar a un cliente y el de perderlo.',
      'Lowering the threshold catches more churners (higher recall) but raises more false alarms (lower precision). Choosing it well requires knowing the cost of contacting a customer and of losing one.'),
@@ -93,8 +93,8 @@ FAQ = [
      'Arriba a la derecha están los botones **ES / EN** para el idioma y el botón de sol/luna para cambiar entre modo claro y oscuro. La elección se recuerda en tu navegador.',
      'At the top right you\'ll find the **ES / EN** buttons for the language and the sun/moon button to switch between light and dark mode. Your choice is remembered in your browser.'),
     (['qué secciones tiene el dash', 'cómo navego', 'what sections'],
-     'El dash sigue el orden del proyecto: Introducción, Análisis exploratorio, Preprocesamiento, Modelado avanzado, Simulador, Conclusiones y Autoras. La portada es interactiva: pasa el cursor sobre los puntos rojos para retener clientes.',
-     'The dash follows the project\'s order: Introduction, Exploratory analysis, Preprocessing, Advanced modeling, Simulator, Conclusions and Authors. The cover is interactive: hover over the red dots to retain customers.'),
+     'El dash sigue el orden del proyecto: Introducción, Análisis exploratorio, Preprocesamiento, Modelado avanzado, Modelos finales (con la predicción en vivo), Conclusiones y Autoras. La portada es interactiva: pasa el cursor sobre los puntos rojos para retener clientes.',
+     'The dash follows the project\'s order: Introduction, Exploratory analysis, Preprocessing, Advanced modeling, Final models (with the live prediction), Conclusions and Authors. The cover is interactive: hover over the red dots to retain customers.'),
     (['quiénes son las autoras', 'quién hizo el proyecto', 'who are the authors'],
      'Las autoras son **Laura S. Rivera Figueredo** y **Natalý A. Cárdenas Izaquita**, del Departamento de Matemáticas, Física y Ciencia de Datos de la Universidad del Norte (Barranquilla, Colombia).',
      'The authors are **Laura S. Rivera Figueredo** and **Natalý A. Cárdenas Izaquita**, from the Department of Mathematics, Physics and Data Science at Universidad del Norte (Barranquilla, Colombia).'),
@@ -144,9 +144,9 @@ GUIDE = [
     (['qué es el diagrama de nemenyi', 'qué es la diferencia crítica', 'what is the nemenyi diagram', 'critical difference'],
      'En el diagrama de **Nemenyi** cada punto es una de las 112 configuraciones ordenada por su rango medio. Las que caen dentro de la banda de la diferencia crítica (89.4) no se distinguen estadísticamente de la mejor.',
      'In the **Nemenyi** diagram each dot is one of the 112 configurations ordered by mean rank. Those inside the critical-difference band (89.4) are not statistically distinguishable from the best.'),
-    (['qué muestra el simulador', 'what does the simulator show'],
-     'El *Simulador* es una herramienta creada para el dash: **Perfil de riesgo** calcula la tasa de abandono de clientes de entrenamiento parecidos, **Clientes reales** muestra las probabilidades de los tres finalistas para un cliente del test y **Umbral de alerta** deja mover la alarma de retención.',
-     'The *Simulator* is a tool built for the dash: **Risk profile** computes the churn rate of similar training customers, **Real customers** shows the three finalists\' probabilities for a test customer and **Alert threshold** lets you move the retention alarm.'),
+    (['qué muestra la predicción en vivo', 'what does the live prediction show'],
+     'La *Predicción en vivo* (en *Modelos finales*) usa el esquema de entrada guardado de cada modelo: ingresas o cargas un cliente y obtienes su probabilidad calibrada de abandono, la decisión según el umbral de alerta, el conjunto conforme al 90 % y la explicación SHAP local.',
+     'The *Live prediction* (in *Final models*) uses each model\'s saved input schema: you enter or load a customer and get the calibrated churn probability, the decision at the alert threshold, the 90 % conformal set and the local SHAP explanation.'),
     (['qué muestran los 100 cuadros del umbral', 'qué es la cuadrícula de 100 clientes', 'what is the 100 customer grid'],
      'En *Umbral de alerta*, la cuadrícula representa 100 clientes del test: abandonos detectados, abandonos que se escapan (borde punteado), falsas alertas y clientes estables bien leídos. Al mover el umbral cambian las proporciones y el punto en la curva ROC.',
      'In *Alert threshold*, the grid represents 100 test customers: churners caught, churners missed (dashed border), false alarms and stable customers read correctly. Moving the threshold changes the proportions and the point on the ROC curve.'),
@@ -170,7 +170,7 @@ FAQ.append((['hola', 'buenas', 'hello', 'hi', 'gracias', 'thanks'],
             '¡Hola! Soy Antena. Puedo contarte sobre los datos, quiénes abandonan más, cómo se compararon los modelos, qué significan las métricas o cómo usar cada sección del dash. ¿Qué te gustaría saber?',
             "Hi! I'm Antena. I can tell you about the data, who churns the most, how the models were compared, what the metrics mean or how to use each section of the dash. What would you like to know?"))
 
-SUGGESTIONS = [N('¿Qué clientes abandonan más?'), N('¿Cuál fue el mejor modelo?'), N('¿Qué es SMOTE y por qué se usó?'), N('¿Cómo uso el simulador?'), N('¿Cómo descargo los datos?')]
+SUGGESTIONS = [N('¿Qué clientes abandonan más?'), N('¿Cuál fue el mejor modelo?'), N('¿Qué es SMOTE y por qué se usó?'), N('¿Cómo hago una predicción en vivo?'), N('¿Cómo descargo los datos?')]
 
 SYSTEM = """Eres el asistente del dashboard "Señal perdida", sobre el proyecto Telco Customer Churn de Laura S. Rivera Figueredo y Natalý A. Cárdenas Izaquita (Universidad del Norte).
 Respondes preguntas de cualquier visitante sobre el proyecto, sus resultados y cómo usar el dashboard.
@@ -190,7 +190,7 @@ Hechos del proyecto:
   Análisis exploratorio (ETL y partición, univariado, bivariado, multivariado, valores faltantes, resumen, explorador con descarga CSV y filtros);
   Preprocesamiento (pipeline, imputación, validación cruzada, ablación, evaluación del modelo base en test); Modelado avanzado (podio, resultados por modelo,
   calibración Platt e isotónica, optimizadores, multifidelidad, eficiencia computacional, comparación estadística con tamaños del efecto, SHAP y LIME);
-  Simulador (perfil de riesgo, clientes reales, umbral de alerta); Conclusiones (con reproducibilidad); Autoras.
+  Modelos finales (tabla de líderes, predicción en vivo con umbral de alerta y SHAP, diagnóstico, comparación estadística, modelo original, ficha); Conclusiones (veredicto R1, R2 y R3, reproducibilidad); Autoras.
   Botones ES/EN y modo claro/oscuro arriba a la derecha.
 
 Reglas:
@@ -258,8 +258,8 @@ def data_answer(question, lang):
     n, k = len(d), int(d.target.sum())
     profile = ' · '.join(desc)
     if lang == 'en':
-        return f'In the training set, customers with **{profile}** are {n:,}; {k:,} of them churned (**{k / n:.1%}**), versus 26.5 % overall. It is an observed association, not a cause. You can explore it in *Simulator → Risk profile* and *Exploratory analysis → 3 · Bivariate*.'
-    return f'En el conjunto de entrenamiento, los clientes con **{profile}** son {n:,}; de ellos abandonaron {k:,} (**{k / n:.1%}**), frente al 26.5 % general. Es una asociación observada, no una causa. Puedes explorarlo en *Simulador → Perfil de riesgo* y en *Análisis exploratorio → 3 · Bivariado*.'
+        return f'In the training set, customers with **{profile}** are {n:,}; {k:,} of them churned (**{k / n:.1%}**), versus 26.5 % overall. It is an observed association, not a cause. You can explore it in *Exploratory analysis → 3 · Bivariate* and *7 · Data explorer*.'
+    return f'En el conjunto de entrenamiento, los clientes con **{profile}** son {n:,}; de ellos abandonaron {k:,} (**{k / n:.1%}**), frente al 26.5 % general. Es una asociación observada, no una causa. Puedes explorarlo en *Análisis exploratorio → 3 · Bivariado* y en *7 · Explorador de datos*.'
 
 
 def local_answer(question, lang):

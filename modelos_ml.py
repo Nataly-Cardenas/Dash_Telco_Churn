@@ -1,4 +1,4 @@
-"""Sección «Modelos finales» (entregable de ML) integrada al dash original:  tabla de líderes, predicción en vivo con SHAP, diagnóstico, comparación estadística,
+"""Sección «Modelos finales» integrada al dash original:  tabla de líderes, predicción en vivo con SHAP, diagnóstico, comparación estadística,
 modelo original y ficha del modelo. Solo carga artefactos ya entrenados (artifacts/)."""
 import time
 from functools import lru_cache
@@ -108,8 +108,9 @@ def leaderboard():
             card(dcc.Checklist([{'label': ' ' + T('Incluir la ablación y los combinadores estándar'), 'value': 'si'}], [], id='lideres-ablacion', className='check'),
                  html.Div(tabla_lideres(), id='lideres-tabla')),
             chart(T('Log-loss externo con su intervalo de confianza'), f, T('Los intervalos de los cinco primeros se solapan casi por completo: RegionalMAPEM (resaltado) y la logística con splines empatan.'), 480, False),
-            subhead(T('Mejor combinación de cada modelo base del entregable 2'), T('Selección del bloque B sobre las 112 configuraciones (7 modelos × 4 balanceos × 4 optimizadores), por F1 medio externo.')),
-            card(table(tb, page_size=7), html.P(T('Finalista Nemenyi: su rango medio está a menos de una diferencia crítica ({cd}) del mejor. Las siete mejores combinaciones quedan dentro del grupo de no rechazo.').format(cd=f'{cd:.1f}'), className='insight'))]
+            subhead(T('Mejor combinación de cada modelo base'), T('Selección sobre las 112 configuraciones (7 modelos × 4 balanceos × 4 optimizadores), por F1 medio externo.')),
+            card(table(tb, page_size=7), html.P(T('Finalista Nemenyi: su rango medio está a menos de una diferencia crítica ({cd}) del mejor. Las siete mejores combinaciones quedan dentro del grupo de no rechazo.').format(cd=f'{cd:.1f}'), className='insight'),
+                 html.P(T('Los modelos de la predicción en vivo son versiones re-optimizadas sin balanceo, con el log-loss como criterio; por eso no coinciden con estas combinaciones, que se muestran como referencia de la comparación previa.'), className='muted'))]
 
 
 @callback(Output('lideres-tabla', 'children'), Input('lideres-ablacion', 'value'), State('lang', 'data'), prevent_initial_call=True)
@@ -164,6 +165,11 @@ def prediccion():
                        html.Button([icon('shuffle'), T('Cliente al azar')], id='pred-azar', className='btn ghost', n_clicks=0)], className='controls'),
              html.P(T('El formulario se genera con el esquema de entrada guardado en metadata.json: tipos, categorías válidas y rangos observados en el desarrollo. Puedes editar cualquier campo.'), className='muted'),
              form,
+             html.Div([field(T('Umbral de alerta'), dcc.RadioItems([{'label': ' ' + T('El que maximiza el F1 en validación'), 'value': 'f1'}, {'label': ' ' + T('Personalizado'), 'value': 'custom'}],
+                                                                  'f1', id='pred-umbral-modo', inline=True, className='radio-row')),
+                       field(T('Valor del umbral personalizado'), dcc.Slider(.05, .95, .01, value=.5, marks={.1: '0.10', .3: '0.30', .5: '0.50', .7: '0.70', .9: '0.90'}, id='pred-umbral', tooltip={'placement': 'bottom'}))],
+                      className='controls'),
+             html.P(T('Bajar el umbral detecta más clientes en riesgo pero dispara más falsas alertas. Elegirlo bien requiere conocer el costo de cada contacto y de cada cliente perdido.'), className='muted'),
              html.Div([html.Button([icon('target'), T('Predecir')], id='pred-boton', className='btn primary', n_clicks=0),
                        html.Small(T('La explicación SHAP tarda unos segundos para RegionalMAPEM: combina a 11 modelos.'), className='muted')], className='export-row'),
              cls='controls-card'),
@@ -191,8 +197,8 @@ def explicar(modelo, fila):
     return v, base, time.perf_counter() - t0
 
 
-@callback(Output('pred-salida', 'children'), Input('pred-boton', 'n_clicks'), Input('pred-modelo', 'value'), Input('pred-cargado', 'data'), *[State('in-' + c, 'value') for c in M.ENTRADA], State('lang', 'data'))
-def predecir(_, modelo, _cargado, *args):
+@callback(Output('pred-salida', 'children'), Input('pred-boton', 'n_clicks'), Input('pred-modelo', 'value'), Input('pred-cargado', 'data'), Input('pred-umbral-modo', 'value'), Input('pred-umbral', 'value'), *[State('in-' + c, 'value') for c in M.ENTRADA], State('lang', 'data'))
+def predecir(_, modelo, _cargado, modo, umbral, *args):
     *valores, lang = args
     set_lang(lang)
     entrada = dict(zip(M.ENTRADA, valores))
@@ -207,16 +213,16 @@ def predecir(_, modelo, _cargado, *args):
     except Exception as e:                       # un error del modelo no debe detener la aplicación
         return alert(T('No se pudo calcular la predicción'), f'{type(e).__name__}: {e}', 'danger')
     meta = M.metadata(modelo)
-    u = meta['umbral_f1']; q, cob, tam = conforme(modelo)
+    u = float(umbral if modo == 'custom' and umbral is not None else meta['umbral_f1']); q, cob, tam = conforme(modelo)
     conjunto = [T('Abandona')] * (1 - p <= q) + [T('Permanece')] * (p <= q)
     nivel = HOT if p >= u else BASE
     fw = shap_waterfall(v, base, lambda c: f'{label(c)} = {cat(X.iloc[0][c]) if isinstance(X.iloc[0][c], str) else X.iloc[0][c]}')
     out = [kpis(kpi(T('PROBABILIDAD DE ABANDONO'), round(p * 100, 1), nombre(modelo), 'hot' if p >= u else '', 1, ' %'),
-                kpi(T('DECISIÓN'), T('Alerta de retención') if p >= u else T('Sin alerta'), T('umbral F1 = {u}').format(u=f'{u:.3f}')),
+                kpi(T('DECISIÓN'), T('Alerta de retención') if p >= u else T('Sin alerta'), (T('umbral personalizado = {u}') if modo == 'custom' else T('umbral F1 = {u}')).format(u=f'{u:.3f}')),
                 kpi(T('CONJUNTO CONFORME 90 %'), ' + '.join(conjunto) if conjunto else '∅', T('cobertura en hold-out: {c}').format(c=f'{cob:.1%}')),
                 kpi(T('SHAP CALCULADO EN'), f'{seg:.1f} s', T('{n} clientes de referencia').format(n=M.SHAP_FONDO))),
            grid(card(html.H3(T('Probabilidad predicha'), className='chart-title'), graph(gauge(p, nombre(modelo), nivel), 260, False, {'l': 34, 'r': 34, 't': 50, 'b': 10}),
-                     html.P(T('La aguja es la probabilidad calibrada. Con el umbral que maximiza el F1 en validación ({u}), este cliente {d}.').format(u=f'{u:.2f}', d=T('recibe una alerta') if p >= u else T('no recibe alerta')), className='insight')),
+                     html.P(T('La aguja es la probabilidad calibrada. Con el umbral de alerta ({u}), este cliente {d}.').format(u=f'{u:.2f}', d=T('recibe una alerta') if p >= u else T('no recibe alerta')), className='insight')),
                 card(html.H3(T('Incertidumbre: predicción conforme'), className='chart-title'),
                      html.P(T('Con cobertura nominal del 90 %, el conjunto de predicción contiene las clases cuya puntuación de no conformidad no supera q = {q}. '
                               'En el hold-out, estos conjuntos contienen la clase real en el {c} de los clientes, con {t} clases en promedio.').format(q=f'{q:.3f}', c=f'{cob:.1%}', t=f'{tam:.2f}')),

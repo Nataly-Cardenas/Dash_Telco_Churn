@@ -41,7 +41,7 @@ Las secciones siguen los capítulos del Jupyter Book, con las mismas gráficas y
 - **Análisis exploratorio:** filtros globales y pestañas numeradas en el orden del dash: ETL y partición, univariado, bivariado (pruebas, Cramér V y Holm), multivariado (Q-Q, Spearman, matriz de dispersión, KDE), valores faltantes, resumen y explorador con descarga CSV.
 - **Preprocesamiento:** pasos del pipeline, validación cruzada, ablación y evaluación del modelo base en test (matriz de confusión y ROC animada).
 - **Modelado avanzado:** podio y siete pestañas: resultados por modelo (matriz de confusión, ROC, confiabilidad y robustez entre semillas), calibración Platt frente a isotónica, optimizadores (convergencia, diversidad, costo y tamaño del efecto frente a Grid), multifidelidad (Successive Halving), eficiencia computacional (perfilamiento, implementaciones alternativas, escalamiento en n y p, paralelismo y tabla estándar frente a optimizado), comparación estadística (Friedman, Nemenyi, DeLong y tamaños del efecto) e interpretabilidad (SHAP global, waterfall y LIME).
-- **Simulador:** herramienta creada para el dash (perfil de riesgo, clientes reales del test y laboratorio de umbral).
+- **Modelos finales → Predicción en vivo:** formulario con todas las variables, umbral de alerta ajustable, conjunto conforme y SHAP local.
 - **Conclusiones:** hallazgos, limitaciones, próximos pasos, reproducibilidad (con enlace al código del experimento) y enlace al paper.
 - **Autoras:** fotos, LinkedIn, GitHub y correo.
 
@@ -79,7 +79,6 @@ En Render, la variable se agrega en *Environment* (ya está declarada en `render
 - Índices históricos: 5.634 train y 1.409 test, sin solapamiento.
 - `TotalCharges` se convierte a numérico para el EDA y conserva sus 11 ausencias. La explicación del pipeline documenta su imputación determinista con cero por `tenure = 0`.
 - Los filtros superiores afectan al EDA y al explorador. **No recalculan ni reentrenan modelos publicados**.
-- El simulador de perfil muestra la tasa de abandono **observada** en clientes de entrenamiento parecidos; no es una predicción del modelo.
 - La tabla de 112 configuraciones representa media y desviación de cinco folds externos de la realización 0. `unidades.csv` contiene las 1.680 unidades (112 × 3 × 5).
 - El panel de optimización promedia el mejor F1 **interno** acumulado, sin confundirlo con el externo.
 - El laboratorio de umbral usa predicciones **nativas** guardadas de tres finalistas sobre el test histórico. Es didáctico: mover el umbral no valida una regla operativa.
@@ -102,7 +101,7 @@ En Render, la variable se agrega en *Environment* (ya está declarada en `render
 - `data/complementarios/`: resultados del entregable 3 (calibración isotónica, multifidelidad, eficiencia computacional y tamaños del efecto).
 - `assets/cover.js`: red de clientes, celular 3D y contadores animados (Dash lo carga automáticamente).
 - `data/`: CSV, interpretabilidad y textos originales necesarios, unos 8 MB.
-- `tests/test_dashboard.py`: integridad del split, métricas, filtros, simulador, páginas en ES/EN sin emojis, traducciones completas, descarga única del CSV, asistente y endpoints.
+- `tests/test_dashboard.py`: integridad del split, métricas, filtros, explorador libre, páginas en ES/EN sin emojis, traducciones completas, descarga única del CSV, asistente y endpoints.
 - `preview-desktop.png`, `preview-mobile.png`: capturas reales del dashboard.
 
 ## Verificar

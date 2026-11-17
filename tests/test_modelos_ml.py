@@ -19,7 +19,7 @@ def test_la_pestana_ml_se_pinta_en_ambos_idiomas():
 
 def test_las_secciones_originales_siguen_ahi():
     claves = {k for k, _, _ in app.NAV}
-    assert {'introduccion', 'eda', 'preprocesamiento', 'modelado', 'simulador', 'conclusiones', 'autoras'} <= claves
+    assert {'introduccion', 'eda', 'preprocesamiento', 'modelado', 'conclusiones', 'autoras'} <= claves
     assert 'modelos_ml' in claves
 
 
@@ -28,7 +28,9 @@ def js(x): return json.dumps(x, cls=PlotlyJSONEncoder)
 
 def test_prediccion_en_vivo_y_validaciones():
     vals = modelos_ml.cargar_cliente(int(a.TEST_IDS[3]))[:-1]
-    assert js(modelos_ml.predecir(1, 'logistic_splines', None, *vals, 'es'))
+    assert js(modelos_ml.predecir(1, 'logistic_splines', None, 'f1', .5, *vals, 'es'))
+    assert js(modelos_ml.predecir(1, 'logistic_splines', None, 'custom', .2, *vals, 'es'))
+    assert 'simulador' not in {k for k, _, _ in app.NAV}
     assert modelos_ml.cliente_azar(3) in set(a.TEST_IDS)
 
 
