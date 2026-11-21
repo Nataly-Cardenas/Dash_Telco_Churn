@@ -24,6 +24,7 @@ from icons import icon
 BOOK = 'https://nataly-cardenas.github.io/Telco_Churn_JBook/'
 REPO = 'https://github.com/Nataly-Cardenas/Telco_Churn_JBook'
 DASH_REPO = 'https://github.com/Nataly-Cardenas/Dash_Telco_Churn'
+VIDEO = 'https://www.youtube-nocookie.com/embed/QS8kNlcO98M'
 REPO_ML = 'https://github.com/Nataly-Cardenas/Telco_Churn_Entregable'
 PAPER = 'https://doi.org/10.5281/zenodo.24268653'
 
@@ -313,6 +314,9 @@ def introduccion(d):
                                      'así que los hallazgos son asociaciones y no causas.')), people_row()], className='hero-text'),
                   kpis(kpi(T('CLIENTES'), 7043, T('una fila por cliente')), kpi(T('ABANDONOS'), 1869, T('cancelaron en el último mes')),
                        kpi(T('TASA DE ABANDONO'), 26.5, T('la clase minoritaria'), 'hot', 1, ' %'), kpi(T('VARIABLES'), 19, T('predictoras candidatas')), cls='k2')], className='hero'),
+        subhead(T('Video explicativo'), T('El proyecto explicado en video.')),
+        html.Div(html.Iframe(src=VIDEO, title=T('Video explicativo del proyecto Telco Churn'), allow='accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen',
+                             referrerPolicy='strict-origin-when-cross-origin'), className='video-wrap'),
         subhead(T('Problema y relevancia')),
         card(html.P([T('La fuga de clientes es una de las principales fuentes de pérdida de ingresos en telecomunicaciones: retener a un cliente cuesta menos que adquirir uno nuevo y los contratos de servicio generan ingresos recurrentes '),
                      html.A('(Verbeke et al., 2012; ', href='https://doi.org/10.1016/j.ejor.2011.09.031', target='_blank'), html.A('Neslin et al., 2006)', href='https://doi.org/10.1509/jmkr.43.2.204', target='_blank'),

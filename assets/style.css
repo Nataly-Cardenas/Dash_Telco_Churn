@@ -866,3 +866,7 @@ html[data-theme=light] .num-input { background: #fff; border-color: #cbd5e1; col
 .filters { z-index: 40; }
 .cover-verdict { max-width: 560px; margin: -10px 0 22px; font-size: 13px; }
 .radio-row label { margin-right: 18px; font-size: 13px; }
+
+/* Video explicativo: 16:9 fluido, sin afectar la navegación */
+.video-wrap { position: relative; width: 100%; max-width: 960px; aspect-ratio: 16 / 9; margin: 8px auto 26px; border-radius: 16px; overflow: hidden; border: 1px solid var(--line2); background: #000; }
+.video-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }

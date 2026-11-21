@@ -1125,3 +1125,5 @@ EN.update({
     'La aguja es la probabilidad calibrada. Con el umbral de alerta ({u}), este cliente {d}.': 'The needle is the calibrated probability. With the alert threshold ({u}), this customer {d}.',
     'Conclusiones del proyecto; las del modelo propio están en el capítulo 9 del libro.': 'Project conclusions; those of our own model are in chapter 9 of the book.',
 })
+
+EN.update({'Video explicativo': 'Explainer video', 'El proyecto explicado en video.': 'The project explained on video.', 'Video explicativo del proyecto Telco Churn': 'Telco Churn project explainer video'})
