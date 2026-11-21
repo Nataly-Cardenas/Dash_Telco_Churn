@@ -1127,3 +1127,4 @@ EN.update({
 })
 
 EN.update({'Video explicativo': 'Explainer video', 'El proyecto explicado en video.': 'The project explained on video.', 'Video explicativo del proyecto Telco Churn': 'Telco Churn project explainer video'})
+EN.update({'Video': 'Video'})

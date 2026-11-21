@@ -870,3 +870,7 @@ html[data-theme=light] .num-input { background: #fff; border-color: #cbd5e1; col
 /* Video explicativo: 16:9 fluido, sin afectar la navegación */
 .video-wrap { position: relative; width: 100%; max-width: 960px; aspect-ratio: 16 / 9; margin: 8px auto 26px; border-radius: 16px; overflow: hidden; border: 1px solid var(--line2); background: #000; }
 .video-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+.grid.g5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+@media (max-width: 1100px) { .grid.g5 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .grid.g5 { grid-template-columns: 1fr; } }

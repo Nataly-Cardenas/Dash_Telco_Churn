@@ -864,7 +864,8 @@ def autoras(d):
     people = [('laura.jpg', 'Laura S. Rivera Figueredo', 'sriveral@uninorte.edu.co', 'https://github.com/lauraformore', 'https://www.linkedin.com/in/laura-s-rivera-figueredo-862451315/'),
               ('nataly.jpg', 'Natalý A. Cárdenas Izaquita', 'nizaquita@uninorte.edu.co', 'https://github.com/Nataly-Cardenas', 'https://www.linkedin.com/in/n%C3%A1taly-c%C3%A1rdenas-iz%C3%A1quita')]
     res = [('code', T('Código y notebooks'), T('Repositorio Telco_Churn_JBook'), REPO), ('sliders', T('Este dashboard'), T('Repositorio Dash_Telco_Churn'), DASH_REPO),
-           ('table', T('Conjunto de datos'), 'Kaggle · Telco Customer Churn (IBM)', 'https://www.kaggle.com/datasets/blastchar/telco-customer-churn'), ('file', 'Paper', T('Versión web y PDF'), BOOK + 'paper.html')]
+           ('table', T('Conjunto de datos'), 'Kaggle · Telco Customer Churn (IBM)', 'https://www.kaggle.com/datasets/blastchar/telco-customer-churn'), ('file', 'Paper', T('Versión web y PDF'), BOOK + 'paper.html'),
+           ('play', T('Video'), T('El proyecto explicado en video.'), 'https://www.youtube.com/watch?v=QS8kNlcO98M')]
     return html.Div([page_head('autoras', T('El equipo detrás del proyecto y los recursos para profundizar.')),
         html.Div([html.Div([html.Div(html.Img(src=app.get_asset_url('img/' + photo), alt=T('Foto de {n}').format(n=n)), className='avatar'), html.H2(n),
                             html.P(T('Ciencia de Datos · Universidad del Norte'), className='muted'),
@@ -875,7 +876,7 @@ def autoras(d):
         html.P(T('Departamento de Matemáticas, Física y Ciencia de Datos · Universidad del Norte · Barranquilla, Colombia'), className='center muted'),
         html.A([html.Span(icon('book'), className='book-icon'), html.Div([eyebrow('JUPYTER BOOK'), html.H2(T('Lee el proyecto completo')), html.P(T('Introducción, marco teórico, EDA, preprocesamiento, modelado y paper.'))]),
                 html.Span(icon('arrow'), className='book-arrow')], href=BOOK, target='_blank', className='book-cta'),
-        grid(*[html.A([html.H4([icon(i), t]), html.P(s)], href=u, target='_blank', className='res') for i, t, s, u in res], cols=4)])
+        grid(*[html.A([html.H4([icon(i), t]), html.P(s)], href=u, target='_blank', className='res') for i, t, s, u in res], cols=5)])
 
 
 def pretty(feature):

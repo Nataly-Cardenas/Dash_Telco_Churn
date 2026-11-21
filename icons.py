@@ -7,6 +7,7 @@ PATHS = {
     'chart': 'M3 3v18h18 M8 17v-6 M13 17V7 M18 17v-4',
     'flask': 'M9 3h6 M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3 M7.5 15h9',
     'trophy': 'M8 21h8 M12 17v4 M7 4h10v5a5 5 0 0 1-10 0z M17 6h3v2a3 3 0 0 1-3 3 M7 6H4v2a3 3 0 0 0 3 3',
+    'play': 'M5 4l14 8-14 8z',
     'sliders': 'M4 6h16 M4 12h16 M4 18h16 M14 4v4 M8 10v4 M16 16v4',
     'search': 'M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14z M20 20l-4-4',
     'flag': 'M5 21V4 M5 4h12l-2 4 2 4H5',
