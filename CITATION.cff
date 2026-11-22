@@ -10,6 +10,6 @@ authors:
     given-names: "Natalý A."
     affiliation: "Universidad del Norte"
 repository-code: "https://github.com/Nataly-Cardenas/Dash_Telco_Churn"
-url: "https://dash-telco-churn-ml.onrender.com/#introduccion"
+url: "https://dash-telco-churn-ml.onrender.com/#inicio"
 license: MIT
 doi: 10.5281/zenodo.24268653
