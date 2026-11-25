@@ -178,11 +178,13 @@
     var suffix = el.dataset.suffix || '', prefix = el.dataset.prefix || '';
     var fmt = function (v) { return prefix + v.toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec }) + suffix; };
     if (reduced) { el.textContent = fmt(target); return; }
-    var start = null, dur = 1600;
+    el.textContent = fmt(target);                          // nunca se ve «0.00000» mientras carga: el valor final ya está escrito
+    var from = dec >= 3 ? .9 : 0;                           // los indicadores con decimales apenas «respiran» hasta su valor
+    var start = null, dur = dec >= 3 ? 700 : 1600;
     function step(ts) {
       if (!start) start = ts;
       var k = Math.min(1, (ts - start) / dur), e = 1 - Math.pow(1 - k, 3);
-      el.textContent = fmt(target * e);
+      el.textContent = fmt(target * (from + (1 - from) * e));
       if (k < 1) requestAnimationFrame(step);
     }
     requestAnimationFrame(step);

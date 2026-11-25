@@ -14,7 +14,6 @@ $\pi_{km}$ se estiman por máxima posterior con EM, con un prior que los encoge 
 |---|---|
 | Autoras | Laura S. Rivera Figueredo y Natalý A. Cárdenas Izaquita (Universidad del Norte) |
 | Versión | `protocolo-v1` (protocolo congelado el 2026-11-08) |
-| DOI (Zenodo) | [10.5281/zenodo.24268653](https://doi.org/10.5281/zenodo.24268653), release `v1.0.0` |
 | Código | `src/original_model.py`, clase `RegionalMAPEM` (interfaz de scikit-learn) |
 | Pruebas | `tests/test_original_model.py` (12 pruebas) |
 | Hiperparámetros propios | $K \in [1, 8]$, $c \in [0{,}01;\,200]$ (escala log), covarianza `diag` o `full` |
@@ -45,7 +44,7 @@ pruebas del protocolo (capítulo 6 del libro). En los conjuntos adicionales es e
 
 ## Limitaciones
 
-- Necesita a los 11 expertos para predecir: unos 6 MB comprimidos (23 MB sin comprimir) y el costo de inferencia de Random Forest y SVM.
+- Necesita a los 11 expertos para predecir: unos 23 MB serializados y el costo de inferencia de Random Forest y SVM.
 - En Telco las regiones no aportan frente a los pesos globales; el modelo se comporta como un ensamble ponderado.
 - Las probabilidades se evaluaron en un solo operador y una sola época; con otra población hay que volver a validarlo.
 - Al 90 % de cobertura, un tercio de los clientes recibe un conjunto conforme con las dos clases: el modelo no tiene
