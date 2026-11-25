@@ -1,6 +1,6 @@
 /* Antena, la asistente de Señal perdida: un robot de telecomunicaciones con brillo neón.
    - Dibuja el personaje (SVG animado) en cada elemento .antena-bot de la página.
-   - Saluda con voz femenina al abrir el chat (Web Speech API), en español o inglés según el idioma del dash.
+   - Saluda con voz femenina al abrir el chat y lee en voz alta cada respuesta (Web Speech API), en español o inglés según el idioma del dash.
    - De vez en cuando dice algo en un globo de diálogo junto al botón.
    El botón del altavoz la silencia y la elección se guarda en el navegador. */
 (function () {
@@ -70,7 +70,7 @@
   // Cada dibujo usa ids propios: si dos SVG comparten ids de degradado y el primero está oculto, Chrome no pinta el segundo.
   var count = 0;
   function draw(el) { if (!el.dataset.drawn) { var n = 'ab' + (++count) + '-'; el.innerHTML = SVG.replace(/ab-/g, n); el.dataset.drawn = '1'; } }
-  function scan() { document.querySelectorAll('.antena-bot').forEach(draw); paintMute(); }
+  function scan() { document.querySelectorAll('.antena-bot').forEach(draw); paintMute(); watchReplies(); }
 
   /* ---------- voz ---------- */
   function muted() { try { return localStorage.getItem(key) === '1'; } catch (e) { return false; } }
@@ -89,18 +89,38 @@
 
   function speaking(on) { document.querySelectorAll('.antena-bot').forEach(function (f) { f.classList.toggle('speaking', on); }); }
 
-  function greet(retry) {
-    if (!synth || muted()) return;
+  // Lee en voz alta un texto con la voz de Antena: el saludo o cada respuesta del chat.
+  function say(text, retry) {
+    if (!synth || muted() || !text) return;
     if (!synth.getVoices().length && !retry) {          // las voces cargan de forma asíncrona la primera vez
-      var done = false, go = function () { if (!done) { done = true; greet(true); } };
+      var done = false, go = function () { if (!done) { done = true; say(text, true); } };
       synth.addEventListener('voiceschanged', go, { once: true }); setTimeout(go, 700); return;
     }
     synth.cancel();
-    var lang = language(), u = new SpeechSynthesisUtterance(GREET[lang]), v = pickVoice(lang);
+    var lang = language(), u = new SpeechSynthesisUtterance(text), v = pickVoice(lang);
     if (v) { u.voice = v; u.lang = v.lang; } else { u.lang = lang === 'en' ? 'en-US' : 'es-MX'; }
     u.rate = 1; u.pitch = 1.12;
     u.onstart = function () { speaking(true); }; u.onend = u.onerror = function () { speaking(false); };
     synth.speak(u);
+  }
+  function greet() { say(GREET[language()]); }
+
+  // Texto de una respuesta listo para leer: sin enlaces, emojis ni símbolos de formato.
+  function clean(t) {
+    return (t || '').replace(/https?:\/\/\S+/g, '').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, '')
+      .replace(/[*_#`>|•]+/g, ' ').replace(/\s+/g, ' ').trim();
+  }
+  // Cuando el chat agrega una respuesta nueva de Antena, la lee en voz alta.
+  // Al cargar, al cambiar de idioma o al empezar una conversación nueva no lee nada: solo actualiza la cuenta.
+  var replies = -1;
+  function watchReplies() {
+    var box = document.getElementById('chat-messages'); if (!box) return;
+    var msgs = box.querySelectorAll('.msg.assistant'), n = msgs.length;
+    if (replies >= 0 && n > replies) {
+      var c = document.getElementById('chat');
+      if (c && c.classList.contains('open')) say(clean(msgs[n - 1].innerText));
+    }
+    replies = n;
   }
   function stop() { if (synth) synth.cancel(); speaking(false); }
 
