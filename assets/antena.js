@@ -112,15 +112,20 @@
   }
   // Cuando el chat agrega una respuesta nueva de Antena, la lee en voz alta.
   // Al cargar, al cambiar de idioma o al empezar una conversación nueva no lee nada: solo actualiza la cuenta.
-  var replies = -1;
+  // dcc.Markdown pinta el texto un instante después de crear la burbuja: la respuesta queda pendiente
+  // hasta que tenga texto, y entonces se lee.
+  var replies = -1, pending = false;
   function watchReplies() {
     var box = document.getElementById('chat-messages'); if (!box) return;
     var msgs = box.querySelectorAll('.msg.assistant'), n = msgs.length;
-    if (replies >= 0 && n > replies) {
-      var c = document.getElementById('chat');
-      if (c && c.classList.contains('open')) say(clean(msgs[n - 1].innerText));
-    }
+    if (replies >= 0 && n > replies) pending = true;
+    else if (n < replies) pending = false;
     replies = n;
+    if (!pending || !n) return;
+    var text = clean(msgs[n - 1].innerText); if (!text) return;
+    pending = false;
+    var c = document.getElementById('chat');
+    if (c && c.classList.contains('open')) say(text);
   }
   function stop() { if (synth) synth.cancel(); speaking(false); }
 
